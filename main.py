@@ -9,9 +9,15 @@ import qt_material
 
 class TableWidget(QTableWidget):
     def __init__(self):
+        print("TableWidget init")
         super().__init__()
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
+        self.load_output("data.out")
+        self.setEditTriggers(QTableWidget.NoEditTriggers)
+
+    def reload(self):
+        print("TableWidget reload")
         self.load_output("data.out")
 
     def load_output(self, file_path):
@@ -61,6 +67,9 @@ class TableWidget(QTableWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        # Use a table widget as central widget
+        # self.table_widget = TableWidget()
+        # self.setCentralWidget(self.table_widget)
 
         # Add drag and drop functionality
         self.setAcceptDrops(True)
@@ -88,19 +97,27 @@ class MainWindow(QMainWindow):
 
     def run_sum_dirac_defcoef(self, file_path, molecule_name):
         current_dir = os.getcwd()
-        sum_dirac_defcoef_path = os.path.join(current_dir, "summarize_dirac_dfcoef_coefficients", "sum_dirac_dfcoef")
+        sum_dirac_defcoef_path = os.path.join(current_dir, "sum_dirac_dfcoef")
         process = subprocess.run(f"python {sum_dirac_defcoef_path} -i {file_path} -m {molecule_name} -d 3 -c > data.out", shell=True)
         # Check the status of the subprocess named process
         if process.returncode != 0:
             QMessageBox.critical(self, "Error", f"An error has ocurred while running the sum_dirac_dfcoef program. Please, check the output file. path: {file_path}\nExecuted command: {sum_dirac_defcoef_path} -i {file_path} -m {molecule_name} -d 3 -c")
+
+    def reload_table(self):
+        try:
+            if self.table_widget:
+                self.table_widget.reload()
+        except AttributeError:
+            self.table_widget = TableWidget()
+        # self.table_widget = TableWidget()
+        self.setCentralWidget(self.table_widget)
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if (event.mimeData().hasText()):
             event.accept()
 
     def dropEvent(self, event="") -> None:
-        self.table_widget = TableWidget()
-        self.setCentralWidget(self.table_widget)
+        self.reload_table()
 
 
 if __name__ == "__main__":
