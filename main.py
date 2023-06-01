@@ -88,7 +88,7 @@ class MainWindow(QMainWindow):
                 return
             # Run sum_dirac_defcoef subprocess
             self.run_sum_dirac_defcoef(file_path, molecule_name)
-            self.dropEvent()
+            self.reload_table()
 
     def question_molecule(self, file_path):
         # Show a question message box that allow the user to write the molecule name
