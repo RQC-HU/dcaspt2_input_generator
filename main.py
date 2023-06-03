@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QColor, QAction, QDragEnterEvent, QGuiApplication, QScreen
+from PySide6.QtGui import QAction, QDragEnterEvent, QGuiApplication, QScreen
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -19,14 +19,9 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-import qt_material
+from config import colors
 
-
-# Color
-core = QColor("#D3E8EB")
-inactive = QColor("#D5ECD4")
-active = QColor("#F4D9D9")
-secondary = QColor("#FDF4CD")
+# import qt_material
 
 
 class TableWidget(QTableWidget):
@@ -63,13 +58,13 @@ class TableWidget(QTableWidget):
                     item = QTableWidgetItem(text)
                     self.setItem(row, column, item)
                     if row < 10:
-                        self.item(row, column).setBackground(core)
+                        self.item(row, column).setBackground(colors.core)
                     elif row < 20:
-                        self.item(row, column).setBackground(inactive)
+                        self.item(row, column).setBackground(colors.inactive)
                     elif row < 30:
-                        self.item(row, column).setBackground(active)
+                        self.item(row, column).setBackground(colors.active)
                     else:
-                        self.item(row, column).setBackground(secondary)
+                        self.item(row, column).setBackground(colors.secondary)
             # Header data
             header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
             for idx in range(len(header_data), len_column):
@@ -86,11 +81,13 @@ class TableWidget(QTableWidget):
         pale_green_action = QAction("inactive(Pale Green)", self)
         pale_pink_action = QAction("active(Pale Pink)", self)
         pale_yellow_action = QAction("secondary(Pale Yellow)", self)
-        pale_blue_action.triggered.connect(lambda: self.change_background_color(core))
-        pale_green_action.triggered.connect(lambda: self.change_background_color(inactive))
-        pale_pink_action.triggered.connect(lambda: self.change_background_color(active))
+        pale_blue_action.triggered.connect(lambda: self.change_background_color(colors.core))
+        pale_green_action.triggered.connect(
+            lambda: self.change_background_color(colors.inactive)
+        )
+        pale_pink_action.triggered.connect(lambda: self.change_background_color(colors.active))
         pale_yellow_action.triggered.connect(
-            lambda: self.change_background_color(secondary)
+            lambda: self.change_background_color(colors.secondary)
         )
         menu.addAction(pale_blue_action)
         menu.addAction(pale_green_action)
@@ -100,9 +97,7 @@ class TableWidget(QTableWidget):
 
     def change_background_color(self, color):
         indexes = self.selectedIndexes()
-        rows = set()
-        for index in indexes:
-            rows.add(index.row())
+        rows = set([index.row() for index in indexes])
         for row in rows:
             for column in range(self.columnCount()):
                 self.item(row, column).setBackground(color)
@@ -193,7 +188,9 @@ class MainWindow(QMainWindow):
 
     def runSumDiracDFCOEF(self, file_path, molecule_name):
         current_dir = os.getcwd()
-        sum_dirac_defcoef_path = os.path.join(current_dir, "sum_dirac_dfcoef")
+        sum_dirac_defcoef_path = os.path.join(
+            current_dir, "summarize_dirac_dfcoef_coefficients", "sum_dirac_dfcoef"
+        )
         process = subprocess.run(
             f"python {sum_dirac_defcoef_path} -i {file_path} -m {molecule_name} -d 3 -c > data.out",
             shell=True,
@@ -233,13 +230,13 @@ class WidgetController:
     def onTableWidgetColorChanged(self):
         color_count = [0, 0, 0, 0]  # core, inactive, active, secondary
         for row in range(self.table_widget.rowCount()):
-            if self.table_widget.item(row, 0).background() == core:
+            if self.table_widget.item(row, 0).background() == colors.core:
                 color_count[0] += 1
-            elif self.table_widget.item(row, 0).background() == inactive:
+            elif self.table_widget.item(row, 0).background() == colors.inactive:
                 color_count[1] += 1
-            elif self.table_widget.item(row, 0).background() == active:
+            elif self.table_widget.item(row, 0).background() == colors.active:
                 color_count[2] += 1
-            elif self.table_widget.item(row, 0).background() == secondary:
+            elif self.table_widget.item(row, 0).background() == colors.secondary:
                 color_count[3] += 1
         self.input_layout.core_line_edit.setText(str(color_count[0]))
         self.input_layout.core_line_edit.update()
