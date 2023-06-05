@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction, QDragEnterEvent, QGuiApplication, QScreen
+from PySide6.QtGui import QAction, QDragEnterEvent, QScreen
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -15,7 +15,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QLineEdit,
     QGridLayout,
-    QSplitter,
     QVBoxLayout,
     QWidget,
 )
@@ -24,15 +23,28 @@ from config import colors
 # import qt_material
 
 
+# TableWidget is the widget that displays the output data
+# It is a subclass of QTableWidget
+# It has the following features:
+# 1. Load the output data from the file "data.out"
+# 2. Reload the output data
+# 3. Show the context menu when right click
+# 4. Change the background color of the selected cells
+# 5. Emit the colorChanged signal when the background color is changed
+# Display the output data like the following:
+# gerade/ungerade    no. of spinor    energy (a.u.)    percentage 1    AO type 1    percentage 2    AO type 2    ...
+# E1u                1                -9.631           33.333          B3uArpx      33.333          B2uArpy      ...
+# E1u                2                -9.546           50.000          B3uArpx      50.000          B2uArpy      ...
+# ...
 class TableWidget(QTableWidget):
     colorChanged = Signal()
 
     def __init__(self):
         print("TableWidget init")
         super().__init__()
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)  # type: ignore
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
 
     def reload(self):
         print("TableWidget reload")
@@ -69,18 +81,18 @@ class TableWidget(QTableWidget):
             header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
             for idx in range(len(header_data), len_column):
                 if idx % 2 == 0:
-                    header_data.append(f"percentage {(idx-3)//2 + 1}")
+                    header_data.append(f"percentage {(idx-len(header_data))//2 + 1}")
                 else:
-                    header_data.append(f"AO type {(idx-3)//2 + 1}")
+                    header_data.append(f"AO type {(idx-len(header_data))//2 + 1}")
             self.setHorizontalHeaderLabels(header_data)
         self.colorChanged.emit()
 
     def show_context_menu(self, position):
         menu = QMenu()
-        pale_blue_action = QAction("core(Pale Blue)", self)
-        pale_green_action = QAction("inactive(Pale Green)", self)
-        pale_pink_action = QAction("active(Pale Pink)", self)
-        pale_yellow_action = QAction("secondary(Pale Yellow)", self)
+        pale_blue_action = QAction(colors.core_message, self)
+        pale_green_action = QAction(colors.inactive_message, self)
+        pale_pink_action = QAction(colors.active_message, self)
+        pale_yellow_action = QAction(colors.secondary_message, self)
         pale_blue_action.triggered.connect(lambda: self.change_background_color(colors.core))
         pale_green_action.triggered.connect(
             lambda: self.change_background_color(colors.inactive)
