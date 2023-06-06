@@ -93,11 +93,15 @@ class TableWidget(QTableWidget):
         pale_green_action = QAction(colors.inactive_message, self)
         pale_pink_action = QAction(colors.active_message, self)
         pale_yellow_action = QAction(colors.secondary_message, self)
-        pale_blue_action.triggered.connect(lambda: self.change_background_color(colors.core))
+        pale_blue_action.triggered.connect(
+            lambda: self.change_background_color(colors.core)
+        )
         pale_green_action.triggered.connect(
             lambda: self.change_background_color(colors.inactive)
         )
-        pale_pink_action.triggered.connect(lambda: self.change_background_color(colors.active))
+        pale_pink_action.triggered.connect(
+            lambda: self.change_background_color(colors.active)
+        )
         pale_yellow_action.triggered.connect(
             lambda: self.change_background_color(colors.secondary)
         )
