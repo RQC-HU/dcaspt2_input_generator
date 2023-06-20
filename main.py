@@ -211,11 +211,8 @@ class MainWindow(QMainWindow):
 
     def runSumDiracDFCOEF(self, file_path, molecule_name):
         current_dir = os.getcwd()
-        sum_dirac_defcoef_path = os.path.join(
-            current_dir, "summarize_dirac_dfcoef_coefficients", "sum_dirac_dfcoef"
-        )
         process = subprocess.run(
-            f"python {sum_dirac_defcoef_path} -i {file_path} -m {molecule_name} -d 3 -c > data.out",
+            f"sum_dirac_dfcoef -i {file_path} -m {molecule_name} -d 3 -c > data.out",
             shell=True,
         )
         # Check the status of the subprocess named process
