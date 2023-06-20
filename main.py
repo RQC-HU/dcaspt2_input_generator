@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from toggle import AnimatedToggle
 from config import colors
 
 # import qt_material
@@ -151,6 +152,12 @@ class InputLayout(QGridLayout):
         self.addWidget(self.inactive_line_edit, 1, 1)
         self.addWidget(self.active_line_edit, 1, 2)
         self.addWidget(self.secondary_line_edit, 1, 3)
+
+        # Add toggle button
+        self.toggle_button = AnimatedToggle(
+            pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4"
+        )
+        self.addWidget(self.toggle_button, 2, 0, 1, 4)
 
 
 class MainWindow(QMainWindow):
