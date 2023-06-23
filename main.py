@@ -1,9 +1,9 @@
 import os
 import subprocess
 import sys
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QAction, QDragEnterEvent, QScreen
-from PySide6.QtWidgets import (
+from qtpy.QtCore import Qt, Signal
+from qtpy.QtGui import QAction, QDragEnterEvent, QScreen
+from qtpy.QtWidgets import (
     QApplication,
     QMainWindow,
     QTableWidget,
