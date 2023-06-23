@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         self.open_action_dirac = QAction("Open with DIRAC output", self)
         self.open_action_dirac.triggered.connect(self.selectFileDirac)
         self.file_menu.addAction(self.open_action_dirac)
-        self.open_action_dfcoef = QAction("Open with sum_dirac_dfcoef", self)
+        self.open_action_dfcoef = QAction("Open with sum_dirac_dfcoef output", self)
         self.open_action_dfcoef.triggered.connect(self.selectFileDFCOEF)
         self.file_menu.addAction(self.open_action_dfcoef)
 
