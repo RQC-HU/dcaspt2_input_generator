@@ -1,1 +1,3 @@
+Pyside6
+qtpy
 sum-dirac-dfcoef
