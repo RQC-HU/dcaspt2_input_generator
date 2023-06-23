@@ -47,9 +47,9 @@ class TableWidget(QTableWidget):
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
 
-    def reload(self):
+    def reload(self, output_file_path: str):
         print("TableWidget reload")
-        self.load_output("data.out")
+        self.load_output(output_file_path)
 
     def load_output(self, file_path):
         with open(file_path, newline="") as output:
@@ -169,9 +169,12 @@ class MainWindow(QMainWindow):
         # Show the header bar
         self.menu_bar = self.menuBar()
         self.file_menu = self.menu_bar.addMenu("File")
-        self.open_action = QAction("Open", self)
-        self.open_action.triggered.connect(self.selectFile)
-        self.file_menu.addAction(self.open_action)
+        self.open_action_dirac = QAction("Open with DIRAC output", self)
+        self.open_action_dirac.triggered.connect(self.selectFileDirac)
+        self.file_menu.addAction(self.open_action_dirac)
+        self.open_action_dfcoef = QAction("Open with sum_dirac_dfcoef", self)
+        self.open_action_dfcoef.triggered.connect(self.selectFileDFCOEF)
+        self.file_menu.addAction(self.open_action_dfcoef)
 
         # Create an instance of InputLayout
         # self.input_layout = InputLayout()
@@ -188,7 +191,7 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
-    def selectFile(self):
+    def selectFileDirac(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)"
         )
@@ -198,7 +201,14 @@ class MainWindow(QMainWindow):
                 return
             # Run sum_dirac_defcoef subprocess
             self.runSumDiracDFCOEF(file_path, molecule_name)
-            self.reloadTable()
+            self.reloadTable(molecule_name+".out")
+
+    def selectFileDFCOEF(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)"
+        )
+        if file_path:
+            self.reloadTable(file_path)
 
     def questionMolecule(self):
         # Show a question message box that allow the user to write the molecule name
@@ -210,9 +220,9 @@ class MainWindow(QMainWindow):
         return molecule_name, ok
 
     def runSumDiracDFCOEF(self, file_path, molecule_name):
-        current_dir = os.getcwd()
+        command = f"sum_dirac_dfcoef -i {file_path} -m {molecule_name} -d 3 -c"
         process = subprocess.run(
-            f"sum_dirac_dfcoef -i {file_path} -m {molecule_name} -d 3 -c > data.out",
+            command,
             shell=True,
         )
         # Check the status of the subprocess named process
@@ -220,13 +230,13 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(
                 self,
                 "Error",
-                f"An error has ocurred while running the sum_dirac_dfcoef program. Please, check the output file. path: {file_path}\nExecuted command: {sum_dirac_defcoef_path} -i {file_path} -m {molecule_name} -d 3 -c",
+                f"An error has ocurred while running the sum_dirac_dfcoef program. Please, check the output file. path: {file_path}\nExecuted command: {command}",
             )
 
-    def reloadTable(self):
+    def reloadTable(self, output_path: str):
         try:
             if self.table_widget:
-                self.table_widget.reload()
+                self.table_widget.reload(output_path)
         except AttributeError:
             self.table_widget = TableWidget()
 
