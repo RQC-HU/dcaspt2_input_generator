@@ -94,18 +94,10 @@ class TableWidget(QTableWidget):
         pale_green_action = QAction(colors.inactive_message, self)
         pale_pink_action = QAction(colors.active_message, self)
         pale_yellow_action = QAction(colors.secondary_message, self)
-        pale_blue_action.triggered.connect(
-            lambda: self.change_background_color(colors.core)
-        )
-        pale_green_action.triggered.connect(
-            lambda: self.change_background_color(colors.inactive)
-        )
-        pale_pink_action.triggered.connect(
-            lambda: self.change_background_color(colors.active)
-        )
-        pale_yellow_action.triggered.connect(
-            lambda: self.change_background_color(colors.secondary)
-        )
+        pale_blue_action.triggered.connect(lambda: self.change_background_color(colors.core))
+        pale_green_action.triggered.connect(lambda: self.change_background_color(colors.inactive))
+        pale_pink_action.triggered.connect(lambda: self.change_background_color(colors.active))
+        pale_yellow_action.triggered.connect(lambda: self.change_background_color(colors.secondary))
         menu.addAction(pale_blue_action)
         menu.addAction(pale_green_action)
         menu.addAction(pale_pink_action)
@@ -154,9 +146,7 @@ class InputLayout(QGridLayout):
         self.addWidget(self.secondary_line_edit, 1, 3)
 
         # Add toggle button
-        self.toggle_button = AnimatedToggle(
-            pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4"
-        )
+        self.toggle_button = AnimatedToggle(pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4")
         self.addWidget(self.toggle_button, 2, 0, 1, 4)
 
 
@@ -192,21 +182,17 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     def selectFileDirac(self):
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)"
-        )
+        file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
             molecule_name, ok = self.questionMolecule()
             if not ok:
                 return
             # Run sum_dirac_defcoef subprocess
             self.runSumDiracDFCOEF(file_path, molecule_name)
-            self.reloadTable(molecule_name+".out")
+            self.reloadTable(molecule_name + ".out")
 
     def selectFileDFCOEF(self):
-        file_path, _ = QFileDialog.getOpenFileName(
-            self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)"
-        )
+        file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
             self.reloadTable(file_path)
 
@@ -286,9 +272,7 @@ if __name__ == "__main__":
     # stylesheet = app.styleSheet()
     # app.setStyleSheet(stylesheet + "QTableView {background-color: #514;}")
     window = MainWindow()
-    width, height = int(
-        QScreen.availableGeometry(QApplication.primaryScreen()).width() * (2 / 3)
-    ), int(QScreen.availableGeometry(QApplication.primaryScreen()).height() * (2 / 3))
+    width, height = int(QScreen.availableGeometry(QApplication.primaryScreen()).width() * (2 / 3)), int(QScreen.availableGeometry(QApplication.primaryScreen()).height() * (2 / 3))
     window.resize(width, height)
     window.show()
     sys.exit(app.exec())
