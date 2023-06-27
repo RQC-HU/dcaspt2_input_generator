@@ -19,6 +19,8 @@ from PySide6.QtCore import (
 from qtpy.QtWidgets import QCheckBox
 from qtpy.QtGui import QColor, QBrush, QPaintEvent, QPen, QPainter
 
+from config import is_display_mode
+
 
 class Toggle(QCheckBox):
     _transparent_pen = QPen(Qt.transparent)  # type: ignore
@@ -143,8 +145,10 @@ class AnimatedToggle(Toggle):
         self.animations_group.stop()
         if value:
             self.animation.setEndValue(1)
+            is_display_mode.set_display_mode(True)
         else:
             self.animation.setEndValue(0)
+            is_display_mode.set_display_mode(False)
         self.animations_group.start()
 
     def paintEvent(self, e: QPaintEvent):

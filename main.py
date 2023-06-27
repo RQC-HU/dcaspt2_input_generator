@@ -18,7 +18,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 from toggle import AnimatedToggle
-from config import colors
+from config import colors, is_display_mode
 from color_info import color_info
 
 # import qt_material
@@ -159,6 +159,11 @@ class InputLayout(QGridLayout):
         # Add toggle button
         self.toggle_button = AnimatedToggle(pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4")
         self.addWidget(self.toggle_button, 2, 0, 1, 4)
+        # If the toggle button is clicked, flip the display mode
+        self.toggle_button.clicked.connect(self.flip_display_mode)
+
+    def flip_display_mode(self):
+        print(f"flip display mode, {is_display_mode.get_display_mode()}")
 
 
 class MainWindow(QMainWindow):
@@ -259,14 +264,15 @@ class WidgetController:
     def onTableWidgetColorChanged(self):
         color_count = [0, 0, 0, 0]  # core, inactive, active, secondary
         for row in range(self.table_widget.rowCount()):
-            if self.table_widget.item(row, 0).background() == colors.core:
-                color_count[0] += 1
-            elif self.table_widget.item(row, 0).background() == colors.inactive:
-                color_count[1] += 1
-            elif self.table_widget.item(row, 0).background() == colors.active:
-                color_count[2] += 1
-            elif self.table_widget.item(row, 0).background() == colors.secondary:
-                color_count[3] += 1
+            color = self.table_widget.item(row, 0).background()
+            if color == colors.core:
+                color_count[0] += 2
+            elif color == colors.inactive:
+                color_count[1] += 2
+            elif color == colors.active:
+                color_count[2] += 2
+            elif color == colors.secondary:
+                color_count[3] += 2
         self.input_layout.core_line_edit.setText(str(color_count[0]))
         self.input_layout.core_line_edit.update()
 

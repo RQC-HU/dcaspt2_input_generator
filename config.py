@@ -35,3 +35,17 @@ class Color:
 
 
 colors = Color()
+
+
+class DisplayMode:
+    def __init__(self):
+        self.display_mode = False
+
+    def get_display_mode(self):
+        return self.display_mode
+
+    def set_display_mode(self, mode: bool):
+        self.display_mode = mode
+
+
+is_display_mode = DisplayMode()
