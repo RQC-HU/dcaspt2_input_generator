@@ -91,18 +91,28 @@ class TableWidget(QTableWidget):
 
     def show_context_menu(self, position):
         menu = QMenu()
-        pale_blue_action = QAction(colors.core_message, self)
-        pale_green_action = QAction(colors.inactive_message, self)
-        pale_pink_action = QAction(colors.active_message, self)
-        pale_yellow_action = QAction(colors.secondary_message, self)
-        pale_blue_action.triggered.connect(lambda: self.change_background_color(colors.core))
-        pale_green_action.triggered.connect(lambda: self.change_background_color(colors.inactive))
-        pale_pink_action.triggered.connect(lambda: self.change_background_color(colors.active))
-        pale_yellow_action.triggered.connect(lambda: self.change_background_color(colors.secondary))
-        menu.addAction(pale_blue_action)
-        menu.addAction(pale_green_action)
-        menu.addAction(pale_pink_action)
-        menu.addAction(pale_yellow_action)
+        ranges = self.selectedRanges()
+        selected_rows: set[int] = set()
+        for r in ranges:
+            selected_rows.update(range(r.topRow(), r.bottomRow() + 1))
+
+        # Narrow down the color options
+        if color_info.index_info["inactive"][0] in selected_rows:
+            core_action = QAction(colors.core_message, self)
+            core_action.triggered.connect(lambda: self.change_background_color(colors.core))
+            menu.addAction(core_action)
+        if color_info.index_info["core"][1] in selected_rows or color_info.index_info["active"][0] in selected_rows:
+            inactive_action = QAction(colors.inactive_message, self)
+            inactive_action.triggered.connect(lambda: self.change_background_color(colors.inactive))
+            menu.addAction(inactive_action)
+        if color_info.index_info["inactive"][1] in selected_rows or color_info.index_info["secondary"][0] in selected_rows:
+            active_action = QAction(colors.active_message, self)
+            active_action.triggered.connect(lambda: self.change_background_color(colors.active))
+            menu.addAction(active_action)
+        if color_info.index_info["active"][1] in selected_rows:
+            secondary_action = QAction(colors.secondary_message, self)
+            secondary_action.triggered.connect(lambda: self.change_background_color(colors.secondary))
+            menu.addAction(secondary_action)
         menu.exec(self.viewport().mapToGlobal(position))
 
     def change_background_color(self, color):
