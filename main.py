@@ -232,7 +232,9 @@ class MainWindow(QMainWindow):
             event.accept()
 
     def dropEvent(self, event="") -> None:
-        self.reloadTable()
+        # Get the file path
+        filepath = event.mimeData().text()[8:]
+        self.reloadTable(filepath)
 
 
 class WidgetController:
