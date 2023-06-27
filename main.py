@@ -1,4 +1,3 @@
-import os
 import subprocess
 import sys
 from qtpy.QtCore import Qt, Signal
@@ -20,6 +19,7 @@ from qtpy.QtWidgets import (
 )
 from toggle import AnimatedToggle
 from config import colors
+from color_info import color_info
 
 # import qt_material
 
@@ -79,6 +79,7 @@ class TableWidget(QTableWidget):
                     else:
                         self.item(row, column).setBackground(colors.secondary)
             # Header data
+            color_info.setIndices(10, 20, 30, len_column)
             header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
             for idx in range(len(header_data), len_column):
                 if idx % 2 == 0:
