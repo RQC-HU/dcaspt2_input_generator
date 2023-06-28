@@ -1,20 +1,23 @@
 import copy
 import subprocess
 import sys
-from qtpy.QtCore import Qt, Signal
-from qtpy.QtGui import QAction, QDragEnterEvent, QScreen
+from qtpy.QtCore import Qt, Signal  # type: ignore
+from qtpy.QtGui import QAction, QDragEnterEvent, QScreen  # type: ignore
 from qtpy.QtWidgets import (
     QApplication,
+    QDialog,
     QMainWindow,
     QTableWidget,
     QTableWidgetItem,
     QMenu,
+    QButtonGroup,
     QFileDialog,
     QMessageBox,
     QInputDialog,
     QLabel,
     QLineEdit,
     QGridLayout,
+    QRadioButton,
     QVBoxLayout,
     QWidget,
 )
@@ -116,20 +119,18 @@ class TableWidget(QTableWidget):
             menu.addAction(secondary_action)
         menu.exec(self.viewport().mapToGlobal(position))
 
-    def change_background_color(self, color):
-        indexes = self.selectedIndexes()
-        rows = set([index.row() for index in indexes])
-        for row in rows:
-            for column in range(self.columnCount()):
-                self.item(row, column).setBackground(color)
-        self.colorChanged.emit()
-
     def change_selected_rows_background_color(self, row, color):
         for column in range(self.columnCount()):
             self.item(row, column).setBackground(color)
 
+    def change_background_color(self, color):
+        indexes = self.selectedIndexes()
+        rows = set([index.row() for index in indexes])
+        for row in rows:
+            self.change_selected_rows_background_color(row, color)
+        self.colorChanged.emit()
+
     def update_color(self, prev_color: Color):
-        print("TableWidget update_color, prev_color.core:", prev_color.core, "prev_color.inactive:", prev_color.inactive, "prev_color.active:", prev_color.active)
         for row in range(self.rowCount()):
             color = self.item(row, 0).background().color()
             print(color, row)
@@ -177,7 +178,11 @@ class InputLayout(QGridLayout):
 
         # Add toggle button
         self.toggle_button = AnimatedToggle(pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4")
+        self.toggle_button.setFixedSize(50, 40)
         self.addWidget(self.toggle_button, 2, 0, 1, 4)
+        # ボタンの右に"spinor mode"というラベルを追加
+        self.spinor_mode_label = QLabel("spinor mode")
+        self.addWidget(self.spinor_mode_label, 2, 1, 10, 10)
         # If the toggle button is clicked, flip the display mode
         self.toggle_button.clicked.connect(self.flip_display_mode)
 
@@ -221,18 +226,43 @@ class MainWindow(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
+    def colorSettingsChanged(self, button):
+        prev_color = copy.deepcopy(colors)
+        selected_button = self.buttonGroup.checkedButton()
+        color_info = selected_button.text()
+        colors.change_color_templates(color_info)
+        if prev_color != colors:
+            self.table_widget.update_color(prev_color)
+
     def openColorSettings(self):
         # 3つの選択肢を持つQInputDialogを作成
-        prev_color = copy.deepcopy(colors)
-        color_info, ok = QInputDialog.getItem(self, "Color settings", "Select a color type", ["default", "For red-green color blindness", "For green-yellow color blindness"], editable=False)
-        if ok:
-            if color_info == "default" or color_info == "For red-green color blindness" or color_info == "For green-yellow color blindness":
-                colors.change_color_templates(color_info)
-                if prev_color != colors:
-                    self.table_widget.update_color(prev_color)
-            else:
-                # Do nothing
-                pass
+        # ラジオボタンで実装
+        self.buttonGroup = QButtonGroup(self)
+        self.default_button = QRadioButton("default", self)
+        self.default_button.setChecked(True)
+        self.red_green_button = QRadioButton("For red-green color blindness", self)
+        self.green_yellow_button = QRadioButton("For green-yellow color blindness", self)
+        self.buttonGroup.addButton(self.default_button)
+        self.buttonGroup.addButton(self.red_green_button)
+        self.buttonGroup.addButton(self.green_yellow_button)
+        self.buttonGroup.setExclusive(True)
+        self.buttonGroup.buttonClicked.connect(self.colorSettingsChanged)
+
+        # Add the radio buttons to the layout
+        layout = QVBoxLayout()
+        layout.addWidget(self.default_button)
+        layout.addWidget(self.red_green_button)
+        layout.addWidget(self.green_yellow_button)
+
+        # Create a widget to hold the layout
+        widget = QWidget()
+        widget.setLayout(layout)
+
+        # Show the widget as a dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Color Settings")
+        dialog.setLayout(layout)
+        dialog.exec_()
 
     def selectFileDirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")

@@ -3,7 +3,7 @@
 # License: MIT License
 # Author: Martin Fitzpatrick (https://github.com/mfitzp)
 
-from PySide6.QtCore import (
+from qtpy.QtCore import (
     Qt,
     QSize,
     QPoint,
@@ -12,8 +12,8 @@ from PySide6.QtCore import (
     QEasingCurve,
     QPropertyAnimation,
     QSequentialAnimationGroup,
-    Slot,
-    Property,
+    Slot,  # type: ignore
+    Property,  # type: ignore
 )
 
 from qtpy.QtWidgets import QCheckBox
@@ -91,8 +91,8 @@ class Toggle(QCheckBox):
     def handle_state_change(self, value):
         self._handle_position = 1 if value else 0
 
-    @Property(float)
-    def handle_position(self):
+    @Property(float)  # type: ignore
+    def handle_position(self):  # type: ignore
         return self._handle_position
 
     @handle_position.setter
@@ -105,8 +105,8 @@ class Toggle(QCheckBox):
         self._handle_position = pos
         self.update()
 
-    @Property(float)
-    def pulse_radius(self):
+    @Property(float)  # type: ignore
+    def pulse_radius(self):  # type: ignore
         return self._pulse_radius
 
     @pulse_radius.setter
