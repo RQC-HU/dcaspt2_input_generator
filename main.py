@@ -1,3 +1,4 @@
+import copy
 import subprocess
 import sys
 from qtpy.QtCore import Qt, Signal
@@ -18,7 +19,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 from toggle import AnimatedToggle
-from config import colors, is_display_mode
+from config import colors, is_display_mode, Color
 from color_info import color_info
 
 # import qt_material
@@ -123,6 +124,24 @@ class TableWidget(QTableWidget):
                 self.item(row, column).setBackground(color)
         self.colorChanged.emit()
 
+    def change_selected_rows_background_color(self, row, color):
+        for column in range(self.columnCount()):
+            self.item(row, column).setBackground(color)
+
+    def update_color(self, prev_color: Color):
+        print("TableWidget update_color, prev_color.core:", prev_color.core, "prev_color.inactive:", prev_color.inactive, "prev_color.active:", prev_color.active)
+        for row in range(self.rowCount()):
+            color = self.item(row, 0).background().color()
+            print(color, row)
+            if color == prev_color.core:
+                self.change_selected_rows_background_color(row, colors.core)
+            elif color == prev_color.inactive:
+                self.change_selected_rows_background_color(row, colors.inactive)
+            elif color == prev_color.active:
+                self.change_selected_rows_background_color(row, colors.active)
+            elif color == prev_color.secondary:
+                self.change_selected_rows_background_color(row, colors.secondary)
+
 
 # InputLayout provides the layout for the input data
 # like the following: ([ ] = line edit)
@@ -182,6 +201,11 @@ class MainWindow(QMainWindow):
         self.open_action_dfcoef.triggered.connect(self.selectFileDFCOEF)
         self.file_menu.addAction(self.open_action_dfcoef)
 
+        self.file_menu = self.menu_bar.addMenu("Settings")
+        self.color_action = QAction("Color settings", self)
+        self.color_action.triggered.connect(self.openColorSettings)
+        self.file_menu.addAction(self.color_action)
+
         # Create an instance of InputLayout
         # self.input_layout = InputLayout()
         self.input_layout = InputLayout()
@@ -196,6 +220,19 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
+
+    def openColorSettings(self):
+        # 3つの選択肢を持つQInputDialogを作成
+        prev_color = copy.deepcopy(colors)
+        color_info, ok = QInputDialog.getItem(self, "Color settings", "Select a color type", ["default", "For red-green color blindness", "For green-yellow color blindness"], editable=False)
+        if ok:
+            if color_info == "default" or color_info == "For red-green color blindness" or color_info == "For green-yellow color blindness":
+                colors.change_color_templates(color_info)
+                if prev_color != colors:
+                    self.table_widget.update_color(prev_color)
+            else:
+                # Do nothing
+                pass
 
     def selectFileDirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
