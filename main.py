@@ -15,7 +15,6 @@ from qtpy.QtWidgets import (
     QMessageBox,
     QInputDialog,
     QLabel,
-    QLineEdit,
     QGridLayout,
     QRadioButton,
     QVBoxLayout,
@@ -160,29 +159,20 @@ class InputLayout(QGridLayout):
         self.active_label = QLabel("active")
         self.secondary_label = QLabel("secondary")
 
-        # Create the line edits
-        self.core_line_edit = QLineEdit()
-        self.inactive_line_edit = QLineEdit()
-        self.active_line_edit = QLineEdit()
-        self.secondary_line_edit = QLineEdit()
-
         # Add the labels and line edits to the layout
         self.addWidget(self.core_label, 0, 0)
         self.addWidget(self.inactive_label, 0, 1)
         self.addWidget(self.active_label, 0, 2)
         self.addWidget(self.secondary_label, 0, 3)
-        self.addWidget(self.core_line_edit, 1, 0)
-        self.addWidget(self.inactive_line_edit, 1, 1)
-        self.addWidget(self.active_line_edit, 1, 2)
-        self.addWidget(self.secondary_line_edit, 1, 3)
 
         # Add toggle button
         self.toggle_button = AnimatedToggle(pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4")
         self.toggle_button.setFixedSize(50, 40)
-        self.addWidget(self.toggle_button, 2, 0, 1, 4)
-        # ボタンの右に"spinor mode"というラベルを追加
+        self.addWidget(self.toggle_button, 1, 0, 1, 4)
+
+        # Add the spinor mode label
         self.spinor_mode_label = QLabel("spinor mode")
-        self.addWidget(self.spinor_mode_label, 2, 1, 10, 10)
+        self.addWidget(self.spinor_mode_label, 1, 1, 10, 10)
         # If the toggle button is clicked, flip the display mode
         self.toggle_button.clicked.connect(self.flip_display_mode)
 
@@ -340,16 +330,16 @@ class WidgetController:
                 color_count[2] += 2
             elif color == colors.secondary:
                 color_count[3] += 2
-        self.input_layout.core_line_edit.setText(str(color_count[0]))
-        self.input_layout.core_line_edit.update()
+        self.input_layout.core_label.setText(f"core: {color_count[0]}")
+        self.input_layout.inactive_label.setText(f"inactive: {color_count[1]}")
+        self.input_layout.active_label.setText(f"active: {color_count[2]}")
+        self.input_layout.secondary_label.setText(f"secondary: {color_count[3]}")
 
-        self.input_layout.inactive_line_edit.setText(str(color_count[1]))
-        self.input_layout.active_line_edit.setText(str(color_count[2]))
-        self.input_layout.secondary_line_edit.setText(str(color_count[3]))
         # Reload the input
-        self.input_layout.inactive_line_edit.update()
-        self.input_layout.active_line_edit.update()
-        self.input_layout.secondary_line_edit.update()
+        self.input_layout.core_label.update()
+        self.input_layout.inactive_label.update()
+        self.input_layout.active_label.update()
+        self.input_layout.secondary_label.update()
 
 
 if __name__ == "__main__":
