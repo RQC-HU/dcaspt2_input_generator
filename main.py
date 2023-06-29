@@ -340,6 +340,15 @@ class WidgetController:
                     idx_start["secondary"] = row
                 color_count["secondary"] += 2
 
+        if idx_start["core"] == -1:
+            idx_start["core"] = 0
+        if idx_start["inactive"] == -1:
+            idx_start["inactive"] = color_count["core"] // 2
+        if idx_start["active"] == -1:
+            idx_start["active"] = (color_count["core"] + color_count["inactive"]) // 2
+        if idx_start["secondary"] == -1:
+            idx_start["secondary"] = (color_count["core"] + color_count["inactive"] + color_count["active"]) // 2
+
         color_info.setIndices(idx_start["inactive"], idx_start["active"], idx_start["secondary"], self.table_widget.rowCount())
         self.input_layout.core_label.setText(f"core: {color_count['core']}")
         self.input_layout.inactive_label.setText(f"inactive: {color_count['inactive']}")
