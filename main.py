@@ -319,21 +319,32 @@ class WidgetController:
         self.table_widget.colorChanged.connect(self.onTableWidgetColorChanged)
 
     def onTableWidgetColorChanged(self):
-        color_count = [0, 0, 0, 0]  # core, inactive, active, secondary
+        color_count = {"core": 0, "inactive": 0, "active": 0, "secondary": 0}
+        idx_start = {"core": -1, "inactive": -1, "active": -1, "secondary": -1}
         for row in range(self.table_widget.rowCount()):
             color = self.table_widget.item(row, 0).background()
             if color == colors.core:
-                color_count[0] += 2
+                if idx_start["core"] == -1:
+                    idx_start["core"] = row
+                color_count["core"] += 2
             elif color == colors.inactive:
-                color_count[1] += 2
+                if idx_start["inactive"] == -1:
+                    idx_start["inactive"] = row
+                color_count["inactive"] += 2
             elif color == colors.active:
-                color_count[2] += 2
+                if idx_start["active"] == -1:
+                    idx_start["active"] = row
+                color_count["active"] += 2
             elif color == colors.secondary:
-                color_count[3] += 2
-        self.input_layout.core_label.setText(f"core: {color_count[0]}")
-        self.input_layout.inactive_label.setText(f"inactive: {color_count[1]}")
-        self.input_layout.active_label.setText(f"active: {color_count[2]}")
-        self.input_layout.secondary_label.setText(f"secondary: {color_count[3]}")
+                if idx_start["secondary"] == -1:
+                    idx_start["secondary"] = row
+                color_count["secondary"] += 2
+
+        color_info.setIndices(idx_start["inactive"], idx_start["active"], idx_start["secondary"], self.table_widget.rowCount())
+        self.input_layout.core_label.setText(f"core: {color_count['core']}")
+        self.input_layout.inactive_label.setText(f"inactive: {color_count['inactive']}")
+        self.input_layout.active_label.setText(f"active: {color_count['active']}")
+        self.input_layout.secondary_label.setText(f"secondary: {color_count['secondary']}")
 
         # Reload the input
         self.input_layout.core_label.update()
