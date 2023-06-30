@@ -21,9 +21,10 @@ from qtpy.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from toggle import AnimatedToggle
-from config import colors, is_display_mode, Color
-from color_info import color_info
+
+from components.toggle_button import AnimatedToggle
+from components.config import colors, is_display_mode, Color
+from components.color_info import color_info
 
 # import qt_material
 

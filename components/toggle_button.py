@@ -19,7 +19,7 @@ from qtpy.QtCore import (
 from qtpy.QtWidgets import QCheckBox
 from qtpy.QtGui import QColor, QBrush, QPaintEvent, QPen, QPainter
 
-from config import is_display_mode
+from components.config import is_display_mode
 
 
 class Toggle(QCheckBox):
