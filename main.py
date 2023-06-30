@@ -12,6 +12,7 @@ from qtpy.QtWidgets import (
     QMenu,
     QButtonGroup,
     QFileDialog,
+    QHBoxLayout,
     QMessageBox,
     QInputDialog,
     QLabel,
@@ -132,7 +133,6 @@ class TableWidget(QTableWidget):
     def update_color(self, prev_color: Color):
         for row in range(self.rowCount()):
             color = self.item(row, 0).background().color()
-            print(color, row)
             if color == prev_color.core:
                 self.change_selected_rows_background_color(row, colors.core)
             elif color == prev_color.inactive:
@@ -150,9 +150,9 @@ class TableWidget(QTableWidget):
 class InputLayout(QGridLayout):
     def __init__(self):
         super().__init__()
-        self.initUI()
+        self.init_UI()
 
-    def initUI(self):
+    def init_UI(self):
         # Create the labels
         self.core_label = QLabel("core")
         self.inactive_label = QLabel("inactive")
@@ -168,18 +168,45 @@ class InputLayout(QGridLayout):
         # Add toggle button
         self.toggle_button = AnimatedToggle(pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4")
         self.toggle_button.setFixedSize(50, 40)
-        self.addWidget(self.toggle_button, 1, 0, 1, 4)
-
-        # Add the spinor mode label
-        self.spinor_mode_label = QLabel("spinor mode")
-        self.addWidget(self.spinor_mode_label, 1, 1, 10, 10)
-        # If the toggle button is clicked, flip the display mode
-        self.toggle_button.clicked.connect(self.flip_display_mode)
-
-    def flip_display_mode(self):
-        print(f"flip display mode, {is_display_mode.get_display_mode()}")
 
 
+class ToggleButtonWithLabel(QHBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.init_UI()
+
+    def init_UI(self):
+        # トグルボタンとメッセージを配置するレイアウト(右寄せ)
+        self.button_with_message_layout = QHBoxLayout()
+        self.button_with_message_layout.setAlignment(Qt.AlignRight)  # type: ignore
+        # トグルボタン
+        self.toggle_button = AnimatedToggle(pulse_checked_color="#D3E8EB", pulse_unchecked_color="#D5ECD4")
+        self.toggle_button.setFixedSize(60, 40)
+        self.toggle_button.clicked.connect(self.toggle_button_clicked)
+        # メッセージ
+        self.toggle_button_message = QLabel()
+        self.set_button_message()
+        # 配置(メッセージの右側にトグルボタンを配置)
+        self.button_with_message_layout.addWidget(self.toggle_button_message)
+        self.button_with_message_layout.addWidget(self.toggle_button)
+
+    def set_button_message(self):
+        is_display_mode.set_display_mode(self.toggle_button.isChecked())
+        if is_display_mode.get_display_mode():
+            message = "Spinor mode"
+        else:
+            message = "MO mode"
+        self.toggle_button_message.setText(message)
+
+    def toggle_button_clicked(self):
+        self.set_button_message()
+
+
+# Layout for the main window
+# File, Settings
+# message, AnimatedToggle (button)
+# TableWidget (table)
+# InputLayout (layout): core, inactive, active, secondary
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -202,21 +229,25 @@ class MainWindow(QMainWindow):
         self.file_menu.addAction(self.color_action)
 
         # Create an instance of InputLayout
-        # self.input_layout = InputLayout()
+        self.toggle_button_with_label = ToggleButtonWithLabel()
         self.input_layout = InputLayout()
         self.table_widget = TableWidget()
 
+        # Create an instance of WidgetController
         self.widget_controller = WidgetController(self.input_layout, self.table_widget)
 
+        # layout
         layout = QVBoxLayout()
+        layout.addLayout(self.toggle_button_with_label.button_with_message_layout)
         layout.addWidget(self.table_widget)
         layout.addLayout(self.input_layout)
 
+        # Create a widget to hold the layout
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
-    def colorSettingsChanged(self, button):
+    def colorSettingsChanged(self, _):
         prev_color = copy.deepcopy(colors)
         selected_button = self.buttonGroup.checkedButton()
         color_info = selected_button.text()
