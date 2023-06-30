@@ -257,9 +257,9 @@ class MainWindow(QMainWindow):
     def selectFileDirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
-            molecule_name, ok = self.questionMolecule()
-            if not ok:
-                return
+            molecule_name = ""
+            while molecule_name == "":
+                molecule_name, _ = self.questionMolecule()
             # Run sum_dirac_defcoef subprocess
             self.runSumDiracDFCOEF(file_path, molecule_name)
             self.reloadTable(molecule_name + ".out")
