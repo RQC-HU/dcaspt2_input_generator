@@ -5,10 +5,11 @@ from qtpy.QtGui import QDragEnterEvent
 
 
 from components.menu_bar import MenuBar
-from components.table_summary import TableSummary
+from components.table_data import TableSummary
 from components.table_widget import TableWidget
 from components.toggle_button_with_label import ToggleButtonWithLabel
 from controller.color_settings_controller import ColorSettingsController
+from controller.toggle_button_controller import ToggleButtonController
 from controller.widget_controller import WidgetController
 
 
@@ -39,6 +40,7 @@ class MainWindow(QMainWindow):
         # Create an instance of WidgetController
         self.widget_controller = WidgetController(self.table_summary, self.table_widget)
         self.color_settings_controller = ColorSettingsController(self.table_widget, self.menu_bar.color_settings_action.color_settings)
+        self.toggle_button_controller = ToggleButtonController(self.toggle_button_with_label, self.table_widget)
         # layout
         layout = QVBoxLayout()
         layout.addWidget(self.menu_bar)

@@ -1,4 +1,4 @@
-from components.table_summary import TableSummary
+from components.table_data import TableSummary
 from components.table_widget import TableWidget
 from components.config import colors
 from components.color_info import color_info

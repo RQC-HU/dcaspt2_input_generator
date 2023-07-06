@@ -63,15 +63,15 @@ class Color:
 colors = Color()
 
 
-class DisplayMode:
+class SpinorMode:
     def __init__(self):
-        self.display_mode = False
+        self.is_spinor_mode = False
 
-    def get_display_mode(self):
-        return self.display_mode
+    def get_is_spinor_mode(self):
+        return self.is_spinor_mode
 
-    def set_display_mode(self, mode: bool):
-        self.display_mode = mode
+    def set_is_spinor_mode(self, mode: bool):
+        self.is_spinor_mode = mode
 
 
-is_display_mode = DisplayMode()
+spinor_mode = SpinorMode()

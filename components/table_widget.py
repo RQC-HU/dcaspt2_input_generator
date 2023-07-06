@@ -2,7 +2,8 @@ from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QMenu, QAction  # typ
 from qtpy.QtCore import Qt, Signal  # type: ignore
 
 from components.color_info import color_info
-from components.config import colors, Color
+from components.config import colors, Color, spinor_mode
+from components.table_data import table_data
 
 
 # TableWidget is the widget that displays the output data
@@ -32,25 +33,41 @@ class TableWidget(QTableWidget):
         print("TableWidget reload")
         self.load_output(output_file_path)
 
+    def create_table(self):
+        self.clear()
+        rows = table_data.spinor_data if spinor_mode.get_is_spinor_mode() else table_data.mo_data
+        len_column = max(len(row) for row in rows) if len(rows) > 0 else 0
+        for row in range(len(rows)):
+            for column in range(len_column):
+                try:
+                    text = rows[row][column]
+                except IndexError:
+                    text = ""
+                item = QTableWidgetItem(text)
+                self.setItem(row, column, item)
+
     def load_output(self, file_path):
+        def set_table_data():
+            rows = [line.split() for line in out]
+            table_data.reset()
+            table_data.mo_data = rows
+            for row in rows:
+                table_data.spinor_data.extend([row, row])
+
         with open(file_path, newline="") as output:
             out = output.readlines()
             # output is space separated file
-            rows = [line.split() for line in out]
+            set_table_data()
+            rows = table_data.spinor_data if spinor_mode.get_is_spinor_mode() else table_data.mo_data
             len_row = len(rows)
             len_column = max(len(row) for row in rows) if len_row > 0 else 0
             self.setRowCount(len_row)
             self.setColumnCount(len_column)
+            self.create_table()
 
             # Table data
             for row in range(len_row):
                 for column in range(len_column):
-                    try:
-                        text = rows[row][column]
-                    except IndexError:
-                        text = ""
-                    item = QTableWidgetItem(text)
-                    self.setItem(row, column, item)
                     if row < 10:
                         self.item(row, column).setBackground(colors.core)
                     elif row < 20:
