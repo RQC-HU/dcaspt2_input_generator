@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import QGridLayout, QLabel  # type: ignore
+from qtpy.QtWidgets import QGridLayout, QLabel
 
 
 # TableSummary provides the layout for the input data
@@ -22,16 +22,3 @@ class TableSummary(QGridLayout):
         self.addWidget(self.inactive_label, 0, 1)
         self.addWidget(self.active_label, 0, 2)
         self.addWidget(self.secondary_label, 0, 3)
-
-
-class TableData:
-    def __init__(self):
-        self.mo_data = []
-        self.spinor_data = []
-
-    def reset(self):
-        self.mo_data = []
-        self.spinor_data = []
-
-
-table_data = TableData()

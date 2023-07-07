@@ -1,9 +1,8 @@
 from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QMenu, QAction  # type: ignore
 from qtpy.QtCore import Qt, Signal  # type: ignore
 
-from components.color_info import color_info
 from components.config import colors, Color, spinor_mode
-from components.table_data import table_data
+from components.data import color_info, table_data
 
 
 # TableWidget is the widget that displays the output data
@@ -34,9 +33,13 @@ class TableWidget(QTableWidget):
         self.load_output(output_file_path)
 
     def create_table(self):
+        print("TableWidget create_table")
         self.clear()
         rows = table_data.spinor_data if spinor_mode.get_is_spinor_mode() else table_data.mo_data
+        rows_color = table_data.spinor_color if spinor_mode.get_is_spinor_mode() else table_data.mo_color
         len_column = max(len(row) for row in rows) if len(rows) > 0 else 0
+        self.setRowCount(len(rows))
+        self.setColumnCount(len_column)
         for row in range(len(rows)):
             for column in range(len_column):
                 try:
@@ -45,46 +48,57 @@ class TableWidget(QTableWidget):
                     text = ""
                 item = QTableWidgetItem(text)
                 self.setItem(row, column, item)
+                self.item(row, column).setBackground(rows_color[row])
 
     def load_output(self, file_path):
         def set_table_data():
-            rows = [line.split() for line in out]
+            inactive_start = 10
+            active_start = 20
+            secondary_start = 30
             table_data.reset()
+            rows = [line.split() for line in out]
+            # Store the mo_data and spinor_data
             table_data.mo_data = rows
             for row in rows:
                 table_data.spinor_data.extend([row, row])
+            # Length of the row and the longest column
+            len_row = len(rows)
+            len_column = max(len(row) for row in rows) if len_row > 0 else 0
+
+            # Header data
+            color_info.setIndices(inactive_start, active_start, secondary_start, len_column)
+            header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
+            init_header_len = len(header_data)
+            additional_header = []
+            for idx in range(init_header_len, len_column):
+                if idx % 2 == 0:
+                    additional_header.append(f"percentage {(idx-init_header_len)//2 + 1}")
+                else:
+                    additional_header.append(f"AO type {(idx-init_header_len)//2 + 1}")
+            header_data.extend(additional_header)
+            self.setHorizontalHeaderLabels(header_data)
+
+            # Store color information of the mo_data and spinor_data
+            for row_idx, row in enumerate(rows):
+                if row_idx < inactive_start:
+                    table_data.mo_color.append(colors.core)
+                    table_data.spinor_color.extend([colors.core, colors.core])
+                elif row_idx < active_start:
+                    table_data.mo_color.append(colors.inactive)
+                    table_data.spinor_color.extend([colors.inactive, colors.inactive])
+                elif row_idx < secondary_start:
+                    table_data.mo_color.append(colors.active)
+                    table_data.spinor_color.extend([colors.active, colors.active])
+                else:
+                    table_data.mo_color.append(colors.secondary)
+                    table_data.spinor_color.extend([colors.secondary, colors.secondary])
 
         with open(file_path, newline="") as output:
             out = output.readlines()
             # output is space separated file
             set_table_data()
-            rows = table_data.spinor_data if spinor_mode.get_is_spinor_mode() else table_data.mo_data
-            len_row = len(rows)
-            len_column = max(len(row) for row in rows) if len_row > 0 else 0
-            self.setRowCount(len_row)
-            self.setColumnCount(len_column)
             self.create_table()
 
-            # Table data
-            for row in range(len_row):
-                for column in range(len_column):
-                    if row < 10:
-                        self.item(row, column).setBackground(colors.core)
-                    elif row < 20:
-                        self.item(row, column).setBackground(colors.inactive)
-                    elif row < 30:
-                        self.item(row, column).setBackground(colors.active)
-                    else:
-                        self.item(row, column).setBackground(colors.secondary)
-            # Header data
-            color_info.setIndices(10, 20, 30, len_column)
-            header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
-            for idx in range(len(header_data), len_column):
-                if idx % 2 == 0:
-                    header_data.append(f"percentage {(idx-len(header_data))//2 + 1}")
-                else:
-                    header_data.append(f"AO type {(idx-len(header_data))//2 + 1}")
-            self.setHorizontalHeaderLabels(header_data)
         self.colorChanged.emit()
 
     def show_context_menu(self, position):

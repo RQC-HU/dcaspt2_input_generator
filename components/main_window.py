@@ -5,7 +5,7 @@ from qtpy.QtGui import QDragEnterEvent
 
 
 from components.menu_bar import MenuBar
-from components.table_data import TableSummary
+from components.table_summary import TableSummary
 from components.table_widget import TableWidget
 from components.toggle_button_with_label import ToggleButtonWithLabel
 from controller.color_settings_controller import ColorSettingsController
