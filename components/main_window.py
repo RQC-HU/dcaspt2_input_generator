@@ -72,8 +72,8 @@ class MainWindow(QMainWindow):
         # Show a question message box that allow the user to write the molecule name
         molecule_name, ok = QInputDialog.getText(
             self,
-            "Molecule name",
-            "Enter the molecule name that you calculated using DIRAC:",
+            "Molecule formula",
+            "Enter the molecule formula that you calculated using DIRAC:",
         )
         return molecule_name, ok
 
