@@ -1,6 +1,6 @@
 import subprocess
 
-from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QInputDialog
+from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QInputDialog, QPushButton
 from qtpy.QtGui import QDragEnterEvent
 
 
@@ -36,6 +36,9 @@ class MainWindow(QMainWindow):
         self.toggle_button_with_label = ToggleButtonWithLabel()
         self.table_summary = TableSummary()
         self.table_widget = TableWidget()
+        # Add Save button
+        self.save_button = QPushButton("Save")
+        self.save_button.clicked.connect(self.save_input)
 
         # Create an instance of WidgetController
         self.widget_controller = WidgetController(self.table_summary, self.table_widget)
@@ -47,11 +50,21 @@ class MainWindow(QMainWindow):
         layout.addLayout(self.toggle_button_with_label)
         layout.addWidget(self.table_widget)
         layout.addLayout(self.table_summary)
+        layout.addWidget(self.save_button)
 
         # Create a widget to hold the layout
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
+
+    def save_input(self):
+        # open dialog to save the file
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
+        if file_path:
+            # open the file with write mode
+            with open(file_path, "w") as f:
+                # get the text from the table widget
+                f.write("Hello World")
 
     def select_file_Dirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
