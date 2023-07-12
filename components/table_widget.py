@@ -1,7 +1,7 @@
 from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QMenu, QAction  # type: ignore
 from qtpy.QtCore import Qt, Signal  # type: ignore
 
-from components.config import colors, Color, spinor_mode
+from components.config import colors, Color, orbital_mode
 from components.data import color_info, table_data
 
 
@@ -35,8 +35,8 @@ class TableWidget(QTableWidget):
     def create_table(self):
         print("TableWidget create_table")
         self.clear()
-        rows = table_data.spinor_data if spinor_mode.get_is_spinor_mode() else table_data.mo_data
-        rows_color = table_data.spinor_color if spinor_mode.get_is_spinor_mode() else table_data.mo_color
+        rows = table_data.spinor_data if orbital_mode.get_is_spinor_mode() else table_data.mo_data
+        rows_color = table_data.spinor_color if orbital_mode.get_is_spinor_mode() else table_data.mo_color
         len_column = max(len(row) for row in rows) if len(rows) > 0 else 0
         self.setRowCount(len(rows))
         self.setColumnCount(len_column)

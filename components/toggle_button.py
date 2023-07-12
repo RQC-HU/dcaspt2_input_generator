@@ -19,7 +19,7 @@ from qtpy.QtCore import (
 from qtpy.QtWidgets import QCheckBox
 from qtpy.QtGui import QColor, QBrush, QPaintEvent, QPen, QPainter
 
-from components.config import spinor_mode
+from components.config import orbital_mode
 
 
 class Toggle(QCheckBox):
@@ -145,10 +145,10 @@ class AnimatedToggle(Toggle):
         self.animations_group.stop()
         if value:
             self.animation.setEndValue(1)
-            spinor_mode.set_is_spinor_mode(True)
+            orbital_mode.set_is_spinor_mode(True)
         else:
             self.animation.setEndValue(0)
-            spinor_mode.set_is_spinor_mode(False)
+            orbital_mode.set_is_spinor_mode(False)
         self.animations_group.start()
 
     def paintEvent(self, e: QPaintEvent):

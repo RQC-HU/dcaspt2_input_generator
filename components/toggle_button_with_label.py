@@ -3,7 +3,7 @@ from qtpy.QtWidgets import QHBoxLayout, QLabel
 from qtpy.QtCore import Signal  # type: ignore
 
 from components.toggle_button import AnimatedToggle
-from components.config import spinor_mode
+from components.config import orbital_mode
 
 
 class ToggleButtonWithLabel(QHBoxLayout):
@@ -29,8 +29,8 @@ class ToggleButtonWithLabel(QHBoxLayout):
         self.addWidget(self.toggle_button)
 
     def set_button_message(self):
-        spinor_mode.set_is_spinor_mode(self.toggle_button.isChecked())
-        if spinor_mode.get_is_spinor_mode():
+        orbital_mode.set_is_spinor_mode(self.toggle_button.isChecked())
+        if orbital_mode.get_is_spinor_mode():
             message = "Spinor mode"
         else:
             message = "MO mode"

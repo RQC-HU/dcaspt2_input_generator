@@ -63,7 +63,7 @@ class Color:
 colors = Color()
 
 
-class SpinorMode:
+class OrbitalMode:
     def __init__(self):
         self.is_spinor_mode = False
 
@@ -74,4 +74,4 @@ class SpinorMode:
         self.is_spinor_mode = mode
 
 
-spinor_mode = SpinorMode()
+orbital_mode = OrbitalMode()
