@@ -1,18 +1,23 @@
-from qtpy.QtGui import QColor  # type: ignore
-
-
 class TableData:
     def __init__(self):
-        self.mo_data = []
-        self.mo_color: list[QColor] = []
-        self.spinor_data = []
-        self.spinor_color: list[QColor] = []
+        # mo_data: list[defaultdict]
+        # mo_data[0]:
+        #  "color": QColor
+        #  "mo_number": int
+        #  "spinor_number": int
+        #  "mo_symmetry": str
+        #  "energy": float
+        #  "ao_type": list[str]
+        #  "percentage": list[float]
+        #  "ao_len": int
+        self.mo_data: list[dict] = []
+        self.spinor_data: list[dict] = []
+        self.column_max_len: int = 0
 
     def reset(self):
         self.mo_data = []
-        self.mo_color = []
         self.spinor_data = []
-        self.spinor_color = []
+        self.column_max_len = 0
 
 
 table_data = TableData()

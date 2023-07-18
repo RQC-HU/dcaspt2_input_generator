@@ -66,12 +66,20 @@ colors = Color()
 class OrbitalMode:
     def __init__(self):
         self.is_spinor_mode = False
+        self.set_countup()
 
     def get_is_spinor_mode(self):
         return self.is_spinor_mode
 
+    def set_countup(self):
+        if self.is_spinor_mode:
+            self.countup = 1
+        else:
+            self.countup = 2
+
     def set_is_spinor_mode(self, mode: bool):
         self.is_spinor_mode = mode
+        self.set_countup()
 
 
 orbital_mode = OrbitalMode()

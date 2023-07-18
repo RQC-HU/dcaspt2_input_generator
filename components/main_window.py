@@ -7,6 +7,8 @@ from qtpy.QtGui import QDragEnterEvent
 from components.menu_bar import MenuBar
 from components.table_summary import TableSummary
 from components.table_widget import TableWidget
+from components.data import table_data
+from components.config import colors
 from components.toggle_button_with_label import ToggleButtonWithLabel
 from controller.color_settings_controller import ColorSettingsController
 from controller.toggle_button_controller import ToggleButtonController
@@ -58,13 +60,37 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
     def save_input(self):
+        output = ""
+        core = 0
+        inact = 0
+        act = 0
+        sec = 0
+        for idx, row in enumerate(table_data.spinor_data):
+            color = row["color"]
+            if color == colors.core:
+                print(idx, "core")
+                core += 1
+            elif color == colors.inactive:
+                print(idx, "inactive")
+                inact += 1
+            elif color == colors.active:
+                print(idx, "active")
+                act += 1
+            elif color == colors.secondary:
+                print(idx, "secondary")
+                sec += 1
+        output += "core\n" + str(core) + "\n"
+        output += "inactive\n" + str(inact) + "\n"
+        output += "active\n" + str(act) + "\n"
+        output += "secondary\n" + str(sec) + "\n"
+
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
         if file_path:
             # open the file with write mode
             with open(file_path, "w") as f:
                 # get the text from the table widget
-                f.write("Hello World")
+                f.write(output)
 
     def select_file_Dirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
