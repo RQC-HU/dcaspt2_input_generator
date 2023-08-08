@@ -2,7 +2,7 @@ from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QMenu, QAction  # typ
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 
-from components.config import colors, Color, orbital_mode
+from components.config import colors, Color
 from components.data import table_data
 
 
@@ -37,7 +37,7 @@ class TableWidget(QTableWidget):
         try:
             print("TableWidget create_table")
             self.clear()
-            rows = table_data.spinor_data if orbital_mode.get_is_spinor_mode() else table_data.mo_data
+            rows = table_data.mo_data
             self.setRowCount(len(rows))
             self.setColumnCount(table_data.column_max_len)
             for row_idx, row in enumerate(rows):
@@ -103,7 +103,6 @@ class TableWidget(QTableWidget):
             # ao_type: List[str]
             # ao_percentage: List[float]
             table_data.mo_data = []
-            table_data.spinor_data = []
             try:
                 for idx, row in enumerate(rows):
                     color = colors.core if idx < inactive_start else colors.inactive if idx < active_start else colors.active if idx < secondary_start else colors.secondary
@@ -111,9 +110,7 @@ class TableWidget(QTableWidget):
                     # mo_number = idx
                     table_data.mo_data.append(row_dict)
                     table_data.column_max_len = max(table_data.column_max_len, len(row))
-                    spinor_numbers = [idx * 2, idx * 2 + 1]
-                    for spinor_number in spinor_numbers:
-                        table_data.spinor_data.append(row_dict)
+
             except ValueError:
                 raise ValueError("The output file is not correct, ValueError")
             except IndexError:
@@ -177,13 +174,9 @@ class TableWidget(QTableWidget):
             self.item(row, column).setBackground(color)
 
     def update_table_data(self):
-        if not orbital_mode.get_is_spinor_mode():
-            for row in range(self.rowCount()):
-                color = self.item(row, 0).background().color()
-                table_data.mo_data[row].update({"color": color})
-                row_spinors = [row * 2, row * 2 + 1]
-                for row_spinor in row_spinors:
-                    table_data.spinor_data[row_spinor].update({"color": color})
+        for row in range(self.rowCount()):
+            color = self.item(row, 0).background().color()
+            table_data.mo_data[row].update({"color": color})
     def change_background_color(self, color):
         indexes = self.selectedIndexes()
         rows = set([index.row() for index in indexes])
@@ -191,9 +184,7 @@ class TableWidget(QTableWidget):
             self.change_selected_rows_background_color(row, color)
         self.colorChanged.emit()
         self.update_table_data()
-        
 
-    
     def update_color(self, prev_color: Color):
         print("update_color")
         for idx, mo in enumerate(table_data.mo_data):
@@ -207,16 +198,6 @@ class TableWidget(QTableWidget):
             elif color == prev_color.secondary:
                 table_data.mo_data[idx].update({"color": colors.secondary})
 
-        for idx, spinor in enumerate(table_data.spinor_data):
-            color = spinor["color"]
-            if color == prev_color.core:
-                table_data.spinor_data[idx].update({"color": colors.core})
-            elif color == prev_color.inactive:
-                table_data.spinor_data[idx].update({"color": colors.inactive})
-            elif color == prev_color.active:
-                table_data.spinor_data[idx].update({"color": colors.active})
-            elif color == prev_color.secondary:
-                table_data.spinor_data[idx].update({"color": colors.secondary})
 
         for row in range(self.rowCount()):
             color = self.item(row, 0).background().color()

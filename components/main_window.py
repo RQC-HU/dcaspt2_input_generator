@@ -9,9 +9,7 @@ from components.table_summary import TableSummary
 from components.table_widget import TableWidget
 from components.data import table_data
 from components.config import colors
-from components.toggle_button_with_label import ToggleButtonWithLabel
 from controller.color_settings_controller import ColorSettingsController
-from controller.toggle_button_controller import ToggleButtonController
 from controller.widget_controller import WidgetController
 
 
@@ -35,7 +33,6 @@ class MainWindow(QMainWindow):
         self.menu_bar.open_action_dfcoef.triggered.connect(self.select_file_DFCOEF)
 
         # Body
-        self.toggle_button_with_label = ToggleButtonWithLabel()
         self.table_summary = TableSummary()
         self.table_widget = TableWidget()
         # Add Save button
@@ -45,11 +42,9 @@ class MainWindow(QMainWindow):
         # Create an instance of WidgetController
         self.widget_controller = WidgetController(self.table_summary, self.table_widget)
         self.color_settings_controller = ColorSettingsController(self.table_widget, self.menu_bar.color_settings_action.color_settings)
-        self.toggle_button_controller = ToggleButtonController(self.toggle_button_with_label, self.table_widget)
         # layout
         layout = QVBoxLayout()
         layout.addWidget(self.menu_bar)
-        layout.addLayout(self.toggle_button_with_label)
         layout.addWidget(self.table_widget)
         layout.addLayout(self.table_summary)
         layout.addWidget(self.save_button)
@@ -65,20 +60,20 @@ class MainWindow(QMainWindow):
         inact = 0
         act = 0
         sec = 0
-        for idx, row in enumerate(table_data.spinor_data):
+        for idx, row in enumerate(table_data.mo_data):
             color = row["color"]
             if color == colors.core:
                 print(idx, "core")
-                core += 1
+                core += 2
             elif color == colors.inactive:
                 print(idx, "inactive")
-                inact += 1
+                inact += 2
             elif color == colors.active:
                 print(idx, "active")
-                act += 1
+                act += 2
             elif color == colors.secondary:
                 print(idx, "secondary")
-                sec += 1
+                sec += 2
         output += "core\n" + str(core) + "\n"
         output += "inactive\n" + str(inact) + "\n"
         output += "active\n" + str(act) + "\n"

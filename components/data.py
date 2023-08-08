@@ -11,12 +11,10 @@ class TableData:
         #  "percentage": list[float]
         #  "ao_len": int
         self.mo_data: list[dict] = []
-        self.spinor_data: list[dict] = []
         self.column_max_len: int = 0
 
     def reset(self):
         self.mo_data = []
-        self.spinor_data = []
         self.column_max_len = 0
 
 
