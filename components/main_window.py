@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
         act = 0
         sec = 0
         for idx, row in enumerate(table_data.mo_data):
-            color = row["color"]
+            color = row.color
             if color == colors.core:
                 print(idx, "core")
                 core += 2

@@ -6,7 +6,7 @@
 
 ## Prerequisites
 
-- Python 3.6 or later
+- Python 3.7 or later
 - pip
 
 ## Install

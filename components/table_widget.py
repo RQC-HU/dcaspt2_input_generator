@@ -3,7 +3,7 @@ from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 
 from components.config import colors, Color
-from components.data import table_data
+from components.data import table_data, MOData
 
 
 # TableWidget is the widget that displays the output data
@@ -41,20 +41,20 @@ class TableWidget(QTableWidget):
             self.setRowCount(len(rows))
             self.setColumnCount(table_data.column_max_len)
             for row_idx, row in enumerate(rows):
-                color: QColor = row["color"]
+                color: QColor = row.color
                 # mo_symmetry
-                self.setItem(row_idx, 0, QTableWidgetItem(row["mo_symmetry"]))
+                self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
                 # mo_number_dirac
-                self.setItem(row_idx, 1, QTableWidgetItem(str(row["mo_number_dirac"])))
+                self.setItem(row_idx, 1, QTableWidgetItem(str(row.mo_number)))
                 # mo_energy
-                self.setItem(row_idx, 2, QTableWidgetItem(str(row["mo_energy"])))
+                self.setItem(row_idx, 2, QTableWidgetItem(str(row.energy)))
                 # percentage, ao_type
                 column = 3
                 last = table_data.column_max_len - column
                 for idx in range(0, last, 2):
                     try:
-                        ao_type = QTableWidgetItem(row["ao_type"][idx])
-                        ao_percentage = QTableWidgetItem(str(row["ao_percentage"][idx]))
+                        ao_type = QTableWidgetItem(row.ao_type[idx])
+                        ao_percentage = QTableWidgetItem(str(row.percentage[idx]))
                     except IndexError:
                         ao_type = QTableWidgetItem("")
                         ao_percentage = QTableWidgetItem("")
@@ -74,21 +74,13 @@ class TableWidget(QTableWidget):
 
     def load_output(self, file_path):
 
-        def create_row_dict(row: list[str], color: QColor) -> dict:
+        def create_row_dict(row: list[str], color: QColor) -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])
             mo_energy = float(row[2])
             ao_type = [row[i] for i in range(3, len(row), 2)]
             ao_percentage = [float(row[i]) for i in range(4, len(row), 2)]
-            return {
-                "mo_symmetry": mo_symmetry,
-                "mo_number_dirac": mo_number_dirac,
-                "mo_energy": mo_energy,
-                "ao_type": ao_type,
-                "ao_percentage": ao_percentage,
-                "ao_len": len(ao_type),
-                "color": color,
-            }
+            return MOData(mo_number=mo_number_dirac, mo_symmetry=mo_symmetry, energy=mo_energy, ao_type=ao_type, percentage=ao_percentage, ao_len=len(ao_type), color=color)
 
         def set_table_data():
             inactive_start = 10
@@ -176,7 +168,7 @@ class TableWidget(QTableWidget):
     def update_table_data(self):
         for row in range(self.rowCount()):
             color = self.item(row, 0).background().color()
-            table_data.mo_data[row].update({"color": color})
+            table_data.mo_data[row].color = color
     def change_background_color(self, color):
         indexes = self.selectedIndexes()
         rows = set([index.row() for index in indexes])
@@ -188,15 +180,15 @@ class TableWidget(QTableWidget):
     def update_color(self, prev_color: Color):
         print("update_color")
         for idx, mo in enumerate(table_data.mo_data):
-            color = mo["color"]
+            color = mo.color
             if color == prev_color.core:
-                table_data.mo_data[idx].update({"color": colors.core})
+                table_data.mo_data[idx].color = colors.core
             elif color == prev_color.inactive:
-                table_data.mo_data[idx].update({"color": colors.inactive})
+                table_data.mo_data[idx].color = colors.inactive
             elif color == prev_color.active:
-                table_data.mo_data[idx].update({"color": colors.active})
+                table_data.mo_data[idx].color = colors.active
             elif color == prev_color.secondary:
-                table_data.mo_data[idx].update({"color": colors.secondary})
+                table_data.mo_data[idx].color = colors.secondary
 
 
         for row in range(self.rowCount()):
