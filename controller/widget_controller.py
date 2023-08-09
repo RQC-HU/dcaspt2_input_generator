@@ -2,9 +2,6 @@ from components.table_summary import TableSummary
 from components.table_widget import TableWidget
 from components.config import colors
 
-# from components.data import color_info
-
-
 class WidgetController:
     def __init__(self, table_summary: TableSummary, table_widget: TableWidget):
         self.table_summary = table_summary
@@ -49,7 +46,6 @@ class WidgetController:
         # if idx_start["secondary"] == -1:
         #     idx_start["secondary"] = (color_count["core"] + color_count["inactive"] + color_count["active"]) // 2
 
-        # color_info.setIndices(idx_start["inactive"], idx_start["active"], idx_start["secondary"], self.table_widget.rowCount())
         self.table_summary.core_label.setText(f"core: {color_count['core']}")
         self.table_summary.inactive_label.setText(f"inactive: {color_count['inactive']}")
         self.table_summary.active_label.setText(f"active: {color_count['active']}")
