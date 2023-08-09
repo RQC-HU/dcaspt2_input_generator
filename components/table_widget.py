@@ -28,6 +28,9 @@ class TableWidget(QTableWidget):
         self.setContextMenuPolicy(Qt.CustomContextMenu)  # type: ignore
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
+        # QTableWidget.ContiguousSelection: Multiple ranges selection is impossible.
+        # https://doc.qt.io/qt-6/qabstractitemview.html#SelectionMode-enum
+        self.setSelectionMode(QTableWidget.ContiguousSelection)  # type: ignore
 
     def reload(self, output_file_path: str):
         print("TableWidget reload")
@@ -121,6 +124,7 @@ class TableWidget(QTableWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
+        print(ranges)
         selected_rows: set[int] = set()
         for r in ranges:
             selected_rows.update(range(r.topRow(), r.bottomRow() + 1))
