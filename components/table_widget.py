@@ -49,9 +49,8 @@ class TableWidget(QTableWidget):
                 # mo_energy
                 self.setItem(row_idx, 2, QTableWidgetItem(str(row.energy)))
                 # percentage, ao_type
-                column = 3
-                last = table_data.column_max_len - column
-                for idx in range(0, last, 2):
+                column_before_ao_percentage = 3
+                for idx in range(table_data.column_max_len - column_before_ao_percentage):
                     try:
                         ao_type = QTableWidgetItem(row.ao_type[idx])
                         ao_percentage = QTableWidgetItem(str(row.percentage[idx]))
@@ -60,8 +59,10 @@ class TableWidget(QTableWidget):
                         ao_percentage = QTableWidgetItem("")
                     ao_type.setBackground(color)
                     ao_percentage.setBackground(color)
-                    self.setItem(row_idx, column + idx, ao_type)
-                    self.setItem(row_idx, column + idx + 1, ao_percentage)
+                    ao_type_column = column_before_ao_percentage + 2*idx
+                    ao_percentage_column = ao_type_column + 1
+                    self.setItem(row_idx, ao_type_column, ao_type)
+                    self.setItem(row_idx, ao_percentage_column, ao_percentage)
 
                 for idx in range(table_data.column_max_len):
                     self.item(row_idx, idx).setBackground(color)
@@ -69,8 +70,6 @@ class TableWidget(QTableWidget):
         except Exception as e:
             print(e)
             raise e
-            # for column in range(table_data.column_max_len):
-            #     self.item(row_idx, column).setBackground(colors.core)
 
     def load_output(self, file_path):
 
@@ -88,12 +87,6 @@ class TableWidget(QTableWidget):
             secondary_start = 30
             table_data.reset()
             rows = [line.split() for line in out]
-            # table_data.mo_data
-            # mo_symmetry: str
-            # mo_number_dirac: int
-            # mo_energy: float
-            # ao_type: List[str]
-            # ao_percentage: List[float]
             table_data.mo_data = []
             try:
                 for idx, row in enumerate(rows):
