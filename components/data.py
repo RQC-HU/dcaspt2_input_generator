@@ -74,12 +74,12 @@ class Color:
             self.secondary = ColorPopupInfo(QColor("#DA70D6"), "secondary(Orchid)")
         elif color_type == "For green-yellow color blindness":
             # For green-yellow color blindness
-            self.core = ColorPopupInfo(QColor("#6495ED"), "core(Cornflower blue)")
-            self.inactive = ColorPopupInfo(QColor("#FFA07A"), "inactive(Light salmon)")
+            self.core = ColorPopupInfo(QColor("#F08080"), "core(Light coral)")
+            self.inactive = ColorPopupInfo(QColor("#90EE90"), "inactive(Light green)")
             self.ras1 = ColorPopupInfo(QColor("#4682B4"), "ras1(Steel blue)")
             self.active = ColorPopupInfo(QColor("#FF1493"), "active, ras2(Deep pink)")
             self.ras3 = ColorPopupInfo(QColor("#FFD700"), "ras3(Gold)")
-            self.secondary = ColorPopupInfo(QColor("#DA70D6"), "secondary(Orchid)")
+            self.secondary = ColorPopupInfo(QColor("#6A5ACD"), "secondary(Slate blue)")
         else:
             raise ValueError("Invalid color type")
 
