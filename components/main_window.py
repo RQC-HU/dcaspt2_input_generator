@@ -7,8 +7,7 @@ from qtpy.QtGui import QDragEnterEvent
 from components.menu_bar import MenuBar
 from components.table_summary import TableSummary
 from components.table_widget import TableWidget
-from components.data import table_data
-from components.config import colors
+from components.data import colors
 from controller.color_settings_controller import ColorSettingsController
 from controller.widget_controller import WidgetController
 
@@ -60,18 +59,18 @@ class MainWindow(QMainWindow):
         inact = 0
         act = 0
         sec = 0
-        for idx, row in enumerate(table_data.mo_data):
-            color = row.color
-            if color == colors.core:
+        for idx in range(self.table_widget.rowCount()):
+            color = self.table_widget.item(idx, 0).background
+            if color == colors.core.color:
                 print(idx, "core")
                 core += 2
-            elif color == colors.inactive:
+            elif color == colors.inactive.color:
                 print(idx, "inactive")
                 inact += 2
-            elif color == colors.active:
+            elif color == colors.active.color:
                 print(idx, "active")
                 act += 2
-            elif color == colors.secondary:
+            elif color == colors.secondary.color:
                 print(idx, "secondary")
                 sec += 2
         output += "core\n" + str(core) + "\n"

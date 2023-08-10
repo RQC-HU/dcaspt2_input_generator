@@ -2,7 +2,7 @@ import copy
 
 from components.color_settings import ColorSettings
 from components.table_widget import TableWidget
-from components.config import colors
+from components.data import colors
 
 
 class ColorSettingsController:
