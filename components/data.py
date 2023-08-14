@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from qtpy.QtGui import QColor
+
+
 @dataclass
 class MOData:
     mo_number: int
@@ -8,6 +10,7 @@ class MOData:
     ao_type: list[str]
     percentage: list[float]
     ao_len: int
+
 
 class TableData:
     def __init__(self):
@@ -20,6 +23,7 @@ class TableData:
 
 
 table_data = TableData()
+
 
 @dataclass
 class ColorPopupInfo:

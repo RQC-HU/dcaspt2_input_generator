@@ -46,7 +46,9 @@ class TableWidget(QTableWidget):
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
         for row_idx, row in enumerate(rows):
-            color: QColor = colors.core.color if row_idx < inactive_start else colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
+            color: QColor = (
+                colors.core.color if row_idx < inactive_start else colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
+            )
             # mo_symmetry
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
             # mo_number_dirac
@@ -64,7 +66,7 @@ class TableWidget(QTableWidget):
                     ao_percentage = QTableWidgetItem("")
                 ao_type.setBackground(color)
                 ao_percentage.setBackground(color)
-                ao_type_column = column_before_ao_percentage + 2*idx
+                ao_type_column = column_before_ao_percentage + 2 * idx
                 ao_percentage_column = ao_type_column + 1
                 self.setItem(row_idx, ao_type_column, ao_type)
                 self.setItem(row_idx, ao_percentage_column, ao_percentage)
@@ -73,7 +75,6 @@ class TableWidget(QTableWidget):
                 self.item(row_idx, idx).setBackground(color)
 
     def load_output(self, file_path):
-
         def create_row_dict(row: list[str]) -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])
@@ -122,7 +123,6 @@ class TableWidget(QTableWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        print(ranges)
         selected_rows: set[int] = set()
         for r in ranges:
             selected_rows.update(range(r.topRow(), r.bottomRow() + 1))

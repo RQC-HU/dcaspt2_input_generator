@@ -2,6 +2,7 @@ from components.table_summary import TableSummary
 from components.table_widget import TableWidget
 from components.data import colors
 
+
 class WidgetController:
     def __init__(self, table_summary: TableSummary, table_widget: TableWidget):
         self.table_summary = table_summary
@@ -12,7 +13,7 @@ class WidgetController:
         self.table_widget.colorChanged.connect(self.onTableWidgetColorChanged)
 
     def onTableWidgetColorChanged(self):
-        color_count = {"core": 0, "inactive": 0, "ras1": 0, "active, ras2": 0, "ras3":0, "secondary": 0}
+        color_count = {"core": 0, "inactive": 0, "ras1": 0, "active, ras2": 0, "ras3": 0, "secondary": 0}
         # idx_start = {"core": -1, "inactive": -1, "active": -1, "secondary": -1}
         for row in range(self.table_widget.rowCount()):
             color = self.table_widget.item(row, 0).background()
