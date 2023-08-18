@@ -59,24 +59,45 @@ class MainWindow(QMainWindow):
         inact = 0
         act = 0
         sec = 0
+        ras1_list = []
+        ras2_list = []
+        ras3_list = []
         for idx in range(self.table_widget.rowCount()):
-            color = self.table_widget.item(idx, 0).background
+            spinor_indices = [2 * idx + 1, 2 * idx + 2]
+            color = self.table_widget.item(idx, 0).background().color()
             if color == colors.core.color:
                 print(idx, "core")
                 core += 2
             elif color == colors.inactive.color:
                 print(idx, "inactive")
                 inact += 2
+            elif color == colors.ras1.color:
+                print(idx, "ras1")
+                act += 2
+                ras1_list.extend(spinor_indices)
             elif color == colors.active.color:
                 print(idx, "active")
                 act += 2
+                ras2_list.extend(spinor_indices)
+            elif color == colors.ras3.color:
+                print(idx, "ras3")
+                sec += 2
+                ras3_list.extend(spinor_indices)
             elif color == colors.secondary.color:
                 print(idx, "secondary")
                 sec += 2
-        output += "core\n" + str(core) + "\n"
-        output += "inactive\n" + str(inact) + "\n"
-        output += "active\n" + str(act) + "\n"
-        output += "secondary\n" + str(sec) + "\n"
+        output += "ncore\n" + str(core) + "\n"
+        output += "ninact\n" + str(inact) + "\n"
+        output += "nact\n" + str(act) + "\n"
+        output += "nsec\n" + str(sec) + "\n"
+        output += "nbas\n" + str(core + inact + act + sec) + "\n"
+        output += "nroot\n1\n"
+        output += "selectroot\n1\n"
+        output += "totsym\n33\n"
+        output += "diracver\n21\n"
+        output += "" if len(ras1_list) == 0 else "ras1\n" + " ".join(map(str, ras1_list)) + "\n"
+        output += "" if len(ras2_list) == 0 else "ras2\n" + " ".join(map(str, ras2_list)) + "\n"
+        output += "" if len(ras3_list) == 0 else "ras3\n" + " ".join(map(str, ras3_list)) + "\n"
 
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
