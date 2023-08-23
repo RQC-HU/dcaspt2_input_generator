@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         ras2_list = []
         ras3_list = []
         for idx in range(self.table_widget.rowCount()):
-            spinor_indices = [2 * idx + 1, 2 * idx + 2]
+            spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
             if color == colors.core.color:
                 print(idx, "core")
@@ -91,10 +91,10 @@ class MainWindow(QMainWindow):
         output += "nact\n" + str(act) + "\n"
         output += "nsec\n" + str(sec) + "\n"
         output += "nbas\n" + str(core + inact + act + sec) + "\n"
-        output += "nroot\n1\n"
-        output += "selectroot\n1\n"
-        output += "totsym\n33\n"
-        output += "diracver\n21\n"
+        output += "nroot\n" + self.table_summary.selectroot_number.text() + "\n"
+        output += "selectroot\n" + self.table_summary.selectroot_number.text() + "\n"
+        output += "totsym\n" + self.table_summary.totsym_number.text() + "\n"
+        output += "diracver\n" + ("21" if self.table_summary.diracver_checkbox.isChecked() else "19") + "\n"
         output += "" if len(ras1_list) == 0 else "ras1\n" + " ".join(map(str, ras1_list)) + "\n" + self.table_summary.ras1_max_hole_number.text() + "\n"
         output += "" if len(ras2_list) == 0 else "ras2\n" + " ".join(map(str, ras2_list)) + "\n"
         output += "" if len(ras3_list) == 0 else "ras3\n" + " ".join(map(str, ras3_list)) + "\n" + self.table_summary.ras3_max_electron_number.text() + "\n"

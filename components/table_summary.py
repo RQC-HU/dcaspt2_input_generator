@@ -1,4 +1,4 @@
-from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit
+from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit, QCheckBox
 from qtpy.QtGui import QIntValidator
 
 
@@ -7,7 +7,7 @@ class NaturalNumberInput(QLineEdit):
         super().__init__()
         self.init()
 
-    def init(self):
+    def init(self, default_value: int = 0):
         varidator = QIntValidator(bottom=0)  # type: ignore
         self.setValidator(varidator)
         self.setText("0")
@@ -37,6 +37,13 @@ class TableSummary(QGridLayout):
         self.ras1_max_hole_number = NaturalNumberInput()
         self.ras3_max_electron_label = QLabel("ras3 max electron")
         self.ras3_max_electron_number = NaturalNumberInput()
+        self.totsym_label = QLabel("totsym")
+        self.totsym_number = NaturalNumberInput()
+        self.selectroot_label = QLabel("selectroot")
+        self.selectroot_number = NaturalNumberInput()
+        # Add checkbox
+        self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
+        self.diracver_checkbox = QCheckBox()
         # Add the labels and line edits to the layout
         self.addWidget(self.core_label, 0, 0)
         self.addWidget(self.inactive_label, 0, 1)
@@ -44,7 +51,13 @@ class TableSummary(QGridLayout):
         self.addWidget(self.active_label, 0, 3)
         self.addWidget(self.ras3_label, 0, 4)
         self.addWidget(self.secondary_label, 0, 5)
-        self.addWidget(self.ras1_max_hole_label, 1, 0)
-        self.addWidget(self.ras1_max_hole_number, 1, 1)
-        self.addWidget(self.ras3_max_electron_label, 1, 2)
-        self.addWidget(self.ras3_max_electron_number, 1, 3)
+        self.addWidget(self.totsym_label, 1, 0)
+        self.addWidget(self.totsym_number, 1, 1)
+        self.addWidget(self.selectroot_label, 1, 2)
+        self.addWidget(self.selectroot_number, 1, 3)
+        self.addWidget(self.diracver_label, 1, 4)
+        self.addWidget(self.diracver_checkbox, 1, 5)
+        self.addWidget(self.ras1_max_hole_label, 2, 0)
+        self.addWidget(self.ras1_max_hole_number, 2, 1)
+        self.addWidget(self.ras3_max_electron_label, 2, 2)
+        self.addWidget(self.ras3_max_electron_number, 2, 3)
