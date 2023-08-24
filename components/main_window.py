@@ -10,6 +10,7 @@ from components.table_widget import TableWidget
 from components.data import colors
 from controller.color_settings_controller import ColorSettingsController
 from controller.widget_controller import WidgetController
+from utils.utils import create_ras_str
 
 
 # Layout for the main window
@@ -95,9 +96,12 @@ class MainWindow(QMainWindow):
         output += "selectroot\n" + self.table_summary.selectroot_number.text() + "\n"
         output += "totsym\n" + self.table_summary.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.diracver_checkbox.isChecked() else "19") + "\n"
-        output += "" if len(ras1_list) == 0 else "ras1\n" + " ".join(map(str, ras1_list)) + "\n" + self.table_summary.ras1_max_hole_number.text() + "\n"
-        output += "" if len(ras2_list) == 0 else "ras2\n" + " ".join(map(str, ras2_list)) + "\n"
-        output += "" if len(ras3_list) == 0 else "ras3\n" + " ".join(map(str, ras3_list)) + "\n" + self.table_summary.ras3_max_electron_number.text() + "\n"
+        ras1_str = create_ras_str(sorted(ras1_list))
+        ras2_str = create_ras_str(sorted(ras2_list))
+        ras3_str = create_ras_str(sorted(ras3_list))
+        output += "" if len(ras1_list) == 0 else "ras1\n" + ras1_str + "\n" + self.table_summary.ras1_max_hole_number.text() + "\n"
+        output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
+        output += "" if len(ras3_list) == 0 else "ras3\n" + ras3_str + "\n" + self.table_summary.ras3_max_electron_number.text() + "\n"
 
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
