@@ -3,14 +3,20 @@ from qtpy.QtGui import QIntValidator
 
 
 class NaturalNumberInput(QLineEdit):
-    def __init__(self):
+    bottom_num: int
+    default_num: int
+    def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
+        if default_num < bottom_num:
+            raise ValueError("default_num must be larger than bottom_num")
+        self.bottom_num = bottom_num
+        self.default_num = default_num
         self.init()
 
-    def init(self, default_value: int = 0):
-        varidator = QIntValidator(bottom=0)  # type: ignore
+    def init(self):
+        varidator = QIntValidator(bottom=self.bottom_num)  # type: ignore
         self.setValidator(varidator)
-        self.setText("0")
+        self.setText(str(self.default_num))
         # サイズはとっても小さくする
         self.setMaximumWidth(200)
 
@@ -40,7 +46,7 @@ class TableSummary(QGridLayout):
         self.totsym_label = QLabel("totsym")
         self.totsym_number = NaturalNumberInput()
         self.selectroot_label = QLabel("selectroot")
-        self.selectroot_number = NaturalNumberInput()
+        self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=1)
         # Add checkbox
         self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
         self.diracver_checkbox = QCheckBox()
