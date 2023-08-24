@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
                 ras2_list.extend(spinor_indices)
             elif color == colors.ras3.color:
                 print(idx, "ras3")
-                sec += 2
+                act += 2
                 ras3_list.extend(spinor_indices)
             elif color == colors.secondary.color:
                 print(idx, "secondary")
