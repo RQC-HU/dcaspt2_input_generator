@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from qtpy.QtGui import QColor
 
 
@@ -27,7 +27,7 @@ table_data = TableData()
 
 @dataclass
 class ColorPopupInfo:
-    color: QColor = QColor()
+    color: QColor = field(default_factory=QColor)
     message: str = ""
 
 
