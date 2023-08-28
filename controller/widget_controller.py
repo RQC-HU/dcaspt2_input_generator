@@ -30,12 +30,12 @@ class WidgetController:
             elif color == colors.secondary.color:
                 color_count["secondary"] += 2
 
-        self.table_summary.core_label.setText(f"core: {color_count['core']}")
-        self.table_summary.inactive_label.setText(f"inactive: {color_count['inactive']}")
-        self.table_summary.ras1_label.setText(f"ras1: {color_count['ras1']}")
-        self.table_summary.active_label.setText(f"active, ras2: {color_count['active, ras2']}")
-        self.table_summary.ras3_label.setText(f"ras3: {color_count['ras3']}")
-        self.table_summary.secondary_label.setText(f"secondary: {color_count['secondary']}")
+        self.table_summary.spinor_summary.core_label.setText(f"core: {color_count['core']}")
+        self.table_summary.spinor_summary.inactive_label.setText(f"inactive: {color_count['inactive']}")
+        self.table_summary.spinor_summary.ras1_label.setText(f"ras1: {color_count['ras1']}")
+        self.table_summary.spinor_summary.active_label.setText(f"active, ras2: {color_count['active, ras2']}")
+        self.table_summary.spinor_summary.ras3_label.setText(f"ras3: {color_count['ras3']}")
+        self.table_summary.spinor_summary.secondary_label.setText(f"secondary: {color_count['secondary']}")
 
         # Reload the input
         self.table_summary.update()

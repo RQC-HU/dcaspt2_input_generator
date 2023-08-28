@@ -38,16 +38,16 @@ class TableWidget(QTableWidget):
 
     def create_table(self):
         print("TableWidget create_table")
-        inactive_start = 10
-        active_start = 20
-        secondary_start = 30
+        active_start = 10
+        secondary_start = 20
         self.clear()
         rows = table_data.mo_data
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
         for row_idx, row in enumerate(rows):
             color: QColor = (
-                colors.core.color if row_idx < inactive_start else colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
+                # colors.core.color if row_idx < inactive_start else colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
+                colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
             )
             # mo_symmetry
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))

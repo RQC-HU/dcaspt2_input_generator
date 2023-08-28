@@ -1,10 +1,11 @@
-from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit, QCheckBox
+from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit, QCheckBox, QWidget, QFrame
 from qtpy.QtGui import QIntValidator
 
 
 class NaturalNumberInput(QLineEdit):
     bottom_num: int
     default_num: int
+
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
         if default_num < bottom_num:
@@ -21,23 +22,9 @@ class NaturalNumberInput(QLineEdit):
         self.setMaximumWidth(200)
 
 
-# TableSummary provides the layout for the input data
-# like the following: ([ ] = line edit)
-# core   inactive    active    secondary
-# [  ]     [  ]       [  ]       [ ]
-class TableSummary(QGridLayout):
+class UserInput(QGridLayout):
     def __init__(self):
         super().__init__()
-        self.init_UI()
-
-    def init_UI(self):
-        # Create the labels
-        self.core_label = QLabel("core")
-        self.inactive_label = QLabel("inactive")
-        self.ras1_label = QLabel("ras1")
-        self.active_label = QLabel("active, ras2")
-        self.ras3_label = QLabel("ras3")
-        self.secondary_label = QLabel("secondary")
         # 数値を入力するためのラベル
         self.ras1_max_hole_label = QLabel("ras1 max hole")
         self.ras1_max_hole_number = NaturalNumberInput()
@@ -50,20 +37,56 @@ class TableSummary(QGridLayout):
         # Add checkbox
         self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
         self.diracver_checkbox = QCheckBox()
-        # Add the labels and line edits to the layout
+
+        self.addWidget(self.totsym_label, 0, 0)
+        self.addWidget(self.totsym_number, 0, 1)
+        self.addWidget(self.selectroot_label, 0, 2)
+        self.addWidget(self.selectroot_number, 0, 3)
+        self.addWidget(self.diracver_label, 0, 4)
+        self.addWidget(self.diracver_checkbox, 0, 5)
+        self.addWidget(self.ras1_max_hole_label, 1, 0)
+        self.addWidget(self.ras1_max_hole_number, 1, 1)
+        self.addWidget(self.ras3_max_electron_label, 1, 2)
+        self.addWidget(self.ras3_max_electron_number, 1, 3)
+
+
+class SpinorSummary(QGridLayout):
+    def __init__(self):
+        super().__init__()
+        # Create the labels
+        self.core_label = QLabel("core")
+        self.inactive_label = QLabel("inactive")
+        self.ras1_label = QLabel("ras1")
+        self.active_label = QLabel("active, ras2")
+        self.ras3_label = QLabel("ras3")
+        self.secondary_label = QLabel("secondary")
+
         self.addWidget(self.core_label, 0, 0)
         self.addWidget(self.inactive_label, 0, 1)
         self.addWidget(self.ras1_label, 0, 2)
         self.addWidget(self.active_label, 0, 3)
         self.addWidget(self.ras3_label, 0, 4)
         self.addWidget(self.secondary_label, 0, 5)
-        self.addWidget(self.totsym_label, 1, 0)
-        self.addWidget(self.totsym_number, 1, 1)
-        self.addWidget(self.selectroot_label, 1, 2)
-        self.addWidget(self.selectroot_number, 1, 3)
-        self.addWidget(self.diracver_label, 1, 4)
-        self.addWidget(self.diracver_checkbox, 1, 5)
-        self.addWidget(self.ras1_max_hole_label, 2, 0)
-        self.addWidget(self.ras1_max_hole_number, 2, 1)
-        self.addWidget(self.ras3_max_electron_label, 2, 2)
-        self.addWidget(self.ras3_max_electron_number, 2, 3)
+
+
+# TableSummary provides the layout for the input data
+# The layout is like this:
+class TableSummary(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.summaryLayout = QGridLayout()
+        self.spinor_summary = SpinorSummary()
+        self.user_input = UserInput()
+
+        self.summaryLayout.addWidget(QLabel("Summary of the number of spinols"), 0, 0)
+        self.summaryLayout.addLayout(self.spinor_summary, 1, 0)
+
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)  # type: ignore
+        line.setFrameShadow(QFrame.Sunken)  # type: ignore
+        self.summaryLayout.addWidget(line, 2, 0)
+
+        self.summaryLayout.addWidget(QLabel("User Input"), 3, 0)
+        self.summaryLayout.addLayout(self.user_input, 4, 0)
+
+        self.setLayout(self.summaryLayout)
