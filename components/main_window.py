@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QInputDialog, QPushButton
@@ -137,6 +138,10 @@ class MainWindow(QMainWindow):
 
     def run_sum_Dirac_DFCOEF(self, file_path, molecule_name):
         command = f"sum_dirac_dfcoef -i {file_path} -m {molecule_name} -d 3 -c"
+        # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
+        if os.name == "nt":
+            command = f"python -m {command}"
+        # Run the subprocess
         process = subprocess.run(
             command,
             shell=True,
