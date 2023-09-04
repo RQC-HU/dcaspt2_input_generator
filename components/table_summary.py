@@ -78,7 +78,7 @@ class TableSummary(QWidget):
         self.spinor_summary = SpinorSummary()
         self.user_input = UserInput()
 
-        self.summaryLayout.addWidget(QLabel("Summary of the number of spinols"), 0, 0)
+        self.summaryLayout.addWidget(QLabel("Summary of the number of spinors"), 0, 0)
         self.summaryLayout.addLayout(self.spinor_summary, 1, 0)
 
         line = QFrame()
