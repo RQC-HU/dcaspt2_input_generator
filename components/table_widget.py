@@ -131,32 +131,32 @@ class TableWidget(QTableWidget):
             selected_colors.append(self.item(row, 0).background().color())
         # core action
         if colors.inactive in selected_colors:
-            core_action = QAction(colors.core.message, self)
+            core_action = QAction(colors.core.message)
             core_action.triggered.connect(lambda: self.change_background_color(colors.core.color))
             menu.addAction(core_action)
         # inactive action
         if colors.active in selected_colors or colors.core in selected_colors:
-            inactive_action = QAction(colors.inactive.message, self)
+            inactive_action = QAction(colors.inactive.message)
             inactive_action.triggered.connect(lambda: self.change_background_color(colors.inactive.color))
             menu.addAction(inactive_action)
 
         # secondary action
         if colors.active in selected_colors:
-            secondary_action = QAction(colors.secondary.message, self)
+            secondary_action = QAction(colors.secondary.message)
             secondary_action.triggered.connect(lambda: self.change_background_color(colors.secondary.color))
             menu.addAction(secondary_action)
 
         # active action
 
-        ras1_action = QAction(colors.ras1.message, self)
+        ras1_action = QAction(colors.ras1.message)
         ras1_action.triggered.connect(lambda: self.change_background_color(colors.ras1.color))
         menu.addAction(ras1_action)
 
-        active_action = QAction(colors.active.message, self)
+        active_action = QAction(colors.active.message)
         active_action.triggered.connect(lambda: self.change_background_color(colors.active.color))
         menu.addAction(active_action)
 
-        ras3_action = QAction(colors.ras3.message, self)
+        ras3_action = QAction(colors.ras3.message)
         ras3_action.triggered.connect(lambda: self.change_background_color(colors.ras3.color))
         menu.addAction(ras3_action)
         menu.exec(self.viewport().mapToGlobal(position))
