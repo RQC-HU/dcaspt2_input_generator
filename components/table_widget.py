@@ -2,7 +2,7 @@ from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QMenu, QAction  # typ
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 
-from components.data import colors, Color
+from components.data import ColorPopupInfo, colors, Color
 from components.data import table_data, MOData
 
 
@@ -25,6 +25,8 @@ class TableWidget(QTableWidget):
     def __init__(self):
         print("TableWidget init")
         super().__init__()
+
+        # Set the context menu policy to custom context menu
         self.setContextMenuPolicy(Qt.CustomContextMenu)  # type: ignore
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
@@ -32,9 +34,42 @@ class TableWidget(QTableWidget):
         # https://doc.qt.io/qt-6/qabstractitemview.html#SelectionMode-enum
         self.setSelectionMode(QTableWidget.ContiguousSelection)  # type: ignore
 
+        # Initialize the index information and the color found information
+        self.idx_info = {
+            "core": {"start": -1, "end": -1},
+            "inactive": {"start": -1, "end": -1},
+            "secondary": {"start": -1, "end": -1},
+        }
+        self.color_found: dict[str, bool] = {"core": False, "inactive": False, "secondary": False}
+
     def reload(self, output_file_path: str):
         print("TableWidget reload")
         self.load_output(output_file_path)
+
+    def update_index_info(self):
+        # Reset information
+        self.color_found = {"core": False, "inactive": False, "secondary": False}
+        self.idx_info = {
+            "core": {"start": -1, "end": -1},
+            "inactive": {"start": -1, "end": -1},
+            "secondary": {"start": -1, "end": -1},
+        }
+
+        # Update information
+        for row in range(self.rowCount()):
+            row_color = self.item(row, 0).background().color()
+            color_info = colors.get_color_info(row_color)
+            if color_info.name not in self.color_found.keys():
+                # active, ras1, ras3 are not included because their context menu (right click menu) is always shown
+                # and they are not needed to store the index information
+                # therefore, skip them
+                continue
+            elif not self.color_found[color_info.name]:
+                self.color_found[color_info.name] = True
+                self.idx_info[color_info.name]["start"] = row
+                self.idx_info[color_info.name]["end"] = row
+            else:
+                self.idx_info[color_info.name]["end"] = row
 
     def create_table(self):
         print("TableWidget create_table")
@@ -45,10 +80,14 @@ class TableWidget(QTableWidget):
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
         for row_idx, row in enumerate(rows):
-            color: QColor = (
-                # colors.core.color if row_idx < inactive_start else colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
-                colors.inactive.color if row_idx < active_start else colors.active.color if row_idx < secondary_start else colors.secondary.color
+            color_info: ColorPopupInfo = (
+                colors.inactive
+                if row_idx < active_start
+                else colors.active
+                if row_idx < secondary_start
+                else colors.secondary
             )
+            color: QColor = color_info.color
             # mo_symmetry
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
             # mo_number_dirac
@@ -74,6 +113,8 @@ class TableWidget(QTableWidget):
             for idx in range(table_data.column_max_len):
                 self.item(row_idx, idx).setBackground(color)
 
+        self.update_index_info()
+
     def load_output(self, file_path):
         def create_row_dict(row: list[str]) -> MOData:
             mo_symmetry = row[0]
@@ -81,7 +122,14 @@ class TableWidget(QTableWidget):
             mo_energy = float(row[2])
             ao_type = [row[i] for i in range(3, len(row), 2)]
             ao_percentage = [float(row[i]) for i in range(4, len(row), 2)]
-            return MOData(mo_number=mo_number_dirac, mo_symmetry=mo_symmetry, energy=mo_energy, ao_type=ao_type, percentage=ao_percentage, ao_len=len(ao_type))
+            return MOData(
+                mo_number=mo_number_dirac,
+                mo_symmetry=mo_symmetry,
+                energy=mo_energy,
+                ao_type=ao_type,
+                percentage=ao_percentage,
+                ao_len=len(ao_type),
+            )
 
         def set_table_data():
             table_data.reset()
@@ -123,31 +171,49 @@ class TableWidget(QTableWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        selected_rows: set[int] = set()
+        selected_rows: list[int] = list()
         for r in ranges:
-            selected_rows.update(range(r.topRow(), r.bottomRow() + 1))
-        selected_colors: list[QColor] = list()
-        for row in selected_rows:
-            selected_colors.append(self.item(row, 0).background().color())
+            selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
+
+        topRow = selected_rows[0]
+        bottomRow = selected_rows[-1]
+        is_action_shown: dict[str, bool] = {"core": True, "inactive": True, "secondary": True}
         # core action
-        if colors.inactive in selected_colors:
+        if (self.color_found["inactive"] and topRow > self.idx_info["inactive"]["start"]) or (
+            self.color_found["secondary"] and topRow > self.idx_info["secondary"]["start"]
+        ):
+            is_action_shown["core"] = False
+
+        # inactive action
+        if (self.color_found["core"] and bottomRow < self.idx_info["core"]["end"]) or (
+            self.color_found["secondary"] and topRow > self.idx_info["secondary"]["start"]
+        ):
+            is_action_shown["inactive"] = False
+
+        # secondary action
+        if (self.color_found["core"] and bottomRow < self.idx_info["core"]["end"]) or (
+            self.color_found["inactive"] and bottomRow < self.idx_info["inactive"]["end"]
+        ):
+            is_action_shown["secondary"] = False
+
+        # Show the core action
+        if is_action_shown["core"]:
             core_action = QAction(colors.core.message)
             core_action.triggered.connect(lambda: self.change_background_color(colors.core.color))
             menu.addAction(core_action)
-        # inactive action
-        if colors.active in selected_colors or colors.core in selected_colors:
+        # Show the inactive action
+        if is_action_shown["inactive"]:
             inactive_action = QAction(colors.inactive.message)
             inactive_action.triggered.connect(lambda: self.change_background_color(colors.inactive.color))
             menu.addAction(inactive_action)
 
-        # secondary action
-        if colors.active in selected_colors:
+        # Show the secondary action
+        if is_action_shown["secondary"]:
             secondary_action = QAction(colors.secondary.message)
             secondary_action.triggered.connect(lambda: self.change_background_color(colors.secondary.color))
             menu.addAction(secondary_action)
 
-        # active action
-
+        # Show the active action
         ras1_action = QAction(colors.ras1.message)
         ras1_action.triggered.connect(lambda: self.change_background_color(colors.ras1.color))
         menu.addAction(ras1_action)
