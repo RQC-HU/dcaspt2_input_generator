@@ -116,7 +116,7 @@ class TableWidget(QTableWidget):
         self.update_index_info()
 
     def load_output(self, file_path):
-        def create_row_dict(row: list[str]) -> MOData:
+        def create_row_dict(row: "list[str]") -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])
             mo_energy = float(row[2])
@@ -171,7 +171,7 @@ class TableWidget(QTableWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        selected_rows: list[int] = list()
+        selected_rows: "list[int]" = list()
         for r in ranges:
             selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
 
