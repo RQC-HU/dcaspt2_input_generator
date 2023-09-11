@@ -60,17 +60,8 @@ class Color:
         return not self.__eq__(__value)
 
     def get_color_info(self, q_color: QColor):
-        # QColor is not hashable, so I use QColor.name() instead of QColor for dictionary keys.
-        colormap = {
-            self.core.color.name(): self.core,
-            self.inactive.color.name(): self.inactive,
-            self.ras1.color.name(): self.ras1,
-            self.active.color.name(): self.active,
-            self.ras3.color.name(): self.ras3,
-            self.secondary.color.name(): self.secondary,
-        }
-        if q_color.name() in colormap:
-            return colormap[q_color.name()]
+        if q_color.name() in self.colormap:
+            return self.colormap[q_color.name()]
         else:
             raise ValueError(f"Cannot find the corresponding color. q_color: {q_color.name()}, {q_color.getRgb()}")
 
@@ -101,6 +92,17 @@ class Color:
             self.secondary = ColorPopupInfo(QColor("#6A5ACD"), "secondary", "secondary(Slate blue)")
         else:
             raise ValueError("Invalid color type")
+
+        # colormap is a dictionary that maps QColor.name() to ColorPopupInfo
+        # QColor is not hashable, so I use QColor.name() instead of QColor for dictionary keys.
+        self.colormap = {
+            self.core.color.name(): self.core,
+            self.inactive.color.name(): self.inactive,
+            self.ras1.color.name(): self.ras1,
+            self.active.color.name(): self.active,
+            self.ras3.color.name(): self.ras3,
+            self.secondary.color.name(): self.secondary,
+        }
 
 
 colors = Color()
