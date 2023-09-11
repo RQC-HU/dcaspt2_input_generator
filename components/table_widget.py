@@ -7,7 +7,7 @@ from components.data import table_data, MOData
 
 
 # TableWidget is the widget that displays the output data
-# It is a subclass of QTableWidget
+# It is a extended class of QTableWidget
 # It has the following features:
 # 1. Load the output data from the file "data.out"
 # 2. Reload the output data
@@ -27,12 +27,12 @@ class TableWidget(QTableWidget):
         super().__init__()
 
         # Set the context menu policy to custom context menu
-        self.setContextMenuPolicy(Qt.CustomContextMenu)  # type: ignore
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)  # type: ignore
+        self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         # QTableWidget.ContiguousSelection: Multiple ranges selection is impossible.
         # https://doc.qt.io/qt-6/qabstractitemview.html#SelectionMode-enum
-        self.setSelectionMode(QTableWidget.ContiguousSelection)  # type: ignore
+        self.setSelectionMode(QTableWidget.SelectionMode.ContiguousSelection)
 
         # Initialize the index information and the color found information
         self.idx_info = {

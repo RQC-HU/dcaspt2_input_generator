@@ -11,7 +11,6 @@ class ColorSettings(QDialog):
 
     def init_UI(self):
         # 3つの選択肢を持つQInputDialogを作成
-        # ラジオボタンで実装
         self.buttonGroup = QButtonGroup(self)
         self.default_button = QRadioButton("default", self)
         self.default_button.setChecked(True)
@@ -34,7 +33,7 @@ class ColorSettings(QDialog):
         widget.setLayout(layout)
 
         # Show the widget as a dialog
-        # self.setWindowTitle("Color Settings")
+        self.setWindowTitle("Color Settings")
         self.setLayout(layout)
 
     # When buttonClicked is emitted, the signal is connected to the slot colorSettingsChanged

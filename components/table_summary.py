@@ -9,16 +9,17 @@ class NaturalNumberInput(QLineEdit):
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
         if default_num < bottom_num:
-            raise ValueError(f"default_num must be larger than bottom_num. default_num: {default_num}, bottom_num: {bottom_num}")
+            raise ValueError(
+                f"default_num must be larger than bottom_num. default_num: {default_num}, bottom_num: {bottom_num}"
+            )
         self.bottom_num = bottom_num
         self.default_num = default_num
         self.init()
 
     def init(self):
-        varidator = QIntValidator(bottom=self.bottom_num)  # type: ignore
-        self.setValidator(varidator)
+        validator = QIntValidator(bottom=self.bottom_num)  # type: ignore
+        self.setValidator(validator)
         self.setText(str(self.default_num))
-        # サイズはとっても小さくする
         self.setMaximumWidth(200)
 
 
@@ -82,8 +83,8 @@ class TableSummary(QWidget):
         self.summaryLayout.addLayout(self.spinor_summary, 1, 0)
 
         line = QFrame()
-        line.setFrameShape(QFrame.HLine)  # type: ignore
-        line.setFrameShadow(QFrame.Sunken)  # type: ignore
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
         self.summaryLayout.addWidget(line, 2, 0)
 
         self.summaryLayout.addWidget(QLabel("User Input"), 3, 0)

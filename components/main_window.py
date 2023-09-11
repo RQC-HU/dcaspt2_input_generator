@@ -42,7 +42,9 @@ class MainWindow(QMainWindow):
 
         # Create an instance of WidgetController
         self.widget_controller = WidgetController(self.table_summary, self.table_widget)
-        self.color_settings_controller = ColorSettingsController(self.table_widget, self.menu_bar.color_settings_action.color_settings)
+        self.color_settings_controller = ColorSettingsController(
+            self.table_widget, self.menu_bar.color_settings_action.color_settings
+        )
         # layout
         layout = QVBoxLayout()
         layout.addWidget(self.menu_bar)
@@ -100,9 +102,17 @@ class MainWindow(QMainWindow):
         ras1_str = create_ras_str(sorted(ras1_list))
         ras2_str = create_ras_str(sorted(ras2_list))
         ras3_str = create_ras_str(sorted(ras3_list))
-        output += "" if len(ras1_list) == 0 else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
+        output += (
+            ""
+            if len(ras1_list) == 0
+            else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
+        )
         output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
-        output += "" if len(ras3_list) == 0 else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
+        output += (
+            ""
+            if len(ras3_list) == 0
+            else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
+        )
 
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
@@ -123,7 +133,9 @@ class MainWindow(QMainWindow):
             self.reload_table(molecule_name + ".out")
 
     def select_file_DFCOEF(self):
-        file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)")
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)"
+        )
         if file_path:
             self.reload_table(file_path)
 
@@ -151,7 +163,8 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(
                 self,
                 "Error",
-                f"An error has ocurred while running the sum_dirac_dfcoef program. Please, check the output file. path: {file_path}\nExecuted command: {command}",
+                f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
+Please check the output file. path: {file_path}\nExecuted command: {command}",
             )
 
     def reload_table(self, output_path: str):

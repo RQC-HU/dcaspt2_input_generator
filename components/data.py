@@ -41,8 +41,7 @@ class Color:
         if not isinstance(__value, Color):
             return NotImplemented
         # Compare all colors
-        # core
-        if self.core.color != __value.core.color:
+        if self.core != __value.core:
             return False
         elif self.inactive != __value.inactive:
             return False

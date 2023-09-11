@@ -13,7 +13,6 @@ class ColorSettingsController:
         self.color_settings = color_settings
 
         # Connect signals and slots
-        # change_background_color is a slot
         self.color_settings.colorSettingsChanged.connect(self.onColorSettingsChanged)
 
     def onColorSettingsChanged(self):

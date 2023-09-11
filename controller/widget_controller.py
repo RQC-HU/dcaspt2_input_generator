@@ -14,7 +14,6 @@ class WidgetController:
 
     def onTableWidgetColorChanged(self):
         color_count = {"core": 0, "inactive": 0, "ras1": 0, "active, ras2": 0, "ras3": 0, "secondary": 0}
-        # idx_start = {"core": -1, "inactive": -1, "active": -1, "secondary": -1}
         for row in range(self.table_widget.rowCount()):
             color = self.table_widget.item(row, 0).background()
             if color == colors.core.color:
