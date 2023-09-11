@@ -240,18 +240,18 @@ class TableWidget(QTableWidget):
 
     def update_color(self, prev_color: Color):
         print("update_color")
+        color_mappping = {
+            prev_color.core.color.name(): colors.core.color,
+            prev_color.inactive.color.name(): colors.inactive.color,
+            prev_color.ras1.color.name(): colors.ras1.color,
+            prev_color.active.color.name(): colors.active.color,
+            prev_color.ras3.color.name(): colors.ras3.color,
+            prev_color.secondary.color.name(): colors.secondary.color,
+        }
 
         for row in range(self.rowCount()):
             color = self.item(row, 0).background().color()
-            if color == prev_color.core.color:
-                self.change_selected_rows_background_color(row, colors.core.color)
-            elif color == prev_color.inactive.color:
-                self.change_selected_rows_background_color(row, colors.inactive.color)
-            elif color == prev_color.ras1.color:
-                self.change_selected_rows_background_color(row, colors.ras1.color)
-            elif color == prev_color.active.color:
-                self.change_selected_rows_background_color(row, colors.active.color)
-            elif color == prev_color.ras3.color:
-                self.change_selected_rows_background_color(row, colors.ras3.color)
-            elif color == prev_color.secondary.color:
-                self.change_selected_rows_background_color(row, colors.secondary.color)
+            new_color = color_mappping.get(color.name())
+            if new_color:
+                self.change_selected_rows_background_color(row, new_color)
+        self.colorChanged.emit()
