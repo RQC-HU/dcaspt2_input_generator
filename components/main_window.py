@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QInputDialog, QPushButton
+from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QPushButton
 from qtpy.QtGui import QDragEnterEvent
 
 
@@ -125,12 +125,8 @@ class MainWindow(QMainWindow):
     def select_file_Dirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
-            molecule_name = ""
-            while molecule_name == "":
-                molecule_name, _ = self.questionMolecule()
-            # Run sum_dirac_defcoef subprocess
-            self.run_sum_Dirac_DFCOEF(file_path, molecule_name)
-            self.reload_table(molecule_name + ".out")
+            self.run_sum_Dirac_DFCOEF(file_path)
+            self.reload_table("sum_dirac_dfcoef.out")
 
     def select_file_DFCOEF(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -139,17 +135,8 @@ class MainWindow(QMainWindow):
         if file_path:
             self.reload_table(file_path)
 
-    def questionMolecule(self):
-        # Show a question message box that allow the user to write the molecule name
-        molecule_name, ok = QInputDialog.getText(
-            self,
-            "Molecule formula",
-            "Enter the molecule formula that you calculated using DIRAC:",
-        )
-        return molecule_name, ok
-
-    def run_sum_Dirac_DFCOEF(self, file_path, molecule_name):
-        command = f"sum_dirac_dfcoef -i {file_path} -m {molecule_name} -d 3 -c"
+    def run_sum_Dirac_DFCOEF(self, file_path):
+        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c"
         # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
         if os.name == "nt":
             command = f"python -m {command}"
