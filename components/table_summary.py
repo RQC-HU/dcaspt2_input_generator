@@ -17,6 +17,7 @@ class NaturalNumberInput(QLineEdit):
             )
         self.default_num = default_num
         self.bottom_num = bottom_num
+        self.top_num = None
         self.set_validator()
         self.setText(str(self.default_num))
         self.setMaximumWidth(200)
