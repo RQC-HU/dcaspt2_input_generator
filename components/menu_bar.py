@@ -18,6 +18,10 @@ class MenuBar(QMenuBar):
         self.file_menu.addAction(self.open_action_dirac)
         self.open_action_dfcoef = QAction("Open with sum_dirac_dfcoef output", self)
         self.file_menu.addAction(self.open_action_dfcoef)
+        self.save_action_input = QAction("Save input file", self)
+        self.file_menu.addAction(self.save_action_input)
+        self.save_action_dfcoef = QAction("Save sum_dirac_dfcoef file", self)
+        self.file_menu.addAction(self.save_action_dfcoef)
 
         self.file_menu = self.addMenu("Settings")
         self.color_settings_action = ColorSettingsAction()

@@ -32,6 +32,8 @@ class MainWindow(QMainWindow):
         self.menu_bar = MenuBar()
         self.menu_bar.open_action_dirac.triggered.connect(self.select_file_Dirac)
         self.menu_bar.open_action_dfcoef.triggered.connect(self.select_file_DFCOEF)
+        self.menu_bar.save_action_input.triggered.connect(self.save_input)
+        self.menu_bar.save_action_dfcoef.triggered.connect(self.save_sum_dirac_dfcoef)
 
         # Body
         self.table_summary = TableSummary()
@@ -115,7 +117,7 @@ class MainWindow(QMainWindow):
         )
 
         # open dialog to save the file
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Text Files (*.txt)")
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
         if file_path:
             # open the file with write mode
             with open(file_path, "w") as f:
@@ -134,6 +136,26 @@ class MainWindow(QMainWindow):
         )
         if file_path:
             self.reload_table(file_path)
+
+    def save_sum_dirac_dfcoef(self):
+        if not os.path.exists("sum_dirac_dfcoef.out"):
+            QMessageBox.critical(
+                self,
+                "Error",
+                "The sum_dirac_dfcoef.out file does not exist.\n\
+Please run the sum_dirac_dfcoef program first.",
+            )
+            return
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, caption="Save sum_dirac_dfcoef.out file as different name", filter="Output file (*.out)"
+        )
+        if not file_path.endswith(".out"):
+            file_path += ".out"
+        if file_path:
+            import shutil
+
+            # Copy the sum_dirac_dfcoef.out file to the file_path
+            shutil.copy("sum_dirac_dfcoef.out", file_path)
 
     def run_sum_Dirac_DFCOEF(self, file_path):
         command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c"
