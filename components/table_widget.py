@@ -236,6 +236,7 @@ class TableWidget(QTableWidget):
         rows = set([index.row() for index in indexes])
         for row in rows:
             self.change_selected_rows_background_color(row, color)
+        self.update_index_info()
         self.colorChanged.emit()
 
     def update_color(self, prev_color: Color):
