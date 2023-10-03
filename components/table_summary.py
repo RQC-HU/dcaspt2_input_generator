@@ -9,16 +9,17 @@ class NaturalNumberInput(QLineEdit):
     default_num: int
     top_num: Optional[int]
 
-    def __init__(self, bottom_num: int = 0, default_num: int = 0, top_num: Optional[int] = None):
+    def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
         if default_num < bottom_num:
             raise ValueError(
                 f"default_num must be larger than bottom_num. default_num: {default_num}, bottom_num: {bottom_num}"
             )
-        self.bottom_num = bottom_num
         self.default_num = default_num
-        self.top_num = top_num
-        self.init()
+        self.bottom_num = bottom_num
+        self.set_validator()
+        self.setText(str(self.default_num))
+        self.setMaximumWidth(200)
 
     def set_validator(self):
         if self.top_num is not None:
@@ -27,43 +28,50 @@ class NaturalNumberInput(QLineEdit):
             validator = QIntValidator(bottom=self.bottom_num)
         self.setValidator(validator)
 
-    def set_default_num(self, default_num: int):
-        self.default_num = default_num
-
-    def set_bottom_num(self, bottom_num: int):
-        self.bottom_num = bottom_num
-        self.set_validator()
-
-    def set_top_num(self, top_num: int):
-        self.top_num = top_num
-        self.set_validator()
-
     def is_input_valid(self):
         if self.hasAcceptableInput():
             return True
         else:
             return False
 
-    def init(self):
-        self.set_validator()
-        self.setText(str(self.default_num))
-        self.setMaximumWidth(200)
+    def update_text(self):
+        current_text = self.text()
+        if current_text == "":
+            # If the input is empty, set the default number
+            self.setText(str(self.default_num))
+        elif self.top_num is not None and int(current_text) > self.top_num:
+            self.setText(str(self.top_num))
+        elif int(current_text) < self.bottom_num:
+            self.setText(str(self.bottom_num))
 
     # At the end of the input, the number is validated
     def focusOutEvent(self, arg__1: QEvent) -> None:
         if not self.is_input_valid():  # Validate the input
             print("Invalid input")
-            self.setText(str(self.default_num))
+            self.update_text()
         return super().focusOutEvent(arg__1)
+
+
+class RASNumberInput(NaturalNumberInput):
+
+    def __init__(self, bottom_num: int = 0, default_num: int = 0):
+        super().__init__(bottom_num, default_num)
+        self.set_top_num(0)
+
+    def set_top_num(self, top_num: int):
+        self.top_num = top_num
+        self.set_validator()
+        if self.is_input_valid():
+            self.update_text()
 
 class UserInput(QGridLayout):
     def __init__(self):
         super().__init__()
         # 数値を入力するためのラベル
         self.ras1_max_hole_label = QLabel("ras1 max hole")
-        self.ras1_max_hole_number = NaturalNumberInput()
+        self.ras1_max_hole_number = RASNumberInput()
         self.ras3_max_electron_label = QLabel("ras3 max electron")
-        self.ras3_max_electron_number = NaturalNumberInput()
+        self.ras3_max_electron_number = RASNumberInput()
         self.totsym_label = QLabel("totsym")
         self.totsym_number = NaturalNumberInput(bottom_num=1, default_num=1)
         self.selectroot_label = QLabel("selectroot")
