@@ -58,9 +58,9 @@ class NaturalNumberInput(QLineEdit):
 class RASNumberInput(NaturalNumberInput):
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__(bottom_num, default_num)
-        self.set_top_num(0)
+        self.setTop(0)
 
-    def set_top_num(self, top_num: int):
+    def setTop(self, top_num: int):
         self.top_num = top_num
         self.set_validator()
         if self.is_input_valid():
