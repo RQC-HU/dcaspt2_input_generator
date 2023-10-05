@@ -1,7 +1,6 @@
 from typing import Optional
 
-from qtpy.QtCore import QEvent
-from qtpy.QtGui import QIntValidator
+from qtpy.QtGui import QIntValidator, QFocusEvent
 from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit, QCheckBox, QWidget, QFrame
 
 class NaturalNumberInput(QLineEdit):
@@ -46,7 +45,7 @@ class NaturalNumberInput(QLineEdit):
             self.setText(str(self.bottom_num))
 
     # At the end of the input, the number is validated
-    def focusOutEvent(self, arg__1: QEvent) -> None:
+    def focusOutEvent(self, arg__1: QFocusEvent) -> None:
         if not self.is_input_valid():  # Validate the input
             print("Invalid input")
             self.update_text()
