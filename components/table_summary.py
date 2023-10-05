@@ -3,6 +3,7 @@ from typing import Optional
 from qtpy.QtGui import QIntValidator, QFocusEvent
 from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit, QCheckBox, QWidget, QFrame
 
+
 class NaturalNumberInput(QLineEdit):
     bottom_num: int
     default_num: int
@@ -22,10 +23,12 @@ class NaturalNumberInput(QLineEdit):
         self.setMaximumWidth(200)
 
     def set_validator(self):
+        validator = QIntValidator()
         if self.top_num is not None:
-            validator = QIntValidator(bottom=self.bottom_num, top=self.top_num)
+            validator.setBottom(self.bottom_num)
+            validator.setTop(self.top_num)
         else:
-            validator = QIntValidator(bottom=self.bottom_num)
+            validator.setBottom(self.bottom_num)
         self.setValidator(validator)
 
     def is_input_valid(self):
@@ -53,7 +56,6 @@ class NaturalNumberInput(QLineEdit):
 
 
 class RASNumberInput(NaturalNumberInput):
-
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__(bottom_num, default_num)
         self.set_top_num(0)
@@ -63,6 +65,7 @@ class RASNumberInput(NaturalNumberInput):
         self.set_validator()
         if self.is_input_valid():
             self.update_text()
+
 
 class UserInput(QGridLayout):
     def __init__(self):
