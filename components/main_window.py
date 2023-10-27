@@ -10,6 +10,7 @@ from components.table_summary import TableSummary
 from components.table_widget import TableWidget
 from components.data import colors
 from controller.color_settings_controller import ColorSettingsController
+from controller.save_default_settings_controller import SaveDefaultSettingsController
 from controller.widget_controller import WidgetController
 from utils.utils import create_ras_str
 
@@ -46,6 +47,12 @@ class MainWindow(QMainWindow):
         self.widget_controller = WidgetController(self.table_summary, self.table_widget)
         self.color_settings_controller = ColorSettingsController(
             self.table_widget, self.menu_bar.color_settings_action.color_settings
+        )
+
+        self.save_default_settings_controller = SaveDefaultSettingsController(
+            color=colors,
+            user_input=self.table_summary.user_input,
+            save_default_settings_action=self.menu_bar.save_default_settings_action,
         )
         # layout
         layout = QVBoxLayout()

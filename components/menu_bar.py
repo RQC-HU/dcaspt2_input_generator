@@ -4,9 +4,19 @@ from qtpy.QtWidgets import QMenuBar, QAction  # type: ignore
 from components.color_settings import ColorSettingsAction
 
 
-class MenuBar(QMenuBar):
-    colorSettingsChanged = Signal()
+class SaveDefaultSettingsAction(QAction):
+    saveDefaultSettings = Signal()
 
+    def __init__(self):
+        super().__init__()
+        self.setText("Save current settings as default")
+        self.triggered.connect(self.saveDefaultSettings)
+
+    def save_default_settings(self):
+        self.saveDefaultSettings.emit()
+
+
+class MenuBar(QMenuBar):
     def __init__(self):
         super().__init__()
         self.init_UI()
@@ -25,4 +35,6 @@ class MenuBar(QMenuBar):
 
         self.file_menu = self.addMenu("Settings")
         self.color_settings_action = ColorSettingsAction()
+        self.save_default_settings_action = SaveDefaultSettingsAction()
         self.file_menu.addAction(self.color_settings_action)
+        self.file_menu.addAction(self.save_default_settings_action)

@@ -35,7 +35,8 @@ class ColorPopupInfo:
 class Color:
     def __init__(self):
         # Default color
-        self.change_color_templates(color_type="default")
+        self.color_type = "default"
+        self.change_color_templates(self.color_type)
 
     def __eq__(self, __value: object):
         if not isinstance(__value, Color):
@@ -92,6 +93,7 @@ class Color:
             self.secondary = ColorPopupInfo(QColor("#6A5ACD"), "secondary", "secondary(Slate blue)")
         else:
             raise ValueError("Invalid color type")
+        self.color_type = color_type
 
         # colormap is a dictionary that maps QColor.name() to ColorPopupInfo
         # QColor is not hashable, so I use QColor.name() instead of QColor for dictionary keys.

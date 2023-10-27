@@ -47,6 +47,9 @@ class NaturalNumberInput(QLineEdit):
         elif int(current_text) < self.bottom_num:
             self.setText(str(self.bottom_num))
 
+    def get_value(self):
+        return self.text()
+
     # At the end of the input, the number is validated
     def focusOutEvent(self, arg__1: QFocusEvent) -> None:
         if not self.is_input_valid():  # Validate the input
@@ -93,6 +96,15 @@ class UserInput(QGridLayout):
         self.addWidget(self.ras1_max_hole_number, 1, 1)
         self.addWidget(self.ras3_max_electron_label, 1, 2)
         self.addWidget(self.ras3_max_electron_number, 1, 3)
+
+    def get_input_values(self):
+        return {
+            "totsym": self.totsym_number.get_value(),
+            "selectroot": self.selectroot_number.get_value(),
+            "ras1_max_hole": self.ras1_max_hole_number.get_value(),
+            "ras3_max_electron": self.ras3_max_electron_number.get_value(),
+            "dirac_ver_21_or_later": self.diracver_checkbox.isChecked(),
+        }
 
 
 class SpinorSummary(QGridLayout):
