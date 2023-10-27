@@ -4,8 +4,8 @@ import os
 import json
 from typing import Dict
 
-from components.dir_info import dir_info
-from components.main_window import MainWindow
+from ..components.dir_info import dir_info
+from ..components.main_window import MainWindow
 
 
 class CustomJsonDecodeError(json.decoder.JSONDecodeError):

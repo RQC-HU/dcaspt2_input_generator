@@ -5,14 +5,14 @@ from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMess
 from qtpy.QtGui import QDragEnterEvent
 
 
-from components.menu_bar import MenuBar
-from components.table_summary import TableSummary
-from components.table_widget import TableWidget
-from components.data import colors
-from controller.color_settings_controller import ColorSettingsController
-from controller.save_default_settings_controller import SaveDefaultSettingsController
-from controller.widget_controller import WidgetController
-from utils.utils import create_ras_str
+from .menu_bar import MenuBar
+from .table_summary import TableSummary
+from .table_widget import TableWidget
+from .data import colors
+from ..controller.color_settings_controller import ColorSettingsController
+from ..controller.save_default_settings_controller import SaveDefaultSettingsController
+from ..controller.widget_controller import WidgetController
+from ..utils.utils import create_ras_str
 
 
 # Layout for the main window

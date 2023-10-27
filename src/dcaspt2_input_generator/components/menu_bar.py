@@ -1,7 +1,7 @@
 from qtpy.QtCore import Signal  # type: ignore
 from qtpy.QtWidgets import QMenuBar, QAction  # type: ignore
 
-from components.color_settings import ColorSettingsAction
+from ..components.color_settings import ColorSettingsAction
 
 
 class SaveDefaultSettingsAction(QAction):

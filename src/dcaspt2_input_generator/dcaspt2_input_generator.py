@@ -9,8 +9,8 @@ from qtpy.QtWidgets import QApplication
 
 class MainApp:
     def __init__(self):
-        from utils.settings import Settings
-        from components.main_window import MainWindow
+        from .utils.settings import Settings
+        from .components.main_window import MainWindow
 
         self.app = QApplication(sys.argv)
         self.user_current_dir = os.getcwd()
@@ -50,6 +50,6 @@ class MainApp:
             self.settings.window_size.save_window_size(self.window)
 
 
-if __name__ == "__main__":
+def main():
     app = MainApp()
     app.run()
