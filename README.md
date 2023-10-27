@@ -1,4 +1,4 @@
-# dirac_caspt2_input_generator
+# dcaspt2_input_generator
 
 ## Description
 
