@@ -16,7 +16,7 @@ from ..utils.utils import create_ras_str
 
 
 # Layout for the main window
-# File, Settings
+# File, Settings, About (menu bar)
 # message, AnimatedToggle (button)
 # TableWidget (table)
 # InputLayout (layout): core, inactive, active, secondary
