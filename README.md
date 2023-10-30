@@ -14,13 +14,13 @@
 ```bash
 git clone https://github.com/kohei-noda-qcrg/dirac_caspt2_input_generator
 cd dirac_caspt2_input_generator
-pip install -r requirements.txt
+pip install .
 ```
 
 ## Usage
 
 ```bash
-python main.py
+dcaspt2_input_generator
 ```
 
 ## LICENSE
