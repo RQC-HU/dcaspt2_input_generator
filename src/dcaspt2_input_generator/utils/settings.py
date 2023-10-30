@@ -9,9 +9,6 @@ from ..components.main_window import MainWindow
 
 
 class CustomJsonDecodeError(json.decoder.JSONDecodeError):
-    #  print f"settings.json is broken. Please delete the file and restart this application.\n\
-    # File path: {settings_file_path}"
-
     def __init__(self, settings_file_path: str):
         self.message = f"settings.json is broken. Please delete the file and restart this application.\n\
 File path: {settings_file_path}"
@@ -27,10 +24,8 @@ class DefaultUserInput:
 
     def __init__(self):
         # If the settings.json file exists, read the settings from the file
-        settings_file_path = dir_info.setting_file_path
-        if os.path.exists(settings_file_path):
-            setting_file_path = os.path.abspath(settings_file_path)
-            with open("settings.json", "r") as f:
+        if os.path.exists(dir_info.setting_file_path):
+            with open(dir_info.setting_file_path, mode="r") as f:
                 try:
                     settings = json.load(f)
                     self.totsym = settings["totsym"]
@@ -39,7 +34,7 @@ class DefaultUserInput:
                     self.ras3_max_hole = settings["ras3_max_hole"]
                     self.dirac_ver_21_or_later = settings["dirac_ver_21_or_later"]
                 except CustomJsonDecodeError:
-                    raise CustomJsonDecodeError(setting_file_path)
+                    raise CustomJsonDecodeError(dir_info.setting_file_path)
 
 
 class WindowSize:
@@ -50,7 +45,7 @@ class WindowSize:
 
     def get_window_size_from_setting_file(self):
         if os.path.exists(dir_info.setting_file_path):
-            with open(dir_info.setting_file_path) as f:
+            with open(dir_info.setting_file_path, mode="r") as f:
                 try:
                     settings = json.load(f)
                     if (
@@ -69,7 +64,7 @@ class WindowSize:
         # Get the current window position
         width, height = window.size().width(), window.size().height()
         # Save the window position to the settings.json file
-        with open(dir_info.setting_file_path) as f:
+        with open(dir_info.setting_file_path, mode="r") as f:
             settings: Dict = json.load(f)
             settings.setdefault("window_size", {})
             settings["window_size"]["width"] = width
@@ -87,7 +82,7 @@ class WindowPosition:
 
     def get_window_pos_from_setting_file(self):
         if os.path.exists(dir_info.setting_file_path):
-            with open(dir_info.setting_file_path) as f:
+            with open(dir_info.setting_file_path, mode="r") as f:
                 try:
                     settings = json.load(f)
                     if (
@@ -118,29 +113,27 @@ class WindowPosition:
 
 class DefaultColorTheme:
     def __init__(self):
-        self.setting_file_path = dir_info.setting_file_path
         self.color_theme = self.get_color_theme()
 
     def get_color_theme(self):
-        if os.path.exists(self.setting_file_path):
-            with open(self.setting_file_path) as f:
+        if os.path.exists(dir_info.setting_file_path):
+            with open(dir_info.setting_file_path, mode="r") as f:
                 try:
                     settings = json.load(f)
                     if "color_theme" in settings:
                         return settings["color_theme"]
                 except CustomJsonDecodeError:
-                    raise CustomJsonDecodeError(self.setting_file_path)
+                    raise CustomJsonDecodeError(dir_info.setting_file_path)
         return "default"
 
 
 class Settings:
     def __init__(self):
-        self.setting_file_path = dir_info.setting_file_path
         self.window_pos = WindowPosition()
         self.window_pos.get_window_pos_from_setting_file()
         self.window_size = WindowSize()
         self.window_size.get_window_size_from_setting_file()
-        if not os.path.exists(self.setting_file_path):
+        if not os.path.exists(dir_info.setting_file_path):
             self.create_default_settings_file()
         self.input = DefaultUserInput()
         self.color_theme = DefaultColorTheme()
@@ -155,7 +148,7 @@ class Settings:
             "dirac_ver_21_or_later": False,
             "color_theme": "default",
         }
-        with open(self.setting_file_path, "w") as f:
+        with open(dir_info.setting_file_path, mode="w") as f:
             json.dump(settings, f, indent=4)
 
     def save_window_pos(self, window):
