@@ -1,7 +1,7 @@
 from qtpy.QtCore import Signal  # type: ignore
 from qtpy.QtWidgets import QMenuBar, QAction  # type: ignore
 
-from components.color_settings import ColorSettingsAction
+from ..components.color_settings import ColorSettingsAction
 
 
 class SaveDefaultSettingsAction(QAction):
@@ -14,6 +14,22 @@ class SaveDefaultSettingsAction(QAction):
 
     def save_default_settings(self):
         self.saveDefaultSettings.emit()
+
+
+class AboutAction(QAction):
+    # クリックしたらバージョン情報などを表示する
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setText("Version")
+        self.triggered.connect(self.about)
+
+    def about(self):
+        from ..__about__ import __version__
+        from qtpy.QtWidgets import QMessageBox, QWidget
+
+        msg = f"Version: {__version__}"
+        QMessageBox.about(QWidget(), "Version info", msg)
 
 
 class MenuBar(QMenuBar):
@@ -38,3 +54,8 @@ class MenuBar(QMenuBar):
         self.save_default_settings_action = SaveDefaultSettingsAction()
         self.file_menu.addAction(self.color_settings_action)
         self.file_menu.addAction(self.save_default_settings_action)
+
+        # クリックしたらバージョン情報などを表示する
+        self.file_menu = self.addMenu("About")
+        self.about_action = AboutAction("About")
+        self.file_menu.addAction(self.about_action)

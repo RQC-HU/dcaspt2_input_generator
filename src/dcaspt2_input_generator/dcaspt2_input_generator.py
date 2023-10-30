@@ -9,8 +9,8 @@ from qtpy.QtWidgets import QApplication
 
 class MainApp:
     def __init__(self):
-        from utils.settings import Settings
-        from components.main_window import MainWindow
+        from .utils.settings import Settings
+        from .components.main_window import MainWindow
 
         self.app = QApplication(sys.argv)
         self.user_current_dir = os.getcwd()
@@ -29,7 +29,18 @@ class MainApp:
         is_window_pos_loaded = self.settings.window_pos.windowPositionLoadedOnStartUp
         if is_window_pos_loaded:
             # If the window position is loaded from the settings.json file, use the loaded position
-            self.window.move(self.settings.window_pos.posx, self.settings.window_pos.posy)
+            # But if the window position exceeds the screen size, modify the position
+            rect = QScreen().availableGeometry()  # Get the available screen size
+            screen_width, screen_height = rect.width(), rect.height()
+            if self.settings.window_pos.posx > screen_width:
+                # If the window position exceeds the screen width, modify the position
+                self.settings.window_pos.posx = self.settings.window_pos.posx % screen_width
+            if self.settings.window_pos.posy > screen_height:
+                # If the window position exceeds the screen height, modify the position
+                self.settings.window_pos.posy = self.settings.window_pos.posy % screen_height
+            # Set the window position
+            self.window.geometry().setX(self.settings.window_pos.posx)
+            self.window.geometry().setY(self.settings.window_pos.posy)
         self.window.show()
         if not is_window_pos_loaded:
             # If the window position is not loaded from the settings.json file, get the current window position
@@ -50,6 +61,6 @@ class MainApp:
             self.settings.window_size.save_window_size(self.window)
 
 
-if __name__ == "__main__":
+def main():
     app = MainApp()
     app.run()

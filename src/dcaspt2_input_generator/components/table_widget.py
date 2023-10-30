@@ -2,8 +2,8 @@ from qtpy.QtWidgets import QTableWidget, QTableWidgetItem, QMenu, QAction  # typ
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 
-from components.data import ColorPopupInfo, colors, Color
-from components.data import table_data, MOData
+from ..components.data import ColorPopupInfo, colors, Color
+from ..components.data import table_data, MOData
 
 
 # TableWidget is the widget that displays the output data
