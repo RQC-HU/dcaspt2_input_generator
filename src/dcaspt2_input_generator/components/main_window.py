@@ -5,6 +5,7 @@ from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMess
 from qtpy.QtGui import QDragEnterEvent
 
 
+from .dir_info import dir_info
 from .menu_bar import MenuBar
 from .table_summary import TableSummary
 from .table_widget import TableWidget
@@ -135,7 +136,7 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
             self.run_sum_Dirac_DFCOEF(file_path)
-            self.reload_table("sum_dirac_dfcoef.out")
+            self.reload_table(dir_info.sum_dirac_dfcoef_path)
 
     def select_file_DFCOEF(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -145,7 +146,7 @@ class MainWindow(QMainWindow):
             self.reload_table(file_path)
 
     def save_sum_dirac_dfcoef(self):
-        if not os.path.exists("sum_dirac_dfcoef.out"):
+        if not os.path.exists(dir_info.sum_dirac_dfcoef_path):
             QMessageBox.critical(
                 self,
                 "Error",
@@ -162,10 +163,10 @@ Please run the sum_dirac_dfcoef program first.",
             import shutil
 
             # Copy the sum_dirac_dfcoef.out file to the file_path
-            shutil.copy("sum_dirac_dfcoef.out", file_path)
+            shutil.copy(dir_info.sum_dirac_dfcoef_path, file_path)
 
     def run_sum_Dirac_DFCOEF(self, file_path):
-        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c"
+        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
         # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
         if os.name == "nt":
             command = f"python -m {command}"
