@@ -30,17 +30,8 @@ class MainApp:
         if is_window_pos_loaded:
             # If the window position is loaded from the settings.json file, use the loaded position
             # But if the window position exceeds the screen size, modify the position
-            rect = QScreen().availableGeometry()  # Get the available screen size
-            screen_width, screen_height = rect.width(), rect.height()
-            if self.settings.window_pos.posx > screen_width:
-                # If the window position exceeds the screen width, modify the position
-                self.settings.window_pos.posx = self.settings.window_pos.posx % screen_width
-            if self.settings.window_pos.posy > screen_height:
-                # If the window position exceeds the screen height, modify the position
-                self.settings.window_pos.posy = self.settings.window_pos.posy % screen_height
             # Set the window position
-            self.window.geometry().setX(self.settings.window_pos.posx)
-            self.window.geometry().setY(self.settings.window_pos.posy)
+            self.window.move(self.settings.window_pos.posx, self.settings.window_pos.posy)
         self.window.show()
         if not is_window_pos_loaded:
             # If the window position is not loaded from the settings.json file, get the current window position
