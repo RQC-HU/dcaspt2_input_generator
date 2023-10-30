@@ -99,7 +99,7 @@ class WindowPosition:
 
     def save_window_pos(self, window: MainWindow):
         # Get the current window position
-        posx, posy = window.geometry().x(), window.geometry().y()
+        posx, posy = window.pos().x(), window.pos().y()
         # Save the window position to the settings.json file
         with open(dir_info.setting_file_path) as f:
             settings: Dict = json.load(f)
