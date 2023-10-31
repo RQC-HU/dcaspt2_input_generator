@@ -1,11 +1,11 @@
 # This script contains all functions to handle settings of this application.
 
-import os
 import json
+import os
 from typing import Dict
 
-from ..components.dir_info import dir_info
 from ..components.main_window import MainWindow
+from .dir_info import dir_info
 
 
 class CustomJsonDecodeError(json.decoder.JSONDecodeError):

@@ -1,10 +1,9 @@
 import json
 
-
-from ..components.menu_bar import SaveDefaultSettingsAction
-from ..components.dir_info import dir_info
-from ..components.table_summary import UserInput
 from ..components.data import Color
+from ..components.menu_bar import SaveDefaultSettingsAction
+from ..components.table_summary import UserInput
+from ..utils.dir_info import dir_info
 
 
 class SaveDefaultSettingsController:

@@ -1,6 +1,6 @@
+from ..components.data import colors
 from ..components.table_summary import TableSummary
 from ..components.table_widget import TableWidget
-from ..components.data import colors
 
 
 class WidgetController:

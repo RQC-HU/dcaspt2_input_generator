@@ -1,19 +1,18 @@
 import os
 import subprocess
 
-from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QPushButton
 from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
-
-from .dir_info import dir_info
-from .menu_bar import MenuBar
-from .table_summary import TableSummary
-from .table_widget import TableWidget
-from .data import colors
 from ..controller.color_settings_controller import ColorSettingsController
 from ..controller.save_default_settings_controller import SaveDefaultSettingsController
 from ..controller.widget_controller import WidgetController
+from ..utils.dir_info import dir_info
 from ..utils.utils import create_ras_str
+from .data import colors
+from .menu_bar import MenuBar
+from .table_summary import TableSummary
+from .table_widget import TableWidget
 
 
 # Layout for the main window

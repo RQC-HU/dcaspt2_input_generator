@@ -4,15 +4,15 @@ import sys
 from qtpy.QtGui import QScreen
 from qtpy.QtWidgets import QApplication
 
-from .components.dir_info import dir_info
+from .utils.dir_info import dir_info
 
 # import qt_material
 
 
 class MainApp:
     def __init__(self):
-        from .utils.settings import Settings
         from .components.main_window import MainWindow
+        from .utils.settings import Settings
 
         self.app = QApplication(sys.argv)
         self.settings = Settings()
