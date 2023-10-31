@@ -1,5 +1,5 @@
-from qtpy.QtWidgets import QDialog, QButtonGroup, QRadioButton, QVBoxLayout, QWidget, QAction  # type: ignore
 from qtpy.QtCore import Signal  # type: ignore
+from qtpy.QtWidgets import QAction, QButtonGroup, QDialog, QRadioButton, QVBoxLayout, QWidget  # type: ignore
 
 
 class ColorSettings(QDialog):

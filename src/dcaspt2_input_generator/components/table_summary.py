@@ -1,7 +1,7 @@
 from typing import Optional
 
-from qtpy.QtGui import QIntValidator, QFocusEvent
-from qtpy.QtWidgets import QGridLayout, QLabel, QLineEdit, QCheckBox, QWidget, QFrame
+from qtpy.QtGui import QFocusEvent, QIntValidator
+from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
 
 class NaturalNumberInput(QLineEdit):

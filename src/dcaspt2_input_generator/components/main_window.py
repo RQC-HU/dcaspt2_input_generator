@@ -1,18 +1,18 @@
 import os
 import subprocess
 
-from qtpy.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QFileDialog, QMessageBox, QPushButton
 from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
-
-from .menu_bar import MenuBar
-from .table_summary import TableSummary
-from .table_widget import TableWidget
-from .data import colors
 from ..controller.color_settings_controller import ColorSettingsController
 from ..controller.save_default_settings_controller import SaveDefaultSettingsController
 from ..controller.widget_controller import WidgetController
+from ..utils.dir_info import dir_info
 from ..utils.utils import create_ras_str
+from .data import colors
+from .menu_bar import MenuBar
+from .table_summary import TableSummary
+from .table_widget import TableWidget
 
 
 # Layout for the main window
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
             self.run_sum_Dirac_DFCOEF(file_path)
-            self.reload_table("sum_dirac_dfcoef.out")
+            self.reload_table(dir_info.sum_dirac_dfcoef_path)
 
     def select_file_DFCOEF(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -145,7 +145,7 @@ class MainWindow(QMainWindow):
             self.reload_table(file_path)
 
     def save_sum_dirac_dfcoef(self):
-        if not os.path.exists("sum_dirac_dfcoef.out"):
+        if not os.path.exists(dir_info.sum_dirac_dfcoef_path):
             QMessageBox.critical(
                 self,
                 "Error",
@@ -162,10 +162,10 @@ Please run the sum_dirac_dfcoef program first.",
             import shutil
 
             # Copy the sum_dirac_dfcoef.out file to the file_path
-            shutil.copy("sum_dirac_dfcoef.out", file_path)
+            shutil.copy(dir_info.sum_dirac_dfcoef_path, file_path)
 
     def run_sum_Dirac_DFCOEF(self, file_path):
-        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c"
+        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
         # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
         if os.name == "nt":
             command = f"python -m {command}"
@@ -183,12 +183,8 @@ Please run the sum_dirac_dfcoef program first.",
 Please check the output file. path: {file_path}\nExecuted command: {command}",
             )
 
-    def reload_table(self, output_path: str):
-        try:
-            if self.table_widget:
-                self.table_widget.reload(output_path)
-        except AttributeError:
-            self.table_widget = TableWidget()
+    def reload_table(self, filepath: str):
+        self.table_widget.reload(filepath)
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if event.mimeData().hasText():
@@ -197,4 +193,23 @@ Please check the output file. path: {file_path}\nExecuted command: {command}",
     def dropEvent(self, event="") -> None:
         # Get the file path
         filepath = event.mimeData().text()[8:]
-        self.reload_table(filepath)
+        if not os.path.exists(filepath):
+            QMessageBox.critical(
+                self,
+                "Error",
+                "The file does not exist.\n\
+Please check your dropped file.",
+            )
+        try:
+            self.table_widget.reload(filepath)
+        except Exception:
+            try:
+                self.run_sum_Dirac_DFCOEF(filepath)
+                self.table_widget.reload(dir_info.sum_dirac_dfcoef_path)
+            except Exception:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    "We cannot load the file properly.\n\
+Please check your dropped file.",
+                )
