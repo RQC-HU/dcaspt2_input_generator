@@ -183,15 +183,15 @@ Please run the sum_dirac_dfcoef program first.",
 Please check the output file. path: {file_path}\nExecuted command: {command}",
             )
 
-    def reload_table(self, dropped_file_path: str):
-        if not os.path.exists(dropped_file_path):
+    def reload_table(self, filepath: str):
+        if not os.path.exists(filepath):
             QMessageBox.critical(self, "Error", "We cannot detect that where your dropped file is.")
             return
         try:
-            self.table_widget.reload(dropped_file_path)
+            self.table_widget.reload(filepath)
         except Exception:
             try:
-                self.run_sum_Dirac_DFCOEF(dropped_file_path)
+                self.run_sum_Dirac_DFCOEF(filepath)
                 self.table_widget.reload(dir_info.sum_dirac_dfcoef_path)
             except Exception:
                 # Exception message box
