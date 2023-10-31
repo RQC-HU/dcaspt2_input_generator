@@ -184,23 +184,7 @@ Please check the output file. path: {file_path}\nExecuted command: {command}",
             )
 
     def reload_table(self, filepath: str):
-        if not os.path.exists(filepath):
-            QMessageBox.critical(self, "Error", "We cannot detect that where your dropped file is.")
-            return
-        try:
-            self.table_widget.reload(filepath)
-        except Exception:
-            try:
-                self.run_sum_Dirac_DFCOEF(filepath)
-                self.table_widget.reload(dir_info.sum_dirac_dfcoef_path)
-            except Exception:
-                # Exception message box
-                QMessageBox.critical(
-                    self,
-                    "Error",
-                    "We cannot load the file and run the sum_dirac_dfcoef program properly.\n\
-Please check your dropped file.",
-                )
+        self.table_widget.reload(filepath)
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:
         if event.mimeData().hasText():
@@ -209,4 +193,23 @@ Please check your dropped file.",
     def dropEvent(self, event="") -> None:
         # Get the file path
         filepath = event.mimeData().text()[8:]
-        self.reload_table(filepath)
+        if not os.path.exists(filepath):
+            QMessageBox.critical(
+                self,
+                "Error",
+                "The file does not exist.\n\
+Please check your dropped file.",
+            )
+        try:
+            self.table_widget.reload(filepath)
+        except Exception:
+            try:
+                self.run_sum_Dirac_DFCOEF(filepath)
+                self.table_widget.reload(dir_info.sum_dirac_dfcoef_path)
+            except Exception:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    "We cannot load the file properly.\n\
+Please check your dropped file.",
+                )
