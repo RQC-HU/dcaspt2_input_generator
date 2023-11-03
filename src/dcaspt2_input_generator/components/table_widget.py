@@ -3,6 +3,7 @@ from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
 from ..components.data import Color, ColorPopupInfo, MOData, colors, table_data
+from ..utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -22,7 +23,7 @@ class TableWidget(QTableWidget):
     colorChanged = Signal()
 
     def __init__(self):
-        print("TableWidget init")
+        debug_print("TableWidget init")
         super().__init__()
 
         # Set the context menu policy to custom context menu
@@ -42,7 +43,7 @@ class TableWidget(QTableWidget):
         self.color_found: dict[str, bool] = {"core": False, "inactive": False, "secondary": False}
 
     def reload(self, output_file_path: str):
-        print("TableWidget reload")
+        debug_print("TableWidget reload")
         self.load_output(output_file_path)
 
     def update_index_info(self):
@@ -71,7 +72,7 @@ class TableWidget(QTableWidget):
                 self.idx_info[color_info.name]["end"] = row
 
     def create_table(self):
-        print("TableWidget create_table")
+        debug_print("TableWidget create_table")
         active_start = 10
         secondary_start = 20
         self.clear()
@@ -239,7 +240,7 @@ class TableWidget(QTableWidget):
         self.colorChanged.emit()
 
     def update_color(self, prev_color: Color):
-        print("update_color")
+        debug_print("update_color")
         color_mappping = {
             prev_color.core.color.name(): colors.core.color,
             prev_color.inactive.color.name(): colors.inactive.color,

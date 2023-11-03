@@ -4,6 +4,7 @@ import sys
 from qtpy.QtGui import QScreen
 from qtpy.QtWidgets import QApplication
 
+from .utils.args import args  # noqa: F401, only import args to parse the command line arguments
 from .utils.dir_info import dir_info
 
 # import qt_material

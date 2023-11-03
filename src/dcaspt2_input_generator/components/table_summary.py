@@ -3,6 +3,8 @@ from typing import Optional
 from qtpy.QtGui import QFocusEvent, QIntValidator
 from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
+from ..utils.utils import debug_print
+
 
 class NaturalNumberInput(QLineEdit):
     bottom_num: int
@@ -53,7 +55,7 @@ class NaturalNumberInput(QLineEdit):
     # At the end of the input, the number is validated
     def focusOutEvent(self, arg__1: QFocusEvent) -> None:
         if not self.is_input_valid():  # Validate the input
-            print("Invalid input")
+            debug_print("Invalid input")
             self.update_text()
         return super().focusOutEvent(arg__1)
 

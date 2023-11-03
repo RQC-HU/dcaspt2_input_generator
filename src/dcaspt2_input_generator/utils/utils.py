@@ -24,3 +24,10 @@ def create_ras_str(ras_list: "list[int]") -> str:
 
     ranges.append(f"{start}..{end}") if start != end else ranges.append(str(start))
     return ",".join(ranges)
+
+
+def debug_print(s: str):
+    from .args import args
+
+    if args.debug:
+        print(s)

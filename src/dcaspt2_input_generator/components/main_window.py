@@ -8,7 +8,7 @@ from ..controller.color_settings_controller import ColorSettingsController
 from ..controller.save_default_settings_controller import SaveDefaultSettingsController
 from ..controller.widget_controller import WidgetController
 from ..utils.dir_info import dir_info
-from ..utils.utils import create_ras_str
+from ..utils.utils import create_ras_str, debug_print
 from .data import colors
 from .menu_bar import MenuBar
 from .table_summary import TableSummary
@@ -79,25 +79,25 @@ class MainWindow(QMainWindow):
             spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
             if color == colors.core.color:
-                print(idx, "core")
+                debug_print(f"{idx}, core")
                 core += 2
             elif color == colors.inactive.color:
-                print(idx, "inactive")
+                debug_print(f"{idx}, inactive")
                 inact += 2
             elif color == colors.ras1.color:
-                print(idx, "ras1")
+                debug_print(f"{idx}, ras1")
                 act += 2
                 ras1_list.extend(spinor_indices)
             elif color == colors.active.color:
-                print(idx, "active")
+                debug_print(f"{idx}, active")
                 act += 2
                 ras2_list.extend(spinor_indices)
             elif color == colors.ras3.color:
-                print(idx, "ras3")
+                debug_print(f"{idx}, ras3")
                 act += 2
                 ras3_list.extend(spinor_indices)
             elif color == colors.secondary.color:
-                print(idx, "secondary")
+                debug_print(f"{idx}, secondary")
                 sec += 2
         output += "ncore\n" + str(core) + "\n"
         output += "ninact\n" + str(inact) + "\n"

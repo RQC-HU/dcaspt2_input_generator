@@ -3,6 +3,7 @@ import copy
 from ..components.color_settings import ColorSettings
 from ..components.data import colors
 from ..components.table_widget import TableWidget
+from ..utils.utils import debug_print
 
 
 class ColorSettingsController:
@@ -16,7 +17,7 @@ class ColorSettingsController:
         self.color_settings.colorSettingsChanged.connect(self.onColorSettingsChanged)
 
     def onColorSettingsChanged(self):
-        print("onColorSettingsChanged")
+        debug_print("onColorSettingsChanged")
         prev_color = copy.deepcopy(colors)
         selected_button = self.color_settings.buttonGroup.checkedButton()
         color_type = selected_button.text()

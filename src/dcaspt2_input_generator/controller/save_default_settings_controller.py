@@ -4,6 +4,7 @@ from ..components.data import Color
 from ..components.menu_bar import SaveDefaultSettingsAction
 from ..components.table_summary import UserInput
 from ..utils.dir_info import dir_info
+from ..utils.utils import debug_print
 
 
 class SaveDefaultSettingsController:
@@ -25,12 +26,12 @@ class SaveDefaultSettingsController:
         setting_file_path = dir_info.setting_file_path
         with open(setting_file_path) as f:
             settings = json.load(f)
-            print(settings)
+            debug_print(settings)
             for key, value in user_input.items():
-                print(key, value)
+                debug_print(f"{key}, {value}")
                 settings.setdefault(key, {})
                 settings[key] = value
-            print(settings)
+            debug_print(settings)
 
         with open(setting_file_path, "w") as f:
             json.dump(settings, f, indent=4)
