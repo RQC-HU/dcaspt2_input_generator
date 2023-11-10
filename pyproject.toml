@@ -26,7 +26,7 @@ classifiers = [
 ]
 dependencies = [
   "sum_dirac_dfcoef",
-  "pyside6",
+  "pyqt5",
   "qtpy",
 ]
 
