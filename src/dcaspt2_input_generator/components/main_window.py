@@ -1,6 +1,7 @@
 import os
 import subprocess
 
+from qtpy.QtCore import QSettings
 from qtpy.QtGui import QDragEnterEvent
 from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
@@ -24,6 +25,12 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_UI()
+        # employ native setting events to save/load form size and position
+        self.settings = QSettings("Hiroshima University", "DIRAC-CASPT2 Input Generator")
+        if not self.settings.value("geometry") == None:
+            self.restoreGeometry(self.settings.value("geometry"))
+        if not self.settings.value("windowState") == None:
+            self.restoreState(self.settings.value("windowState"))
 
     def init_UI(self):
         # Add drag and drop functionality
@@ -65,6 +72,12 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
+    
+    def closeEvent(self, a0) -> None:
+        # save settings when closing
+        self.settings.setValue("geometry", self.saveGeometry())
+        self.settings.setValue("windowState", self.saveState())
+        return super().closeEvent(a0)
 
     def save_input(self):
         output = ""
