@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 
 from qtpy.QtWidgets import QApplication
 
@@ -25,8 +26,7 @@ class MainApp:
             sys.exit(self.app.exec())
         except SystemExit:
             # Remove the sum_dirac_dfcoef.out file
-            if os.path.exists(dir_info.sum_dirac_dfcoef_path):
-                os.remove(dir_info.sum_dirac_dfcoef_path)
+            dir_info.sum_dirac_dfcoef_path.unlink(missing_ok=True)
 
 
 def main():

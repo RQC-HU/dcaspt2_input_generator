@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
@@ -42,7 +44,7 @@ class TableWidget(QTableWidget):
         }
         self.color_found: dict[str, bool] = {"core": False, "inactive": False, "secondary": False}
 
-    def reload(self, output_file_path: str):
+    def reload(self, output_file_path: Path):
         debug_print("TableWidget reload")
         self.load_output(output_file_path)
 
@@ -115,7 +117,7 @@ class TableWidget(QTableWidget):
 
         self.update_index_info()
 
-    def load_output(self, file_path):
+    def load_output(self, file_path: Path):
         def create_row_dict(row: "list[str]") -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])

@@ -22,7 +22,7 @@ class DefaultUserInput:
 
     def __init__(self):
         # If the settings.json file exists, read the settings from the file
-        if os.path.exists(dir_info.setting_file_path):
+        if dir_info.setting_file_path.exists():
             with open(dir_info.setting_file_path, mode="r") as f:
                 try:
                     settings = json.load(f)
@@ -40,7 +40,7 @@ class DefaultColorTheme:
         self.color_theme = self.get_color_theme()
 
     def get_color_theme(self):
-        if os.path.exists(dir_info.setting_file_path):
+        if dir_info.setting_file_path.exists():
             with open(dir_info.setting_file_path, mode="r") as f:
                 try:
                     settings = json.load(f)
@@ -53,7 +53,7 @@ class DefaultColorTheme:
 
 class Settings:
     def __init__(self):
-        if not os.path.exists(dir_info.setting_file_path):
+        if dir_info.setting_file_path.exists():
             self.create_default_settings_file()
         self.input = DefaultUserInput()
         self.color_theme = DefaultColorTheme()

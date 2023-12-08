@@ -1,5 +1,6 @@
 import os
 import subprocess
+from pathlib import Path
 
 from qtpy.QtCore import QSettings
 from qtpy.QtGui import QDragEnterEvent
@@ -160,7 +161,7 @@ class MainWindow(QMainWindow):
             self.reload_table(file_path)
 
     def save_sum_dirac_dfcoef(self):
-        if not os.path.exists(dir_info.sum_dirac_dfcoef_path):
+        if not dir_info.sum_dirac_dfcoef_path.exists():
             QMessageBox.critical(
                 self,
                 "Error",
@@ -187,15 +188,15 @@ Please run the sum_dirac_dfcoef program first.",
         # Run the subprocess
         try:
             subprocess.run(
-            command.split(),
-            check=True,
+                command.split(),
+                check=True,
             )
         except subprocess.CalledProcessError:
             QMessageBox.critical(
                 self,
                 "Error",
                 f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
-Please check the output file. path: {file_path}\nExecuted command: {command}"
+Please check the output file. path: {file_path}\nExecuted command: {command}",
             )
 
     def reload_table(self, filepath: str):
@@ -207,12 +208,13 @@ Please check the output file. path: {file_path}\nExecuted command: {command}"
 
     def dropEvent(self, event="") -> None:
         # Get the file path
-        filepath = event.mimeData().text()[8:]
-        if not os.path.exists(filepath):
+        filename = event.mimeData().text()[8:]
+        filepath = Path(filename).expanduser().resolve()
+        if not filepath.exists():
             QMessageBox.critical(
                 self,
                 "Error",
-                "The file does not exist.\n\
+                "The file cannot be found.\n\
 Please check your dropped file.",
             )
         try:
