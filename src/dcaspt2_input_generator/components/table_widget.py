@@ -15,14 +15,14 @@ from ..utils.utils import debug_print
 # 2. Reload the output data
 # 3. Show the context menu when right click
 # 4. Change the background color of the selected cells
-# 5. Emit the colorChanged signal when the background color is changed
+# 5. Emit the color_changed signal when the background color is changed
 # Display the output data like the following:
 # gerade/ungerade    no. of spinor    energy (a.u.)    percentage 1    AO type 1    percentage 2    AO type 2    ...
 # E1u                1                -9.631           33.333          B3uArpx      33.333          B2uArpy      ...
 # E1u                2                -9.546           50.000          B3uArpx      50.000          B2uArpy      ...
 # ...
 class TableWidget(QTableWidget):
-    colorChanged = Signal()
+    color_changed = Signal()
 
     def __init__(self):
         debug_print("TableWidget init")
@@ -169,7 +169,7 @@ class TableWidget(QTableWidget):
             set_table_data()
             self.create_table()
 
-        self.colorChanged.emit()
+        self.color_changed.emit()
 
     def show_context_menu(self, position):
         menu = QMenu()
@@ -240,7 +240,7 @@ class TableWidget(QTableWidget):
         for row in rows:
             self.change_selected_rows_background_color(row, color)
         self.update_index_info()
-        self.colorChanged.emit()
+        self.color_changed.emit()
 
     def update_color(self, prev_color: Color):
         debug_print("update_color")
@@ -258,4 +258,4 @@ class TableWidget(QTableWidget):
             new_color = color_mappping.get(color.name())
             if new_color:
                 self.change_selected_rows_background_color(row, new_color)
-        self.colorChanged.emit()
+        self.color_changed.emit()

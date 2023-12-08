@@ -16,7 +16,7 @@ class SaveDefaultSettingsController:
         self.save_default_settings_action = save_default_settings_action
 
         # Connect signals and slots
-        self.save_default_settings_action.saveDefaultSettings.connect(self.save_default_settings)
+        self.save_default_settings_action.signal_save_default_settings.connect(self.save_default_settings)
 
     def save_default_settings(self):
         # Save current settings in user input and color settings to the settings.json file as default.

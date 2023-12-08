@@ -14,7 +14,7 @@ class ColorSettingsController:
         self.color_settings = color_settings
 
         # Connect signals and slots
-        self.color_settings.colorSettingsChanged.connect(self.onColorSettingsChanged)
+        self.color_settings.color_settings_changed.connect(self.onColorSettingsChanged)
 
     def onColorSettingsChanged(self):
         debug_print("onColorSettingsChanged")

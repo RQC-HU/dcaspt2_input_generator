@@ -10,7 +10,7 @@ class WidgetController:
 
         # Connect signals and slots
         # change_background_color is a slot
-        self.table_widget.colorChanged.connect(self.onTableWidgetColorChanged)
+        self.table_widget.color_changed.connect(self.onTableWidgetColorChanged)
 
     def onTableWidgetColorChanged(self):
         color_count = {"core": 0, "inactive": 0, "ras1": 0, "active, ras2": 0, "ras3": 0, "secondary": 0}

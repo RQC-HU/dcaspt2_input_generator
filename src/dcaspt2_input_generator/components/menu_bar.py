@@ -5,15 +5,15 @@ from ..components.color_settings import ColorSettingsAction
 
 
 class SaveDefaultSettingsAction(QAction):
-    saveDefaultSettings = Signal()
+    signal_save_default_settings = Signal()
 
     def __init__(self):
         super().__init__()
         self.setText("Save current settings as default")
-        self.triggered.connect(self.saveDefaultSettings)
+        self.triggered.connect(self.signal_save_default_settings)
 
     def save_default_settings(self):
-        self.saveDefaultSettings.emit()
+        self.signal_save_default_settings.emit()
 
 
 class AboutAction(QAction):
