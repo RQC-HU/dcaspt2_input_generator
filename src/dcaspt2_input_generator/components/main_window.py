@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-    
+
     def closeEvent(self, a0) -> None:
         # save settings when closing
         self.settings.setValue("geometry", self.saveGeometry())
@@ -112,29 +112,31 @@ class MainWindow(QMainWindow):
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
-        output += "ncore\n" + str(core) + "\n"
+        # output += "ncore\n" + str(core) + "\n"  # ncore is meaningless option (https://github.com/kohei-noda-qcrg/dirac_caspt2/pull/114)
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
         output += "nsec\n" + str(sec) + "\n"
-        output += "nbas\n" + str(core + inact + act + sec) + "\n"
         output += "nroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
-        ras1_str = create_ras_str(sorted(ras1_list))
-        ras2_str = create_ras_str(sorted(ras2_list))
-        ras3_str = create_ras_str(sorted(ras3_list))
-        output += (
-            ""
-            if len(ras1_list) == 0
-            else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
-        )
-        output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
-        output += (
-            ""
-            if len(ras3_list) == 0
-            else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
-        )
+        # If only ras2_list is not empty, it means that is a CASPT2 calculation (not a RASPPT2 calculation)
+        if (len(ras1_list) + len(ras3_list) > 0):
+            ras1_str = create_ras_str(sorted(ras1_list))
+            ras2_str = create_ras_str(sorted(ras2_list))
+            ras3_str = create_ras_str(sorted(ras3_list))
+            output += (
+                ""
+                if len(ras1_list) == 0
+                else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
+            )
+            output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
+            output += (
+                ""
+                if len(ras3_list) == 0
+                else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
+            )
+        output += "end\n"
 
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
