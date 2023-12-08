@@ -13,6 +13,7 @@ class MOData:
     percentage: "list[float]"
     ao_len: int
 
+
 @dataclass
 class SpinorNumber:
     closed_shell: int
@@ -23,6 +24,7 @@ class SpinorNumber:
 @dataclass
 class Eigenvalues:
     data: Dict[str, SpinorNumber]
+
 
 class TableData:
     def __init__(self):
