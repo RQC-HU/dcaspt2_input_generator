@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-    
+
     def closeEvent(self, a0) -> None:
         # save settings when closing
         self.settings.setValue("geometry", self.saveGeometry())
@@ -116,7 +116,6 @@ class MainWindow(QMainWindow):
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
         output += "nsec\n" + str(sec) + "\n"
-        output += "nbas\n" + str(core + inact + act + sec) + "\n"
         output += "nroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
