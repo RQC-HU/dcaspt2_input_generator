@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
-from ..components.data import Color, ColorPopupInfo, MOData, colors, table_data
-from ..utils.utils import debug_print
+from dcaspt2_input_generator.components.data import Color, ColorPopupInfo, MOData, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -13,14 +15,14 @@ from ..utils.utils import debug_print
 # 2. Reload the output data
 # 3. Show the context menu when right click
 # 4. Change the background color of the selected cells
-# 5. Emit the colorChanged signal when the background color is changed
+# 5. Emit the color_changed signal when the background color is changed
 # Display the output data like the following:
 # gerade/ungerade    no. of spinor    energy (a.u.)    percentage 1    AO type 1    percentage 2    AO type 2    ...
 # E1u                1                -9.631           33.333          B3uArpx      33.333          B2uArpy      ...
 # E1u                2                -9.546           50.000          B3uArpx      50.000          B2uArpy      ...
 # ...
 class TableWidget(QTableWidget):
-    colorChanged = Signal()
+    color_changed = Signal()
 
     def __init__(self):
         debug_print("TableWidget init")
@@ -42,7 +44,7 @@ class TableWidget(QTableWidget):
         }
         self.color_found: dict[str, bool] = {"core": False, "inactive": False, "secondary": False}
 
-    def reload(self, output_file_path: str):
+    def reload(self, output_file_path: Path):
         debug_print("TableWidget reload")
         self.load_output(output_file_path)
 
@@ -115,7 +117,7 @@ class TableWidget(QTableWidget):
 
         self.update_index_info()
 
-    def load_output(self, file_path):
+    def load_output(self, file_path: Path):
         def create_row_dict(row: "list[str]") -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])
@@ -140,11 +142,12 @@ class TableWidget(QTableWidget):
                     row_dict = create_row_dict(row)
                     table_data.mo_data.append(row_dict)
                     table_data.column_max_len = max(table_data.column_max_len, len(row))
-
-            except ValueError:
-                raise ValueError("The output file is not correct, ValueError")
-            except IndexError:
-                raise IndexError("The output file is not correct, IndexError")
+            except ValueError as e:
+                msg = "The output file is not correct, ValueError"
+                raise ValueError(msg) from e
+            except IndexError as e:
+                msg = "The output file is not correct, IndexError"
+                raise IndexError(msg) from e
             len_row = len(rows)
             len_column = max(len(row) for row in rows) if len_row > 0 else 0
 
@@ -166,33 +169,33 @@ class TableWidget(QTableWidget):
             set_table_data()
             self.create_table()
 
-        self.colorChanged.emit()
+        self.color_changed.emit()
 
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        selected_rows: "list[int]" = list()
+        selected_rows: "list[int]" = []
         for r in ranges:
             selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
 
-        topRow = selected_rows[0]
-        bottomRow = selected_rows[-1]
+        top_row = selected_rows[0]
+        bottom_row = selected_rows[-1]
         is_action_shown: dict[str, bool] = {"core": True, "inactive": True, "secondary": True}
         # core action
-        if (self.color_found["inactive"] and topRow > self.idx_info["inactive"]["start"]) or (
-            self.color_found["secondary"] and topRow > self.idx_info["secondary"]["start"]
+        if (self.color_found["inactive"] and top_row > self.idx_info["inactive"]["start"]) or (
+            self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]
         ):
             is_action_shown["core"] = False
 
         # inactive action
-        if (self.color_found["core"] and bottomRow < self.idx_info["core"]["end"]) or (
-            self.color_found["secondary"] and topRow > self.idx_info["secondary"]["start"]
+        if (self.color_found["core"] and bottom_row < self.idx_info["core"]["end"]) or (
+            self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]
         ):
             is_action_shown["inactive"] = False
 
         # secondary action
-        if (self.color_found["core"] and bottomRow < self.idx_info["core"]["end"]) or (
-            self.color_found["inactive"] and bottomRow < self.idx_info["inactive"]["end"]
+        if (self.color_found["core"] and bottom_row < self.idx_info["core"]["end"]) or (
+            self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]
         ):
             is_action_shown["secondary"] = False
 
@@ -233,11 +236,11 @@ class TableWidget(QTableWidget):
 
     def change_background_color(self, color):
         indexes = self.selectedIndexes()
-        rows = set([index.row() for index in indexes])
+        rows = {index.row() for index in indexes}
         for row in rows:
             self.change_selected_rows_background_color(row, color)
         self.update_index_info()
-        self.colorChanged.emit()
+        self.color_changed.emit()
 
     def update_color(self, prev_color: Color):
         debug_print("update_color")
@@ -255,4 +258,4 @@ class TableWidget(QTableWidget):
             new_color = color_mappping.get(color.name())
             if new_color:
                 self.change_selected_rows_background_color(row, new_color)
-        self.colorChanged.emit()
+        self.color_changed.emit()

@@ -1,9 +1,8 @@
 # This script contains all functions to handle settings of this application.
 
 import json
-import os
 
-from .dir_info import dir_info
+from dcaspt2_input_generator.utils.dir_info import dir_info
 
 
 class CustomJsonDecodeError(json.decoder.JSONDecodeError):
@@ -22,8 +21,8 @@ class DefaultUserInput:
 
     def __init__(self):
         # If the settings.json file exists, read the settings from the file
-        if os.path.exists(dir_info.setting_file_path):
-            with open(dir_info.setting_file_path, mode="r") as f:
+        if dir_info.setting_file_path.exists():
+            with open(dir_info.setting_file_path) as f:
                 try:
                     settings = json.load(f)
                     self.totsym = settings["totsym"]
@@ -31,8 +30,8 @@ class DefaultUserInput:
                     self.ras1_max_hole = settings["ras1_max_hole"]
                     self.ras3_max_hole = settings["ras3_max_hole"]
                     self.dirac_ver_21_or_later = settings["dirac_ver_21_or_later"]
-                except CustomJsonDecodeError:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path)
+                except CustomJsonDecodeError as e:
+                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
 
 
 class DefaultColorTheme:
@@ -40,20 +39,20 @@ class DefaultColorTheme:
         self.color_theme = self.get_color_theme()
 
     def get_color_theme(self):
-        if os.path.exists(dir_info.setting_file_path):
-            with open(dir_info.setting_file_path, mode="r") as f:
+        if dir_info.setting_file_path.exists():
+            with open(dir_info.setting_file_path) as f:
                 try:
                     settings = json.load(f)
                     if "color_theme" in settings:
                         return settings["color_theme"]
-                except CustomJsonDecodeError:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path)
+                except CustomJsonDecodeError as e:
+                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
         return "default"
 
 
 class Settings:
     def __init__(self):
-        if not os.path.exists(dir_info.setting_file_path):
+        if dir_info.setting_file_path.exists():
             self.create_default_settings_file()
         self.input = DefaultUserInput()
         self.color_theme = DefaultColorTheme()

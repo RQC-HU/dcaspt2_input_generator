@@ -65,7 +65,8 @@ class Color:
         if q_color.name() in self.colormap:
             return self.colormap[q_color.name()]
         else:
-            raise ValueError(f"Cannot find the corresponding color. q_color: {q_color.name()}, {q_color.getRgb()}")
+            msg = f"Cannot find the corresponding color. q_color: {q_color.name()}, {q_color.getRgb()}"
+            raise ValueError(msg)
 
     def change_color_templates(self, color_type: str):
         if color_type == "default":
@@ -93,7 +94,8 @@ class Color:
             self.ras3 = ColorPopupInfo(QColor("#FFD700"), "ras3", "ras3(Gold)")
             self.secondary = ColorPopupInfo(QColor("#6A5ACD"), "secondary", "secondary(Slate blue)")
         else:
-            raise ValueError("Invalid color type")
+            msg = f"Invalid color type: {color_type}"
+            raise ValueError(msg)
         self.color_type = color_type
 
         # colormap is a dictionary that maps QColor.name() to ColorPopupInfo

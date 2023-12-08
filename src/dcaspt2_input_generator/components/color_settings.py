@@ -3,7 +3,7 @@ from qtpy.QtWidgets import QAction, QButtonGroup, QDialog, QRadioButton, QVBoxLa
 
 
 class ColorSettings(QDialog):
-    colorSettingsChanged = Signal()
+    color_settings_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -36,9 +36,9 @@ class ColorSettings(QDialog):
         self.setWindowTitle("Color Settings")
         self.setLayout(layout)
 
-    # When buttonClicked is emitted, the signal is connected to the slot colorSettingsChanged
+    # When buttonClicked is emitted, the signal is connected to the slot color_settings_changed
     def button_clicked(self):
-        self.colorSettingsChanged.emit()
+        self.color_settings_changed.emit()
 
 
 class ColorSettingsAction(QAction):

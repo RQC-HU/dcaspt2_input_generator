@@ -1,12 +1,12 @@
-import os
+from pathlib import Path
 
 
 class DirInfo:
     def __init__(self):
-        self.user_current_dir = os.getcwd()
-        self.app_rootdir = os.path.join(os.path.dirname((os.path.abspath(__file__))), "..")
-        self.setting_file_path = os.path.abspath(os.path.join(self.app_rootdir, "settings.json"))
-        self.sum_dirac_dfcoef_path = os.path.join(self.app_rootdir, "sum_dirac_dfcoef.out")
+        self.user_current_dir = Path.cwd()
+        self.app_rootdir = Path(__file__).parent.parent.expanduser().resolve()  # src/dcaspt2_input_generator
+        self.setting_file_path = (self.app_rootdir / "settings.json").resolve()
+        self.sum_dirac_dfcoef_path = (self.app_rootdir / "sum_dirac_dfcoef.out").resolve()
 
 
 dir_info = DirInfo()

@@ -3,7 +3,7 @@ from typing import Optional
 from qtpy.QtGui import QFocusEvent, QIntValidator
 from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
-from ..utils.utils import debug_print
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 class NaturalNumberInput(QLineEdit):
@@ -14,9 +14,8 @@ class NaturalNumberInput(QLineEdit):
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
         if default_num < bottom_num:
-            raise ValueError(
-                f"default_num must be larger than bottom_num. default_num: {default_num}, bottom_num: {bottom_num}"
-            )
+            msg = f"default_num must be larger than bottom_num. default_num: {default_num}, bottom_num: {bottom_num}"
+            raise ValueError(msg)
         self.default_num = default_num
         self.bottom_num = bottom_num
         self.top_num = None

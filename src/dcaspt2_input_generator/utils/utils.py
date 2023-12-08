@@ -5,8 +5,9 @@ def create_ras_str(ras_list: "list[int]") -> str:
     if not ras_list:
         return ""
     # if ras_list contains negative or zero, raise an error
-    if any([i <= 0 for i in ras_list]):
-        raise ValueError("ras_list must contain only positive integers")
+    if any(i <= 0 for i in ras_list):
+        msg = "ras_list must contain only positive integers"
+        raise ValueError(msg)
     ranges: "list[str]" = []
     start = ras_list[0]
     end = ras_list[0]
@@ -27,7 +28,7 @@ def create_ras_str(ras_list: "list[int]") -> str:
 
 
 def debug_print(s: str):
-    from .args import args
+    from dcaspt2_input_generator.utils.args import args
 
     if args.debug:
         print(s)

@@ -1,9 +1,9 @@
 import copy
 
-from ..components.color_settings import ColorSettings
-from ..components.data import colors
-from ..components.table_widget import TableWidget
-from ..utils.utils import debug_print
+from dcaspt2_input_generator.components.color_settings import ColorSettings
+from dcaspt2_input_generator.components.data import colors
+from dcaspt2_input_generator.components.table_widget import TableWidget
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 class ColorSettingsController:
@@ -14,7 +14,7 @@ class ColorSettingsController:
         self.color_settings = color_settings
 
         # Connect signals and slots
-        self.color_settings.colorSettingsChanged.connect(self.onColorSettingsChanged)
+        self.color_settings.color_settings_changed.connect(self.onColorSettingsChanged)
 
     def onColorSettingsChanged(self):
         debug_print("onColorSettingsChanged")

@@ -1,19 +1,20 @@
 import os
 import subprocess
+from pathlib import Path
 
 from qtpy.QtCore import QSettings
 from qtpy.QtGui import QDragEnterEvent
 from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
-from ..controller.color_settings_controller import ColorSettingsController
-from ..controller.save_default_settings_controller import SaveDefaultSettingsController
-from ..controller.widget_controller import WidgetController
-from ..utils.dir_info import dir_info
-from ..utils.utils import create_ras_str, debug_print
-from .data import colors
-from .menu_bar import MenuBar
-from .table_summary import TableSummary
-from .table_widget import TableWidget
+from dcaspt2_input_generator.components.data import colors
+from dcaspt2_input_generator.components.menu_bar import MenuBar
+from dcaspt2_input_generator.components.table_summary import TableSummary
+from dcaspt2_input_generator.components.table_widget import TableWidget
+from dcaspt2_input_generator.controller.color_settings_controller import ColorSettingsController
+from dcaspt2_input_generator.controller.save_default_settings_controller import SaveDefaultSettingsController
+from dcaspt2_input_generator.controller.widget_controller import WidgetController
+from dcaspt2_input_generator.utils.dir_info import dir_info
+from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 
 
 # Layout for the main window
@@ -27,9 +28,9 @@ class MainWindow(QMainWindow):
         self.init_UI()
         # employ native setting events to save/load form size and position
         self.settings = QSettings("Hiroshima University", "DIRAC-CASPT2 Input Generator")
-        if not self.settings.value("geometry") == None:
+        if self.settings.value("geometry") is not None:
             self.restoreGeometry(self.settings.value("geometry"))
-        if not self.settings.value("windowState") == None:
+        if self.settings.value("windowState") is not None:
             self.restoreState(self.settings.value("windowState"))
 
     def init_UI(self):
@@ -121,7 +122,7 @@ class MainWindow(QMainWindow):
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
         # If only ras2_list is not empty, it means that is a CASPT2 calculation (not a RASPPT2 calculation)
-        if (len(ras1_list) + len(ras3_list) > 0):
+        if len(ras1_list) + len(ras3_list) > 0:
             ras1_str = create_ras_str(sorted(ras1_list))
             ras2_str = create_ras_str(sorted(ras2_list))
             ras3_str = create_ras_str(sorted(ras3_list))
@@ -141,9 +142,7 @@ class MainWindow(QMainWindow):
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
         if file_path:
-            # open the file with write mode
-            with open(file_path, "w") as f:
-                # get the text from the table widget
+            with open(file_path, mode="w") as f:
                 f.write(output)
 
     def select_file_Dirac(self):
@@ -160,7 +159,7 @@ class MainWindow(QMainWindow):
             self.reload_table(file_path)
 
     def save_sum_dirac_dfcoef(self):
-        if not os.path.exists(dir_info.sum_dirac_dfcoef_path):
+        if not dir_info.sum_dirac_dfcoef_path.exists():
             QMessageBox.critical(
                 self,
                 "Error",
@@ -185,12 +184,12 @@ Please run the sum_dirac_dfcoef program first.",
         if os.name == "nt":
             command = f"python -m {command}"
         # Run the subprocess
-        process = subprocess.run(
-            command,
-            shell=True,
-        )
-        # Check the status of the subprocess named process
-        if process.returncode != 0:
+        try:
+            subprocess.run(
+                command.split(),
+                check=True,
+            )
+        except subprocess.CalledProcessError:
             QMessageBox.critical(
                 self,
                 "Error",
@@ -207,12 +206,13 @@ Please check the output file. path: {file_path}\nExecuted command: {command}",
 
     def dropEvent(self, event="") -> None:
         # Get the file path
-        filepath = event.mimeData().text()[8:]
-        if not os.path.exists(filepath):
+        filename = event.mimeData().text()[8:]
+        filepath = Path(filename).expanduser().resolve()
+        if not filepath.exists():
             QMessageBox.critical(
                 self,
                 "Error",
-                "The file does not exist.\n\
+                "The file cannot be found.\n\
 Please check your dropped file.",
             )
         try:
