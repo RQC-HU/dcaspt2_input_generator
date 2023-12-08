@@ -27,9 +27,9 @@ class MainWindow(QMainWindow):
         self.init_UI()
         # employ native setting events to save/load form size and position
         self.settings = QSettings("Hiroshima University", "DIRAC-CASPT2 Input Generator")
-        if not self.settings.value("geometry") == None:
+        if self.settings.value("geometry") is not None:
             self.restoreGeometry(self.settings.value("geometry"))
-        if not self.settings.value("windowState") == None:
+        if self.settings.value("windowState") is not None:
             self.restoreState(self.settings.value("windowState"))
 
     def init_UI(self):
