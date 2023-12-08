@@ -17,6 +17,6 @@
         // S101: use-of-assert https://docs.astral.sh/ruff/rules/use-of-assert/
         // S603: subprocess-without-shell-equals-true https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true/
         // N802: invalid-function-name https://docs.astral.sh/ruff/rules/invalid-function-name/
-        "--ignore=FBT001,T201,PLR2004,S101,S603,N802"
+        "--ignore=FBT001,T201,PLR2004,S101,S603,N802,I001"
     ],
 }
