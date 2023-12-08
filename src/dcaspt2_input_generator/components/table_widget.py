@@ -4,8 +4,8 @@ from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
-from ..components.data import Color, ColorPopupInfo, MOData, colors, table_data
-from ..utils.utils import debug_print
+from dcaspt2_input_generator.components.data import Color, ColorPopupInfo, MOData, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data

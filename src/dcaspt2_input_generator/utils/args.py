@@ -13,7 +13,7 @@ class PrintVersionExitAction(argparse.Action):
         )
 
     def __call__(self):
-        from ..__about__ import __version__
+        from dcaspt2_input_generator.__about__ import __version__
 
         print(f"{__version__}")
         sys.exit()

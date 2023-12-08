@@ -28,7 +28,7 @@ def create_ras_str(ras_list: "list[int]") -> str:
 
 
 def debug_print(s: str):
-    from .args import args
+    from dcaspt2_input_generator.utils.args import args
 
     if args.debug:
         print(s)

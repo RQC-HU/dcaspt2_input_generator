@@ -1,6 +1,6 @@
-from ..components.data import colors
-from ..components.table_summary import TableSummary
-from ..components.table_widget import TableWidget
+from dcaspt2_input_generator.components.data import colors
+from dcaspt2_input_generator.components.table_summary import TableSummary
+from dcaspt2_input_generator.components.table_widget import TableWidget
 
 
 class WidgetController:

@@ -2,7 +2,7 @@
 
 import json
 
-from .dir_info import dir_info
+from dcaspt2_input_generator.utils.dir_info import dir_info
 
 
 class CustomJsonDecodeError(json.decoder.JSONDecodeError):

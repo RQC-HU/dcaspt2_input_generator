@@ -1,10 +1,10 @@
 import json
 
-from ..components.data import Color
-from ..components.menu_bar import SaveDefaultSettingsAction
-from ..components.table_summary import UserInput
-from ..utils.dir_info import dir_info
-from ..utils.utils import debug_print
+from dcaspt2_input_generator.components.data import Color
+from dcaspt2_input_generator.components.menu_bar import SaveDefaultSettingsAction
+from dcaspt2_input_generator.components.table_summary import UserInput
+from dcaspt2_input_generator.utils.dir_info import dir_info
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 class SaveDefaultSettingsController:

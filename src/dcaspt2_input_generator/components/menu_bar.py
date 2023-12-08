@@ -1,7 +1,7 @@
 from qtpy.QtCore import Signal  # type: ignore
 from qtpy.QtWidgets import QAction, QMenuBar  # type: ignore
 
-from ..components.color_settings import ColorSettingsAction
+from dcaspt2_input_generator.components.color_settings import ColorSettingsAction
 
 
 class SaveDefaultSettingsAction(QAction):
@@ -27,7 +27,7 @@ class AboutAction(QAction):
     def about(self):
         from qtpy.QtWidgets import QMessageBox, QWidget
 
-        from ..__about__ import __version__
+        from dcaspt2_input_generator.__about__ import __version__
 
         msg = f"Version: {__version__}"
         QMessageBox.about(QWidget(), "Version info", msg)

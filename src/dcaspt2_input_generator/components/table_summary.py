@@ -3,7 +3,7 @@ from typing import Optional
 from qtpy.QtGui import QFocusEvent, QIntValidator
 from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
-from ..utils.utils import debug_print
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 class NaturalNumberInput(QLineEdit):

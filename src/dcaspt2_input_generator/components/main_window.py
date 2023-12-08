@@ -6,15 +6,15 @@ from qtpy.QtCore import QSettings
 from qtpy.QtGui import QDragEnterEvent
 from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
-from ..controller.color_settings_controller import ColorSettingsController
-from ..controller.save_default_settings_controller import SaveDefaultSettingsController
-from ..controller.widget_controller import WidgetController
-from ..utils.dir_info import dir_info
-from ..utils.utils import create_ras_str, debug_print
-from .data import colors
-from .menu_bar import MenuBar
-from .table_summary import TableSummary
-from .table_widget import TableWidget
+from dcaspt2_input_generator.components.data import colors
+from dcaspt2_input_generator.components.menu_bar import MenuBar
+from dcaspt2_input_generator.components.table_summary import TableSummary
+from dcaspt2_input_generator.components.table_widget import TableWidget
+from dcaspt2_input_generator.controller.color_settings_controller import ColorSettingsController
+from dcaspt2_input_generator.controller.save_default_settings_controller import SaveDefaultSettingsController
+from dcaspt2_input_generator.controller.widget_controller import WidgetController
+from dcaspt2_input_generator.utils.dir_info import dir_info
+from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 
 
 # Layout for the main window
