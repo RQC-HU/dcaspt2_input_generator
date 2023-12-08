@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 from qtpy.QtGui import QColor
 
@@ -12,6 +13,16 @@ class MOData:
     percentage: "list[float]"
     ao_len: int
 
+@dataclass
+class SpinorNumber:
+    closed_shell: int
+    open_shell: int
+    virtual_orbitals: int
+
+
+@dataclass
+class Eigenvalues:
+    data: Dict[str, SpinorNumber]
 
 class TableData:
     def __init__(self):
