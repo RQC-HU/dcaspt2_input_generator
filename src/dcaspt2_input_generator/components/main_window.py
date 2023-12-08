@@ -135,6 +135,7 @@ class MainWindow(QMainWindow):
             if len(ras3_list) == 0
             else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
         )
+        output += "end\n"
 
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
