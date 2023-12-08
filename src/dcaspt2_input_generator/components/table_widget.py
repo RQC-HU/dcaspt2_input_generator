@@ -1,11 +1,18 @@
 from pathlib import Path
 
+from dcaspt2_input_generator.components.data import (
+    Color,
+    ColorPopupInfo,
+    Eigenvalues,
+    MOData,
+    SpinorNumber,
+    colors,
+    table_data,
+)
+from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
-
-from dcaspt2_input_generator.components.data import Color, ColorPopupInfo, MOData, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -133,6 +140,20 @@ class TableWidget(QTableWidget):
                 ao_len=len(ao_type),
             )
 
+        def read_eigenvalues_info(row: "list[str]") -> Eigenvalues:
+            eigenvalues = Eigenvalues()
+            idx = 0
+            while idx + 7 <= len(row):
+                # E1g closed 6 open 0 virtual 0
+                # eigenvalues_type _ closed_shell _ open_shell _ virtual_orbitals
+                eigenvalues_type = row[idx]
+                closed_shell = int(row[idx + 2])
+                open_shell = int(row[idx + 4])
+                virtual_orbitals = int(row[idx + 6])
+                spinor_number = SpinorNumber(closed_shell, open_shell, virtual_orbitals)
+                eigenvalues.data[eigenvalues_type] = spinor_number
+                idx += 7
+
         def set_table_data():
             table_data.reset()
             rows = [line.split() for line in out]
@@ -140,7 +161,7 @@ class TableWidget(QTableWidget):
             try:
                 for idx, row in enumerate(rows):
                     if idx == 0:
-                        continue
+                        eigenvalues = read_eigenvalues_info(row)
                     row_dict = create_row_dict(row)
                     table_data.mo_data.append(row_dict)
                     table_data.column_max_len = max(table_data.column_max_len, len(row))
