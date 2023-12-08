@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
         # If only ras2_list is not empty, it means that is a CASPT2 calculation (not a RASPPT2 calculation)
-        if (len(ras1_list) + len(ras3_list) > 0):
+        if len(ras1_list) + len(ras3_list) > 0:
             ras1_str = create_ras_str(sorted(ras1_list))
             ras2_str = create_ras_str(sorted(ras2_list))
             ras3_str = create_ras_str(sorted(ras3_list))
