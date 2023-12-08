@@ -11,7 +11,7 @@ class PrintVersionExitAction(argparse.Action):
             help=help,
         )
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(self):
         from ..__about__ import __version__
 
         print(f"{__version__}")
