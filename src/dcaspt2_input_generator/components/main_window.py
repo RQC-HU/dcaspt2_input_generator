@@ -142,9 +142,7 @@ class MainWindow(QMainWindow):
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
         if file_path:
-            # open the file with write mode
-            with open(file_path, "w") as f:
-                # get the text from the table widget
+            with open(file_path, mode="w") as f:
                 f.write(output)
 
     def select_file_Dirac(self):

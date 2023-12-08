@@ -23,7 +23,7 @@ class DefaultUserInput:
     def __init__(self):
         # If the settings.json file exists, read the settings from the file
         if dir_info.setting_file_path.exists():
-            with open(dir_info.setting_file_path, mode="r") as f:
+            with open(dir_info.setting_file_path) as f:
                 try:
                     settings = json.load(f)
                     self.totsym = settings["totsym"]
@@ -41,7 +41,7 @@ class DefaultColorTheme:
 
     def get_color_theme(self):
         if dir_info.setting_file_path.exists():
-            with open(dir_info.setting_file_path, mode="r") as f:
+            with open(dir_info.setting_file_path) as f:
                 try:
                     settings = json.load(f)
                     if "color_theme" in settings:
