@@ -178,24 +178,24 @@ class TableWidget(QTableWidget):
         for r in ranges:
             selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
 
-        topRow = selected_rows[0]
-        bottomRow = selected_rows[-1]
+        top_row = selected_rows[0]
+        bottom_row = selected_rows[-1]
         is_action_shown: dict[str, bool] = {"core": True, "inactive": True, "secondary": True}
         # core action
-        if (self.color_found["inactive"] and topRow > self.idx_info["inactive"]["start"]) or (
-            self.color_found["secondary"] and topRow > self.idx_info["secondary"]["start"]
+        if (self.color_found["inactive"] and top_row > self.idx_info["inactive"]["start"]) or (
+            self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]
         ):
             is_action_shown["core"] = False
 
         # inactive action
-        if (self.color_found["core"] and bottomRow < self.idx_info["core"]["end"]) or (
-            self.color_found["secondary"] and topRow > self.idx_info["secondary"]["start"]
+        if (self.color_found["core"] and bottom_row < self.idx_info["core"]["end"]) or (
+            self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]
         ):
             is_action_shown["inactive"] = False
 
         # secondary action
-        if (self.color_found["core"] and bottomRow < self.idx_info["core"]["end"]) or (
-            self.color_found["inactive"] and bottomRow < self.idx_info["inactive"]["end"]
+        if (self.color_found["core"] and bottom_row < self.idx_info["core"]["end"]) or (
+            self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]
         ):
             is_action_shown["secondary"] = False
 
