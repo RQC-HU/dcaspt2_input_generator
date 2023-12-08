@@ -120,20 +120,22 @@ class MainWindow(QMainWindow):
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
-        ras1_str = create_ras_str(sorted(ras1_list))
-        ras2_str = create_ras_str(sorted(ras2_list))
-        ras3_str = create_ras_str(sorted(ras3_list))
-        output += (
-            ""
-            if len(ras1_list) == 0
-            else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
-        )
-        output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
-        output += (
-            ""
-            if len(ras3_list) == 0
-            else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
-        )
+        # If only ras2_list is not empty, it means that is a CASPT2 calculation (not a RASPPT2 calculation)
+        if (len(ras1_list) + len(ras3_list) > 0):
+            ras1_str = create_ras_str(sorted(ras1_list))
+            ras2_str = create_ras_str(sorted(ras2_list))
+            ras3_str = create_ras_str(sorted(ras3_list))
+            output += (
+                ""
+                if len(ras1_list) == 0
+                else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
+            )
+            output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
+            output += (
+                ""
+                if len(ras3_list) == 0
+                else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
+            )
         output += "end\n"
 
         # open dialog to save the file
