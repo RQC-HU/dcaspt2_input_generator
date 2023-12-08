@@ -88,7 +88,10 @@ class TableWidget(QTableWidget):
         rows = table_data.mo_data
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
+
         for row_idx, row in enumerate(rows):
+            # Default CAS configuration is CAS(2,4) (2electrons, 4spinors)
+            # If virtual orbitals are not included, the number of spinors is 2 because the number of electrons is 2
             color_info: ColorPopupInfo = (
                 colors.inactive
                 if row_idx < active_start
@@ -141,7 +144,7 @@ class TableWidget(QTableWidget):
             )
 
         def read_eigenvalues_info(row: "list[str]") -> Eigenvalues:
-            eigenvalues = Eigenvalues()
+            eigenvalues = Eigenvalues({})
             idx = 0
             while idx + 7 <= len(row):
                 # E1g closed 6 open 0 virtual 0
@@ -153,6 +156,7 @@ class TableWidget(QTableWidget):
                 spinor_number = SpinorNumber(closed_shell, open_shell, virtual_orbitals)
                 eigenvalues.data[eigenvalues_type] = spinor_number
                 idx += 7
+            return eigenvalues
 
         def set_table_data():
             table_data.reset()
@@ -161,10 +165,11 @@ class TableWidget(QTableWidget):
             try:
                 for idx, row in enumerate(rows):
                     if idx == 0:
-                        eigenvalues = read_eigenvalues_info(row)
-                    row_dict = create_row_dict(row)
-                    table_data.mo_data.append(row_dict)
-                    table_data.column_max_len = max(table_data.column_max_len, len(row))
+                        table_data.eigenvalues = read_eigenvalues_info(row)
+                    else:
+                        row_dict = create_row_dict(row)
+                        table_data.mo_data.append(row_dict)
+                        table_data.column_max_len = max(table_data.column_max_len, len(row))
             except ValueError as e:
                 msg = "The output file is not correct, ValueError"
                 raise ValueError(msg) from e
