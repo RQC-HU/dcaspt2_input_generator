@@ -11,7 +11,8 @@ parser.add_argument("--patch", action="store_true", help="Patch version up", des
 args = parser.parse_args()
 
 # Get current version
-process = subprocess.run("hatch version", shell=True, capture_output=True)  # (e.g.) '0.0.1'
+cmd = "hatch version"
+process = subprocess.run(cmd.split(), capture_output=True, check=True)  # (e.g.) '0.0.1'
 cur_ver_str = process.stdout.decode("utf-8").strip()
 ver_list = [int(i) for i in cur_ver_str.split('.')]  # (e.g.) [0, 0, 1]
 
@@ -36,4 +37,5 @@ else:  # Default: patch version up
 
 new_ver_str = '.'.join([str(i) for i in ver_list])
 # Update version with hatch command
-subprocess.run(f"hatch version {new_ver_str}", shell=True)
+cmd = f"hatch version {new_ver_str}"
+subprocess.run(cmd.split(), check=True)

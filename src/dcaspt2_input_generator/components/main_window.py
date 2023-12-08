@@ -185,17 +185,17 @@ Please run the sum_dirac_dfcoef program first.",
         if os.name == "nt":
             command = f"python -m {command}"
         # Run the subprocess
-        process = subprocess.run(
-            command,
-            shell=True,
-        )
-        # Check the status of the subprocess named process
-        if process.returncode != 0:
+        try:
+            subprocess.run(
+            command.split(),
+            check=True,
+            )
+        except subprocess.CalledProcessError:
             QMessageBox.critical(
                 self,
                 "Error",
                 f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
-Please check the output file. path: {file_path}\nExecuted command: {command}",
+Please check the output file. path: {file_path}\nExecuted command: {command}"
             )
 
     def reload_table(self, filepath: str):
