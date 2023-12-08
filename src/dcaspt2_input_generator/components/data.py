@@ -28,10 +28,12 @@ class TableData:
     def __init__(self):
         self.mo_data: "list[MOData]" = []
         self.column_max_len: int = 0
+        self.eigenvalues: Eigenvalues = Eigenvalues({})
 
     def reset(self):
         self.mo_data = []
         self.column_max_len = 0
+        self.eigenvalues = Eigenvalues({})
 
 
 table_data = TableData()
