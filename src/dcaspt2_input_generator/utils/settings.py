@@ -1,7 +1,6 @@
 # This script contains all functions to handle settings of this application.
 
 import json
-import os
 
 from .dir_info import dir_info
 
