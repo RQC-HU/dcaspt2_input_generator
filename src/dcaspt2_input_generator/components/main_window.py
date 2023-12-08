@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
-        output += "ncore\n" + str(core) + "\n"
+        # output += "ncore\n" + str(core) + "\n"  # ncore is meaningless option (https://github.com/kohei-noda-qcrg/dirac_caspt2/pull/114)
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
         output += "nsec\n" + str(sec) + "\n"
