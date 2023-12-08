@@ -139,6 +139,8 @@ class TableWidget(QTableWidget):
             table_data.mo_data = []
             try:
                 for idx, row in enumerate(rows):
+                    if idx == 0:
+                        continue
                     row_dict = create_row_dict(row)
                     table_data.mo_data.append(row_dict)
                     table_data.column_max_len = max(table_data.column_max_len, len(row))
