@@ -31,8 +31,8 @@ class DefaultUserInput:
                     self.ras1_max_hole = settings["ras1_max_hole"]
                     self.ras3_max_hole = settings["ras3_max_hole"]
                     self.dirac_ver_21_or_later = settings["dirac_ver_21_or_later"]
-                except CustomJsonDecodeError:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path)
+                except CustomJsonDecodeError as e:
+                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
 
 
 class DefaultColorTheme:
@@ -46,8 +46,8 @@ class DefaultColorTheme:
                     settings = json.load(f)
                     if "color_theme" in settings:
                         return settings["color_theme"]
-                except CustomJsonDecodeError:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path)
+                except CustomJsonDecodeError as e:
+                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
         return "default"
 
 

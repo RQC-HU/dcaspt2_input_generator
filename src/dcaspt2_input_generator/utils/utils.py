@@ -6,7 +6,8 @@ def create_ras_str(ras_list: "list[int]") -> str:
         return ""
     # if ras_list contains negative or zero, raise an error
     if any([i <= 0 for i in ras_list]):
-        raise ValueError("ras_list must contain only positive integers")
+        msg = "ras_list must contain only positive integers"
+        raise ValueError(msg)
     ranges: "list[str]" = []
     start = ras_list[0]
     end = ras_list[0]

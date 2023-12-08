@@ -140,11 +140,12 @@ class TableWidget(QTableWidget):
                     row_dict = create_row_dict(row)
                     table_data.mo_data.append(row_dict)
                     table_data.column_max_len = max(table_data.column_max_len, len(row))
-
-            except ValueError:
-                raise ValueError("The output file is not correct, ValueError")
-            except IndexError:
-                raise IndexError("The output file is not correct, IndexError")
+            except ValueError as e:
+                msg = "The output file is not correct, ValueError"
+                raise ValueError(msg) from e
+            except IndexError as e:
+                msg = "The output file is not correct, IndexError"
+                raise IndexError(msg) from e
             len_row = len(rows)
             len_column = max(len(row) for row in rows) if len_row > 0 else 0
 
