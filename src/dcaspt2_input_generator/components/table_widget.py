@@ -174,7 +174,7 @@ class TableWidget(QTableWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        selected_rows: "list[int]" = list()
+        selected_rows: "list[int]" = []
         for r in ranges:
             selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
 
