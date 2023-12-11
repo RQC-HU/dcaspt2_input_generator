@@ -16,14 +16,27 @@ class MOData:
 
 @dataclass
 class SpinorNumber:
-    closed_shell: int
-    open_shell: int
-    virtual_orbitals: int
+    closed_shell: int = 0
+    open_shell: int = 0
+    virtual_orbitals: int = 0
+    sum_of_orbitals: int = 0
+
+    def __add__(self, other: "SpinorNumber") -> "SpinorNumber":
+        if not isinstance(other, SpinorNumber):
+            msg = f"unsupported operand type(s) for +: {type(self)} and {type(other)}"
+            raise TypeError(msg)
+        return SpinorNumber(
+            self.closed_shell + other.closed_shell,
+            self.open_shell + other.open_shell,
+            self.virtual_orbitals + other.virtual_orbitals,
+            self.sum_of_orbitals + other.sum_of_orbitals,
+        )
 
 
 @dataclass
 class Eigenvalues:
     data: Dict[str, SpinorNumber]
+    electron_number: int = 0
 
 
 class TableData:

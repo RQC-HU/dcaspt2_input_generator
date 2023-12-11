@@ -1,18 +1,11 @@
+import copy
 from pathlib import Path
 
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
-from dcaspt2_input_generator.components.data import (
-    Color,
-    ColorPopupInfo,
-    Eigenvalues,
-    MOData,
-    SpinorNumber,
-    colors,
-    table_data,
-)
+from dcaspt2_input_generator.components.data import Color, Eigenvalues, MOData, SpinorNumber, colors, table_data
 from dcaspt2_input_generator.utils.utils import debug_print
 
 
@@ -81,25 +74,82 @@ class TableWidget(QTableWidget):
             else:
                 self.idx_info[color_info.name]["end"] = row
 
+    def validate_table_data(self, rows: "list[MOData]"):
+        keys = table_data.eigenvalues.data.keys()
+        cur_idx = {k: 0 for k in keys}
+        min_idx = copy.deepcopy(cur_idx)
+        nvcut = copy.deepcopy({k: v.sum_of_orbitals for k, v in table_data.eigenvalues.data.items()})
+        # Validate the data and set the min_idx to the minimum index of the mo_number per mo_symmetry
+        for row in rows:
+            key = row.mo_symmetry
+            if key not in keys:
+                msg = f"mo_symmetry {key} is not found in the eigenvalues data"
+                raise ValueError(msg)
+            if cur_idx[key] == 0:
+                min_idx[key] = row.mo_number
+            # row.mo_number must step by 1
+            elif cur_idx[key] + 1 != row.mo_number:
+                msg = f"mo_number must step by 1, cur_idx: {cur_idx}, row: {row},\
+your .PRIVEC option in DIRAC calculation may be wrong."
+                raise ValueError(msg)
+            cur_idx[row.mo_symmetry] = row.mo_number
+
+        # if nvcut is negative, raise ValueError
+        nvcut = {k: v - cur_idx[k] for k, v in nvcut.items()}
+        if any(v < 0 for v in nvcut.values()):
+            msg = f"nvcut must be positive or zero, nvcut: {nvcut},\
+table_data.eigenvalues.data: {table_data.eigenvalues.data}"
+            raise ValueError(msg)
+        return (min_idx, nvcut)
+
+    def decrease_spinor_number(self, spinor_number: SpinorNumber, min_idx: dict[str, int]):
+        def decrease_orbitals(remaining: int, cur_orbital: int):
+            taken = min(remaining, cur_orbital)
+            remaining -= taken
+            cur_orbital -= taken
+            return remaining, cur_orbital
+
+        for v in min_idx.values():
+            rem = v
+            spinor_number.closed_shell, rem = decrease_orbitals(spinor_number.closed_shell, rem)
+            spinor_number.open_shell, rem = decrease_orbitals(spinor_number.open_shell, rem)
+            spinor_number.virtual_orbitals, rem = decrease_orbitals(spinor_number.virtual_orbitals, rem)
+        return spinor_number
+
     def create_table(self):
         debug_print("TableWidget create_table")
-        active_start = 10
-        secondary_start = 20
         self.clear()
         rows = table_data.mo_data
+        rows.sort(key=lambda x: (x.energy))
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
+        spinor_number = SpinorNumber()
+        for v in table_data.eigenvalues.data.values():
+            spinor_number += v
+        min_idx, nvcut = self.validate_table_data(rows)
+        # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
+        # because 4 means the first orbitals mo_number that is included in the output
+        # *2 means that the number of spinors is doubled compared to the number of orbitals
+        # therefore, the number of electrons is decreased by 2*(4-1)=6 because 3 orbitals are not included in the output
+        table_data.eigenvalues.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
+        rem_electrons = table_data.eigenvalues.electron_number
+        spinor_number = self.decrease_spinor_number(spinor_number, min_idx)
+        nvcut_start = len(rows) - sum(nvcut.values())
+        active_cnt = 0
 
         for row_idx, row in enumerate(rows):
-            # Default CAS configuration is CAS(2,4) (2electrons, 4spinors)
-            # If virtual orbitals are not included, the number of spinors is 2 because the number of electrons is 2
-            color_info: ColorPopupInfo = (
-                colors.inactive
-                if row_idx < active_start
-                else colors.active
-                if row_idx < secondary_start
-                else colors.secondary
-            )
+            # Default CAS configuration is CAS(4,8) (4electrons, 8spinors)
+            if rem_electrons > 4:
+                color_info = colors.inactive
+            elif active_cnt < 8:
+                active_cnt += 2
+                color_info = colors.active
+            elif row_idx < nvcut_start:
+                color_info = colors.secondary
+            else:
+                color_info = colors.secondary
+
+            rem_electrons -= 2
             color: QColor = color_info.color
             # mo_symmetry
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
@@ -145,16 +195,23 @@ class TableWidget(QTableWidget):
             )
 
         def read_eigenvalues_info(row: "list[str]") -> Eigenvalues:
+            # eigenvalues info is following the format:
+            # electron_num int eigenvalues_type1 closed int open int virtual int ...
+            # (e.g.) electron_num 32 E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
             eigenvalues = Eigenvalues({})
-            idx = 0
+            if len(row) < 2:
+                msg = "The output file is not correct, eigenvalues info is not found"
+                raise ValueError(msg)
+            electron_number = int(row[1])
+            eigenvalues.electron_number = electron_number
+            idx = 2
             while idx + 7 <= len(row):
-                # E1g closed 6 open 0 virtual 0
-                # eigenvalues_type _ closed_shell _ open_shell _ virtual_orbitals
                 eigenvalues_type = row[idx]
                 closed_shell = int(row[idx + 2])
                 open_shell = int(row[idx + 4])
                 virtual_orbitals = int(row[idx + 6])
-                spinor_number = SpinorNumber(closed_shell, open_shell, virtual_orbitals)
+                sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
+                spinor_number = SpinorNumber(closed_shell, open_shell, virtual_orbitals, sum_of_orbitals)
                 eigenvalues.data[eigenvalues_type] = spinor_number
                 idx += 7
             return eigenvalues
