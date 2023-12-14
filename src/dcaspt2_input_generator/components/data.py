@@ -105,6 +105,25 @@ class Color:
     def __ne__(self, __value: object) -> bool:
         return not self.__eq__(__value)
 
+    def deep_copy(self):
+        new_color = Color()
+        new_color.color_type = self.color_type
+        new_color.colormap = self.colormap.copy()
+
+        for key, value in self.__dict__.items():
+            if isinstance(value, ColorPopupInfo):
+                setattr(new_color, key, value)
+
+        new_color.not_used.icon = self.create_icon(new_color.not_used.color)
+        new_color.core.icon = self.create_icon(new_color.core.color)
+        new_color.inactive.icon = self.create_icon(new_color.inactive.color)
+        new_color.ras1.icon = self.create_icon(new_color.ras1.color)
+        new_color.active.icon = self.create_icon(new_color.active.color)
+        new_color.ras3.icon = self.create_icon(new_color.ras3.color)
+        new_color.secondary.icon = self.create_icon(new_color.secondary.color)
+
+        return new_color
+
     def get_color_info(self, q_color: QColor):
         if q_color.name() in self.colormap:
             return self.colormap[q_color.name()]
