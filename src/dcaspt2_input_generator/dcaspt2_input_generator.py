@@ -11,12 +11,16 @@ from dcaspt2_input_generator.utils.dir_info import dir_info
 
 class MainApp:
     def __init__(self):
-        from dcaspt2_input_generator.components.main_window import MainWindow
         from dcaspt2_input_generator.utils.settings import Settings
 
         self.app = QApplication(sys.argv)
         self.settings = Settings()
-        self.window = MainWindow()
+        self.init_gui()
+
+    def init_gui(self):
+        from dcaspt2_input_generator.components.main_window import MainWindow
+
+        self.window = MainWindow(parent=None)
         self.window.setWindowTitle("DIRAC-CASPT2 Input Generator")
         self.window.show()
 

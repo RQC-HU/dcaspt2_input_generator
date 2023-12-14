@@ -23,8 +23,8 @@ from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 # TableWidget (table)
 # InputLayout (layout): core, inactive, active, secondary
 class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.init_UI()
         # employ native setting events to save/load form size and position
         self.settings = QSettings("Hiroshima University", "DIRAC-CASPT2 Input Generator")
