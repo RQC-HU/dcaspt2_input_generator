@@ -155,7 +155,7 @@ your .PRIVEC option in DIRAC calculation may be wrong."
                 color_info = colors.secondary
 
             rem_electrons -= 2
-            color: QColor = color_info.color
+            color = color_info.color
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
             self.setItem(row_idx, 1, QTableWidgetItem(str(row.mo_number)))
             self.setItem(row_idx, 2, QTableWidgetItem(str(row.energy)))
@@ -320,33 +320,38 @@ is the correct format"
 
         # Show the core action
         if is_action_shown["core"]:
-            core_action = QAction(colors.core.message)
+            core_action = QAction(colors.core.icon, colors.core.message)
             core_action.triggered.connect(lambda: self.change_background_color(colors.core.color))
             menu.addAction(core_action)
         # Show the inactive action
         if is_action_shown["inactive"]:
-            inactive_action = QAction(colors.inactive.message)
+            inactive_action = QAction(colors.inactive.icon, colors.inactive.message)
             inactive_action.triggered.connect(lambda: self.change_background_color(colors.inactive.color))
             menu.addAction(inactive_action)
 
         # Show the secondary action
         if is_action_shown["secondary"]:
-            secondary_action = QAction(colors.secondary.message)
+            secondary_action = QAction(colors.secondary.icon, colors.secondary.message)
             secondary_action.triggered.connect(lambda: self.change_background_color(colors.secondary.color))
             menu.addAction(secondary_action)
 
         # Show the active action
-        ras1_action = QAction(colors.ras1.message)
+        ras1_action = QAction(colors.ras1.icon, colors.ras1.message)
         ras1_action.triggered.connect(lambda: self.change_background_color(colors.ras1.color))
         menu.addAction(ras1_action)
 
-        active_action = QAction(colors.active.message)
+        active_action = QAction(colors.active.icon, colors.active.message)
         active_action.triggered.connect(lambda: self.change_background_color(colors.active.color))
         menu.addAction(active_action)
 
-        ras3_action = QAction(colors.ras3.message)
+        ras3_action = QAction(colors.ras3.icon, colors.ras3.message)
         ras3_action.triggered.connect(lambda: self.change_background_color(colors.ras3.color))
         menu.addAction(ras3_action)
+
+        not_used_action = QAction(colors.not_used.icon, colors.not_used.message)
+        not_used_action.triggered.connect(lambda: self.change_background_color(colors.not_used.color))
+        menu.addAction(not_used_action)
+
         menu.exec(self.viewport().mapToGlobal(position))
 
     def change_selected_rows_background_color(self, row, color: QColor):
