@@ -1,6 +1,10 @@
 import copy
 from pathlib import Path
 
+from qtpy.QtCore import Qt, Signal  # type: ignore
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
+
 from dcaspt2_input_generator.components.data import (
     Color,
     MOData,
@@ -11,9 +15,6 @@ from dcaspt2_input_generator.components.data import (
     table_data,
 )
 from dcaspt2_input_generator.utils.utils import debug_print
-from qtpy.QtCore import Qt, Signal  # type: ignore
-from qtpy.QtGui import QColor
-from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
 
 # TableWidget is the widget that displays the output data
@@ -86,7 +87,6 @@ class TableWidget(QTableWidget):
         keys = table_data.header_info.spinor_num_info.keys()
         cur_idx = {k: 0 for k in keys}
         min_idx = copy.deepcopy(cur_idx)
-        nvcut = copy.deepcopy({k: v.sum_of_orbitals for k, v in table_data.header_info.spinor_num_info.items()})
         # Validate the data and set the min_idx to the minimum index of the mo_number per mo_symmetry
         for row in rows:
             key = row.mo_symmetry
@@ -101,14 +101,7 @@ class TableWidget(QTableWidget):
 your .PRIVEC option in DIRAC calculation may be wrong."
                 raise ValueError(msg)
             cur_idx[row.mo_symmetry] = row.mo_number
-
-        # if nvcut is negative, raise ValueError
-        nvcut = {k: v - cur_idx[k] for k, v in nvcut.items()}
-        if any(v < 0 for v in nvcut.values()):
-            msg = f"nvcut must be positive or zero, nvcut: {nvcut},\
-table_data.header_info.spinor_num_info: {table_data.header_info.spinor_num_info}"
-            raise ValueError(msg)
-        return (min_idx, nvcut)
+        return min_idx
 
     def decrease_spinor_number(self, spinor_number: SpinorNumber, min_idx: dict[str, int]):
         def decrease_orbitals(remaining: int, cur_orbital: int):
@@ -135,7 +128,7 @@ table_data.header_info.spinor_num_info: {table_data.header_info.spinor_num_info}
         # for v in table_data.eigenvalues.data.values():
         for v in table_data.header_info.spinor_num_info.values():
             spinor_number += v
-        min_idx, nvcut = self.validate_table_data(rows)
+        min_idx = self.validate_table_data(rows)
         # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
         # because 4 means the first orbitals mo_number that is included in the output
         # *2 means that the number of spinors is doubled compared to the number of orbitals
@@ -145,28 +138,26 @@ table_data.header_info.spinor_num_info: {table_data.header_info.spinor_num_info}
         # rem_electrons = table_data.eigenvalues.electron_number
         rem_electrons = table_data.header_info.electron_number
         spinor_number = self.decrease_spinor_number(spinor_number, min_idx)
-        nvcut_start = len(rows) - sum(nvcut.values())
         active_cnt = 0
 
         for row_idx, row in enumerate(rows):
             # Default CAS configuration is CAS(4,8) (4electrons, 8spinors)
-            if rem_electrons > 4:
+            key = row.mo_symmetry
+            moltra_info = table_data.header_info.moltra_info[key]
+            if not moltra_info.get(row.mo_number, False):
+                color_info = colors.not_used  # not in MOLTRA
+            elif rem_electrons > 4:
                 color_info = colors.inactive
             elif active_cnt < 8:
                 active_cnt += 2
                 color_info = colors.active
-            elif row_idx < nvcut_start:
-                color_info = colors.secondary
             else:
                 color_info = colors.secondary
 
             rem_electrons -= 2
             color: QColor = color_info.color
-            # mo_symmetry
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
-            # mo_number_dirac
             self.setItem(row_idx, 1, QTableWidgetItem(str(row.mo_number)))
-            # mo_energy
             self.setItem(row_idx, 2, QTableWidgetItem(str(row.energy)))
             # percentage, ao_type
             column_before_ao_percentage = 3
@@ -186,7 +177,6 @@ table_data.header_info.spinor_num_info: {table_data.header_info.spinor_num_info}
 
             for idx in range(table_data.column_max_len):
                 self.item(row_idx, idx).setBackground(color)
-
         self.update_index_info()
 
     def load_output(self, file_path: Path):

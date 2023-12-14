@@ -114,6 +114,7 @@ class Color:
     def change_color_templates(self, color_type: str):
         if color_type == "default":
             # Default color
+            self.not_used = ColorPopupInfo(QColor("#FFFFFF"), "not used in CASPT2", "not used in CASPT2(White)")
             self.core = ColorPopupInfo(QColor("#D3E8EB"), "core", "core(Pale Blue)")
             self.inactive = ColorPopupInfo(QColor("#D5ECD4"), "inactive", "inactive(Pale Green)")
             self.ras1 = ColorPopupInfo(QColor("#BBA0CB"), "ras1", "ras1(Pale Purple)")
@@ -122,6 +123,7 @@ class Color:
             self.secondary = ColorPopupInfo(QColor("#FDF4CD"), "secondary", "secondary(Pale Yellow)")
         elif color_type == "For red-green color blindness":
             # For red-green color blindness
+            self.not_used = ColorPopupInfo(QColor("#FFFFFF"), "not used in CASPT2", "not used in CASPT2(White)")
             self.core = ColorPopupInfo(QColor("#6495ED"), "core", "core(Cornflower blue)")
             self.inactive = ColorPopupInfo(QColor("#FFA07A"), "inactive", "inactive(Light salmon)")
             self.ras1 = ColorPopupInfo(QColor("#32CD32"), "ras1", "ras1(Lime green)")
@@ -130,6 +132,7 @@ class Color:
             self.secondary = ColorPopupInfo(QColor("#DA70D6"), "secondary", "secondary(Orchid)")
         elif color_type == "For green-yellow color blindness":
             # For green-yellow color blindness
+            self.not_used = ColorPopupInfo(QColor("#FFFFFF"), "not used in CASPT2", "not used in CASPT2(White)")
             self.core = ColorPopupInfo(QColor("#F08080"), "core", "core(Light coral)")
             self.inactive = ColorPopupInfo(QColor("#90EE90"), "inactive", "inactive(Light green)")
             self.ras1 = ColorPopupInfo(QColor("#4682B4"), "ras1", "ras1(Steel blue)")
@@ -144,6 +147,7 @@ class Color:
         # colormap is a dictionary that maps QColor.name() to ColorPopupInfo
         # QColor is not hashable, so I use QColor.name() instead of QColor for dictionary keys.
         self.colormap = {
+            self.not_used.color.name(): self.not_used,
             self.core.color.name(): self.core,
             self.inactive.color.name(): self.inactive,
             self.ras1.color.name(): self.ras1,
