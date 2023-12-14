@@ -1,12 +1,19 @@
 import copy
 from pathlib import Path
 
+from dcaspt2_input_generator.components.data import (
+    Color,
+    MOData,
+    MoltraInfo,
+    SpinorNumber,
+    SpinorNumInfo,
+    colors,
+    table_data,
+)
+from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
-
-from dcaspt2_input_generator.components.data import Color, Eigenvalues, MOData, SpinorNumber, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -75,10 +82,11 @@ class TableWidget(QTableWidget):
                 self.idx_info[color_info.name]["end"] = row
 
     def validate_table_data(self, rows: "list[MOData]"):
-        keys = table_data.eigenvalues.data.keys()
+        # keys = table_data.eigenvalues.data.keys()
+        keys = table_data.header_info.spinor_num_info.keys()
         cur_idx = {k: 0 for k in keys}
         min_idx = copy.deepcopy(cur_idx)
-        nvcut = copy.deepcopy({k: v.sum_of_orbitals for k, v in table_data.eigenvalues.data.items()})
+        nvcut = copy.deepcopy({k: v.sum_of_orbitals for k, v in table_data.header_info.spinor_num_info.items()})
         # Validate the data and set the min_idx to the minimum index of the mo_number per mo_symmetry
         for row in rows:
             key = row.mo_symmetry
@@ -98,7 +106,7 @@ your .PRIVEC option in DIRAC calculation may be wrong."
         nvcut = {k: v - cur_idx[k] for k, v in nvcut.items()}
         if any(v < 0 for v in nvcut.values()):
             msg = f"nvcut must be positive or zero, nvcut: {nvcut},\
-table_data.eigenvalues.data: {table_data.eigenvalues.data}"
+table_data.header_info.spinor_num_info: {table_data.header_info.spinor_num_info}"
             raise ValueError(msg)
         return (min_idx, nvcut)
 
@@ -124,15 +132,18 @@ table_data.eigenvalues.data: {table_data.eigenvalues.data}"
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
         spinor_number = SpinorNumber()
-        for v in table_data.eigenvalues.data.values():
+        # for v in table_data.eigenvalues.data.values():
+        for v in table_data.header_info.spinor_num_info.values():
             spinor_number += v
         min_idx, nvcut = self.validate_table_data(rows)
         # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
         # because 4 means the first orbitals mo_number that is included in the output
         # *2 means that the number of spinors is doubled compared to the number of orbitals
         # therefore, the number of electrons is decreased by 2*(4-1)=6 because 3 orbitals are not included in the output
-        table_data.eigenvalues.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
-        rem_electrons = table_data.eigenvalues.electron_number
+        # table_data.eigenvalues.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
+        table_data.header_info.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
+        # rem_electrons = table_data.eigenvalues.electron_number
+        rem_electrons = table_data.header_info.electron_number
         spinor_number = self.decrease_spinor_number(spinor_number, min_idx)
         nvcut_start = len(rows) - sum(nvcut.values())
         active_cnt = 0
@@ -194,27 +205,50 @@ table_data.eigenvalues.data: {table_data.eigenvalues.data}"
                 ao_len=len(ao_type),
             )
 
-        def read_eigenvalues_info(row: "list[str]") -> Eigenvalues:
-            # eigenvalues info is following the format:
-            # electron_num int eigenvalues_type1 closed int open int virtual int ...
-            # (e.g.) electron_num 32 E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
-            eigenvalues = Eigenvalues({})
-            if len(row) < 2:
-                msg = "The output file is not correct, eigenvalues info is not found"
-                raise ValueError(msg)
-            electron_number = int(row[1])
-            eigenvalues.electron_number = electron_number
+        def read_moltra_info(row: "list[str]") -> MoltraInfo:
+            moltra_info = MoltraInfo({})
             idx = 2
+            while idx + 2 <= len(row):
+                moltra_type = row[idx]
+                moltra_range_str = row[idx + 1]
+                moltra_range = {}
+                for elem in moltra_range_str.split(","):
+                    moltra_range_elem = elem.strip()
+                    if ".." in moltra_range_elem:
+                        moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
+                        moltra_range_start = int(moltra_range_start)
+                        moltra_range_end = int(moltra_range_end)
+                        for i in range(moltra_range_start, moltra_range_end + 1):
+                            moltra_range[i] = True
+                    else:
+                        moltra_range[int(moltra_range_elem)] = True
+                moltra_info[moltra_type] = moltra_range
+                idx += 2
+            return moltra_info
+
+        def read_spinor_num_info(row: "list[str]") -> SpinorNumInfo:
+            # spinor_num info is following the format:
+            # spinor_num_type1 closed int open int virtual int ...
+            # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+            spinor_num = SpinorNumInfo({})
+            if len(row) % 7 != 0 or len(row) < 7:
+                msg = f"spinor_num info is not correct: {row},\
+spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ...\n\
+is the correct format"
+                raise ValueError(msg)
+            idx = 0
             while idx + 7 <= len(row):
-                eigenvalues_type = row[idx]
+                spinor_num_type = row[idx]
                 closed_shell = int(row[idx + 2])
                 open_shell = int(row[idx + 4])
                 virtual_orbitals = int(row[idx + 6])
                 sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
                 spinor_number = SpinorNumber(closed_shell, open_shell, virtual_orbitals, sum_of_orbitals)
-                eigenvalues.data[eigenvalues_type] = spinor_number
+                spinor_num[spinor_num_type] = spinor_number
+                # table_data.spinor_num.data[spinor_num_type] = spinor_number
+                table_data.header_info.spinor_num_info[spinor_num_type] = spinor_number
                 idx += 7
-            return eigenvalues
+            return spinor_num
 
         def set_table_data():
             table_data.reset()
@@ -223,7 +257,16 @@ table_data.eigenvalues.data: {table_data.eigenvalues.data}"
             try:
                 for idx, row in enumerate(rows):
                     if idx == 0:
-                        table_data.eigenvalues = read_eigenvalues_info(row)
+                        # (e.g.) electron_num 106 E1g 16..85 E1u 11..91
+                        table_data.header_info.electron_number = int(row[1])
+                        moltra_info = read_moltra_info(row)
+                        for key, moltra in moltra_info.items():
+                            table_data.header_info.moltra_info[key] = moltra
+                    elif idx == 1:
+                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+                        spinor_nums = read_spinor_num_info(row)
+                        for key, eig in spinor_nums.items():
+                            table_data.header_info.spinor_num_info[key] = eig
                     else:
                         row_dict = create_row_dict(row)
                         table_data.mo_data.append(row_dict)

@@ -33,22 +33,37 @@ class SpinorNumber:
         )
 
 
+class MoltraInfo(Dict[str, Dict[int, bool]]):
+    pass
+
+
+class SpinorNumInfo(Dict[str, SpinorNumber]):
+    pass
+
+
 @dataclass
-class Eigenvalues:
-    data: Dict[str, SpinorNumber]
+class HeaderInfo:
+    spinor_num_info: SpinorNumInfo = None
+    moltra_info: MoltraInfo = None
     electron_number: int = 0
+
+    def __post_init__(self):
+        if self.spinor_num_info is None:
+            self.spinor_num_info = SpinorNumInfo({})
+        if self.moltra_info is None:
+            self.moltra_info = MoltraInfo({})
 
 
 class TableData:
     def __init__(self):
         self.mo_data: "list[MOData]" = []
         self.column_max_len: int = 0
-        self.eigenvalues: Eigenvalues = Eigenvalues({})
+        self.header_info: HeaderInfo = HeaderInfo({})
 
     def reset(self):
         self.mo_data = []
         self.column_max_len = 0
-        self.eigenvalues = Eigenvalues({})
+        self.header_info = HeaderInfo({})
 
 
 table_data = TableData()
