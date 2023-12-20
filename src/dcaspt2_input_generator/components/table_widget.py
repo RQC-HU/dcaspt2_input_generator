@@ -1,5 +1,6 @@
 import copy
 from pathlib import Path
+from typing import Dict, List
 
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
@@ -82,7 +83,7 @@ class TableWidget(QTableWidget):
             else:
                 self.idx_info[color_info.name]["end"] = row
 
-    def validate_table_data(self, rows: "list[MOData]"):
+    def validate_table_data(self, rows: List[MOData]):
         # keys = table_data.eigenvalues.data.keys()
         keys = table_data.header_info.spinor_num_info.keys()
         cur_idx = {k: 0 for k in keys}
@@ -103,7 +104,7 @@ your .PRIVEC option in DIRAC calculation may be wrong."
             cur_idx[row.mo_symmetry] = row.mo_number
         return min_idx
 
-    def decrease_spinor_number(self, spinor_number: SpinorNumber, min_idx: dict[str, int]):
+    def decrease_spinor_number(self, spinor_number: SpinorNumber, min_idx: Dict[str, int]):
         def decrease_orbitals(remaining: int, cur_orbital: int):
             taken = min(remaining, cur_orbital)
             remaining -= taken
@@ -180,7 +181,7 @@ your .PRIVEC option in DIRAC calculation may be wrong."
         self.update_index_info()
 
     def load_output(self, file_path: Path):
-        def create_row_dict(row: "list[str]") -> MOData:
+        def create_row_dict(row: List[str]) -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])
             mo_energy = float(row[2])
@@ -195,7 +196,7 @@ your .PRIVEC option in DIRAC calculation may be wrong."
                 ao_len=len(ao_type),
             )
 
-        def read_moltra_info(row: "list[str]") -> MoltraInfo:
+        def read_moltra_info(row: List[str]) -> MoltraInfo:
             moltra_info = MoltraInfo({})
             idx = 2
             while idx + 2 <= len(row):
@@ -216,7 +217,7 @@ your .PRIVEC option in DIRAC calculation may be wrong."
                 idx += 2
             return moltra_info
 
-        def read_spinor_num_info(row: "list[str]") -> SpinorNumInfo:
+        def read_spinor_num_info(row: List[str]) -> SpinorNumInfo:
             # spinor_num info is following the format:
             # spinor_num_type1 closed int open int virtual int ...
             # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
@@ -293,7 +294,7 @@ is the correct format"
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        selected_rows: "list[int]" = []
+        selected_rows: List[int] = []
         for r in ranges:
             selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
 
