@@ -4,15 +4,19 @@ from pathlib import Path
 
 from qtpy.QtCore import QSettings
 from qtpy.QtGui import QDragEnterEvent
-from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (QFileDialog, QMainWindow, QMessageBox, QPushButton,
+                            QVBoxLayout, QWidget)
 
 from dcaspt2_input_generator.components.data import colors
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
-from dcaspt2_input_generator.controller.color_settings_controller import ColorSettingsController
-from dcaspt2_input_generator.controller.save_default_settings_controller import SaveDefaultSettingsController
-from dcaspt2_input_generator.controller.widget_controller import WidgetController
+from dcaspt2_input_generator.controller.color_settings_controller import \
+    ColorSettingsController
+from dcaspt2_input_generator.controller.save_default_settings_controller import \
+    SaveDefaultSettingsController
+from dcaspt2_input_generator.controller.widget_controller import \
+    WidgetController
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 
@@ -145,18 +149,35 @@ class MainWindow(QMainWindow):
             with open(file_path, mode="w") as f:
                 f.write(output)
 
+    def display_critical_error_message_box(self, message: str):
+        QMessageBox.critical(self, "Error", message)
+
     def select_file_Dirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
-            self.run_sum_Dirac_DFCOEF(file_path)
-            self.reload_table(dir_info.sum_dirac_dfcoef_path)
+            try:
+                self.run_sum_Dirac_DFCOEF(file_path)
+                self.reload_table(dir_info.sum_dirac_dfcoef_path)
+            except subprocess.CalledProcessError as e:
+                err_msg = f"It seems that the sum_dirac_dfcoef program has failed.\n\
+Please check the output file. Is this DIRAC output file?\npath: {file_path}\n\n\ndetails: {e.stderr}"
+                self.display_critical_error_message_box(err_msg)
+            except Exception as e:
+                err_msg = f"An unexpected error has ocurred.\n\
+file_path: {file_path}\n\n\ndetails: {e}"
+                self.display_critical_error_message_box(err_msg)
 
     def select_file_DFCOEF(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)"
         )
         if file_path:
-            self.reload_table(file_path)
+            try:
+                self.reload_table(file_path)
+            except Exception as e:
+                err_msg = f"An unexpected error has ocurred.\n\
+file_path: {file_path}\n\n\ndetails: {e}"
+                self.display_critical_error_message_box(err_msg)
 
     def save_sum_dirac_dfcoef(self):
         if not dir_info.sum_dirac_dfcoef_path.exists():
@@ -189,13 +210,10 @@ Please run the sum_dirac_dfcoef program first.",
                 command.split(),
                 check=True,
             )
-        except subprocess.CalledProcessError:
-            QMessageBox.critical(
-                self,
-                "Error",
-                f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
-Please check the output file. path: {file_path}\nExecuted command: {command}",
-            )
+        except subprocess.CalledProcessError as e:
+            err_msg = f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
+Please check the output file. path: {file_path}\nExecuted command: {command}"
+            raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output, err_msg) from e
 
     def reload_table(self, filepath: str):
         self.table_widget.reload(filepath)
