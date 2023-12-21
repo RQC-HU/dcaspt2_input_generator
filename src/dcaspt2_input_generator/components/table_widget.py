@@ -4,17 +4,13 @@ from typing import Dict, List
 
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
-from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
+from qtpy.QtWidgets import (QAction, QMenu, QTableWidget,  # type: ignore
+                            QTableWidgetItem)
 
-from dcaspt2_input_generator.components.data import (
-    Color,
-    MOData,
-    MoltraInfo,
-    SpinorNumber,
-    SpinorNumInfo,
-    colors,
-    table_data,
-)
+from dcaspt2_input_generator.components.data import (Color, MOData,
+                                                     SpinorNumber,
+                                                     SpinorNumInfo, colors,
+                                                     table_data)
 from dcaspt2_input_generator.utils.utils import debug_print
 
 
@@ -196,26 +192,30 @@ your .PRIVEC option in DIRAC calculation may be wrong."
                 ao_len=len(ao_type),
             )
 
-        def read_moltra_info(row: List[str]) -> MoltraInfo:
-            moltra_info = MoltraInfo({})
+        def read_moltra_info(row: List[str]) -> None:
             idx = 2
             while idx + 2 <= len(row):
                 moltra_type = row[idx]
                 moltra_range_str = row[idx + 1]
                 moltra_range = {}
-                for elem in moltra_range_str.split(","):
+                for cnt, elem in enumerate(moltra_range_str.split(",")):
                     moltra_range_elem = elem.strip()
                     if ".." in moltra_range_elem:
                         moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
                         moltra_range_start = int(moltra_range_start)
                         moltra_range_end = int(moltra_range_end)
+                        if cnt == 0:
+                            for i in range(1, moltra_range_start):
+                                moltra_range[i] = False
                         for i in range(moltra_range_start, moltra_range_end + 1):
                             moltra_range[i] = True
                     else:
-                        moltra_range[int(moltra_range_elem)] = True
-                moltra_info[moltra_type] = moltra_range
+                        key_elem = int(moltra_range_elem)
+                        moltra_range[key_elem] = True
+                        if cnt == 0:
+                            moltra_range[1:key_elem] = False
+                table_data.header_info.moltra_info[moltra_type] = moltra_range
                 idx += 2
-            return moltra_info
 
         def read_spinor_num_info(row: List[str]) -> SpinorNumInfo:
             # spinor_num info is following the format:
@@ -250,9 +250,7 @@ is the correct format"
                     if idx == 0:
                         # (e.g.) electron_num 106 E1g 16..85 E1u 11..91
                         table_data.header_info.electron_number = int(row[1])
-                        moltra_info = read_moltra_info(row)
-                        for key, moltra in moltra_info.items():
-                            table_data.header_info.moltra_info[key] = moltra
+                        read_moltra_info(row)
                     elif idx == 1:
                         # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
                         spinor_nums = read_spinor_num_info(row)
