@@ -1,17 +1,12 @@
 import copy
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
+from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
-from qtpy.QtWidgets import (QAction, QMenu, QTableWidget,  # type: ignore
-                            QTableWidgetItem)
-
-from dcaspt2_input_generator.components.data import (Color, MOData,
-                                                     SpinorNumber,
-                                                     SpinorNumInfo, colors,
-                                                     table_data)
-from dcaspt2_input_generator.utils.utils import debug_print
+from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
 
 # TableWidget is the widget that displays the output data
@@ -79,8 +74,7 @@ class TableWidget(QTableWidget):
             else:
                 self.idx_info[color_info.name]["end"] = row
 
-    def validate_table_data(self, rows: List[MOData]):
-        # keys = table_data.eigenvalues.data.keys()
+    def validate_table_data(self, rows: List[MOData]) -> None:
         keys = table_data.header_info.spinor_num_info.keys()
         cur_idx = {k: 0 for k in keys}
         min_idx = copy.deepcopy(cur_idx)
@@ -92,27 +86,17 @@ class TableWidget(QTableWidget):
                 raise ValueError(msg)
             if cur_idx[key] == 0:
                 min_idx[key] = row.mo_number
-            # row.mo_number must step by 1
+            # Find not moltra orbitals
             elif cur_idx[key] + 1 != row.mo_number:
-                msg = f"mo_number must step by 1, cur_idx: {cur_idx}, row: {row},\
-your .PRIVEC option in DIRAC calculation may be wrong."
-                raise ValueError(msg)
+                for idx in range(cur_idx[key] + 1, row.mo_number):
+                    table_data.header_info.moltra_info[key][idx] = False
             cur_idx[row.mo_symmetry] = row.mo_number
-        return min_idx
 
-    def decrease_spinor_number(self, spinor_number: SpinorNumber, min_idx: Dict[str, int]):
-        def decrease_orbitals(remaining: int, cur_orbital: int):
-            taken = min(remaining, cur_orbital)
-            remaining -= taken
-            cur_orbital -= taken
-            return remaining, cur_orbital
-
-        for v in min_idx.values():
-            rem = v
-            spinor_number.closed_shell, rem = decrease_orbitals(spinor_number.closed_shell, rem)
-            spinor_number.open_shell, rem = decrease_orbitals(spinor_number.open_shell, rem)
-            spinor_number.virtual_orbitals, rem = decrease_orbitals(spinor_number.virtual_orbitals, rem)
-        return spinor_number
+        # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
+        # because 4 means the first orbitals mo_number that is included in the output
+        # *2 means that the number of spinors is doubled compared to the number of orbitals
+        # therefore, the number of electrons is decreased by 2*(4-1)=6 because 3 orbitals are not included in the output
+        table_data.header_info.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
 
     def create_table(self):
         debug_print("TableWidget create_table")
@@ -121,20 +105,10 @@ your .PRIVEC option in DIRAC calculation may be wrong."
         rows.sort(key=lambda x: (x.energy))
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
-        spinor_number = SpinorNumber()
-        # for v in table_data.eigenvalues.data.values():
-        for v in table_data.header_info.spinor_num_info.values():
-            spinor_number += v
-        min_idx = self.validate_table_data(rows)
-        # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
-        # because 4 means the first orbitals mo_number that is included in the output
-        # *2 means that the number of spinors is doubled compared to the number of orbitals
-        # therefore, the number of electrons is decreased by 2*(4-1)=6 because 3 orbitals are not included in the output
-        # table_data.eigenvalues.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
-        table_data.header_info.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
-        # rem_electrons = table_data.eigenvalues.electron_number
+        self.validate_table_data(rows)
+        print(table_data.header_info.electron_number)
+
         rem_electrons = table_data.header_info.electron_number
-        spinor_number = self.decrease_spinor_number(spinor_number, min_idx)
         active_cnt = 0
 
         for row_idx, row in enumerate(rows):
@@ -217,11 +191,10 @@ your .PRIVEC option in DIRAC calculation may be wrong."
                 table_data.header_info.moltra_info[moltra_type] = moltra_range
                 idx += 2
 
-        def read_spinor_num_info(row: List[str]) -> SpinorNumInfo:
+        def read_spinor_num_info(row: List[str]):
             # spinor_num info is following the format:
             # spinor_num_type1 closed int open int virtual int ...
             # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
-            spinor_num = SpinorNumInfo({})
             if len(row) % 7 != 0 or len(row) < 7:
                 msg = f"spinor_num info is not correct: {row},\
 spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ...\n\
@@ -234,12 +207,10 @@ is the correct format"
                 open_shell = int(row[idx + 4])
                 virtual_orbitals = int(row[idx + 6])
                 sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
-                spinor_number = SpinorNumber(closed_shell, open_shell, virtual_orbitals, sum_of_orbitals)
-                spinor_num[spinor_num_type] = spinor_number
-                # table_data.spinor_num.data[spinor_num_type] = spinor_number
-                table_data.header_info.spinor_num_info[spinor_num_type] = spinor_number
+                table_data.header_info.spinor_num_info[spinor_num_type] = SpinorNumber(
+                    closed_shell, open_shell, virtual_orbitals, sum_of_orbitals
+                )
                 idx += 7
-            return spinor_num
 
         def set_table_data():
             table_data.reset()
@@ -253,9 +224,7 @@ is the correct format"
                         read_moltra_info(row)
                     elif idx == 1:
                         # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
-                        spinor_nums = read_spinor_num_info(row)
-                        for key, eig in spinor_nums.items():
-                            table_data.header_info.spinor_num_info[key] = eig
+                        read_spinor_num_info(row)
                     else:
                         row_dict = create_row_dict(row)
                         table_data.mo_data.append(row_dict)
