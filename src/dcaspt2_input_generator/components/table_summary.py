@@ -5,6 +5,7 @@ from qtpy.QtWidgets import (QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit,
                             QWidget)
 
 from dcaspt2_input_generator.utils.utils import debug_print
+from dcaspt2_input_generator.utils.settings import settings
 
 
 class NaturalNumberInput(QLineEdit):
@@ -77,16 +78,17 @@ class UserInput(QGridLayout):
         super().__init__()
         # 数値を入力するためのラベル
         self.ras1_max_hole_label = QLabel("ras1 max hole")
-        self.ras1_max_hole_number = RASNumberInput()
+        self.ras1_max_hole_number = RASNumberInput(default_num=settings.input.ras1_max_hole)
         self.ras3_max_electron_label = QLabel("ras3 max electron")
-        self.ras3_max_electron_number = RASNumberInput()
+        self.ras3_max_electron_number = RASNumberInput(default_num=settings.input.ras3_max_electron)
         self.totsym_label = QLabel("totsym")
-        self.totsym_number = NaturalNumberInput(bottom_num=1, default_num=1)
+        self.totsym_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.totsym)
         self.selectroot_label = QLabel("selectroot")
-        self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=1)
+        self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.selectroot)
         # Add checkbox
         self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
         self.diracver_checkbox = QCheckBox()
+        self.diracver_checkbox.setChecked(settings.input.dirac_ver_21_or_later)
 
         self.addWidget(self.totsym_label, 0, 0)
         self.addWidget(self.totsym_number, 0, 1)

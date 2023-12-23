@@ -11,10 +11,7 @@ from dcaspt2_input_generator.utils.dir_info import dir_info
 
 class MainApp:
     def __init__(self):
-        from dcaspt2_input_generator.utils.settings import Settings
-
         self.app = QApplication(sys.argv)
-        self.settings = Settings()
         self.init_gui()
 
     def init_gui(self):

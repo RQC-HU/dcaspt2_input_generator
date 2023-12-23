@@ -106,7 +106,6 @@ class TableWidget(QTableWidget):
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
         self.validate_table_data(rows)
-        print(table_data.header_info.electron_number)
 
         rem_electrons = table_data.header_info.electron_number
         active_cnt = 0
