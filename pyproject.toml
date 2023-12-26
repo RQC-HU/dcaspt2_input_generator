@@ -23,7 +23,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["sum_dirac_dfcoef", "pyqt5", "qtpy"]
+dependencies = ["sum_dirac_dfcoef>=4.0.0", "pyqt5", "qtpy"]
 
 [project.urls]
 Documentation = "https://github.com/QRC-HU/dcaspt2_input_generator#readme"
@@ -52,7 +52,7 @@ python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 detached = true
 dependencies = ["black>=23.1.0", "mypy>=1.0.0", "ruff>=0.0.243"]
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/pymolecule_parser tests}"
+typing = "mypy --install-types --non-interactive {args: tests}"
 style = ["ruff {args:.}", "black --check --diff {args:.}"]
 fmt = ["black {args:.}", "ruff --fix {args:.}", "style"]
 all = ["style", "typing"]
@@ -130,7 +130,6 @@ parallel = true
 omit = []
 
 [tool.coverage.paths]
-pymolecule_parser = ["src/pymolecule_parser"]
 tests = ["tests"]
 
 [tool.coverage.report]
