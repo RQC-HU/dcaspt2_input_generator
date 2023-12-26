@@ -2,7 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from dcaspt2_input_generator.components.data import colors
+from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
@@ -80,15 +80,23 @@ class MainWindow(QMainWindow):
         return super().closeEvent(a0)
 
     def save_input(self):
+        def add_nelec(cur_nelec: int, rem_electrons: int) -> int:
+            if rem_electrons >= 0:
+                cur_nelec += 2
+            return cur_nelec
+
         output = ""
         core = 0
         inact = 0
         act = 0
         sec = 0
+        elec = 0
         ras1_list = []
         ras2_list = []
         ras3_list = []
+        rem_electrons = table_data.header_info.electron_number
         for idx in range(self.table_widget.rowCount()):
+            rem_electrons -= 2
             spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
             if color == colors.core.color:
@@ -101,13 +109,16 @@ class MainWindow(QMainWindow):
                 debug_print(f"{idx}, ras1")
                 act += 2
                 ras1_list.extend(spinor_indices)
+                elec = add_nelec(elec, rem_electrons)
             elif color == colors.active.color:
                 debug_print(f"{idx}, active")
                 act += 2
                 ras2_list.extend(spinor_indices)
+                elec = add_nelec(elec, rem_electrons)
             elif color == colors.ras3.color:
                 debug_print(f"{idx}, ras3")
                 act += 2
+                elec = add_nelec(elec, rem_electrons)
                 ras3_list.extend(spinor_indices)
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
@@ -115,6 +126,7 @@ class MainWindow(QMainWindow):
         # output += "ncore\n" + str(core) + "\n"  # ncore is meaningless option (https://github.com/kohei-noda-qcrg/dirac_caspt2/pull/114)
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
+        output += "nelec\n" + str(elec) + "\n"
         output += "nsec\n" + str(sec) + "\n"
         output += "nroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
