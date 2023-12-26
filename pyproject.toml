@@ -8,11 +8,9 @@ dynamic = ["version"]
 description = 'This is a GUI tool for supporting the generation of input files for DIRAC_CASPT2 calculation.'
 readme = "README.md"
 requires-python = ">=3.7"
-license = "MIT"
+license = "Apache-2.0"
 keywords = []
-authors = [
-  { name = "Kohei Noda", email = "kohei-noda@hiroshima-u.ac.jp" },
-]
+authors = [{ name = "Kohei Noda", email = "kohei-noda@hiroshima-u.ac.jp" }]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -21,19 +19,16 @@ classifiers = [
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = [
-  "sum_dirac_dfcoef",
-  "pyqt5",
-  "qtpy",
-]
+dependencies = ["sum_dirac_dfcoef", "pyqt5", "qtpy"]
 
 [project.urls]
-Documentation = "https://github.com/kohei-noda-qcrg/dcaspt2_input_generator#readme"
-Issues = "https://github.com/kohei-noda-qcrg/dcaspt2_input_generator/issues"
-Source = "https://github.com/kohei-noda-qcrg/dcaspt2_input_generator"
+Documentation = "https://github.com/QRC-HU/dcaspt2_input_generator#readme"
+Issues = "https://github.com/QRC-HU/dcaspt2_input_generator/issues"
+Source = "https://github.com/QRC-HU/dcaspt2_input_generator"
 
 
 [project.scripts]
@@ -43,47 +38,24 @@ dcaspt2_input_generator = "dcaspt2_input_generator:main"
 path = "src/dcaspt2_input_generator/__about__.py"
 
 [tool.hatch.envs.default]
-dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-]
+dependencies = ["coverage[toml]>=6.5", "pytest"]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
-cov-report = [
-  "- coverage combine",
-  "coverage report",
-]
-cov = [
-  "test-cov",
-  "cov-report",
-]
+cov-report = ["- coverage combine", "coverage report"]
+cov = ["test-cov", "cov-report"]
 
 [[tool.hatch.envs.all.matrix]]
 python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
 
 [tool.hatch.envs.lint]
 detached = true
-dependencies = [
-  "black>=23.1.0",
-  "mypy>=1.0.0",
-  "ruff>=0.0.243",
-]
+dependencies = ["black>=23.1.0", "mypy>=1.0.0", "ruff>=0.0.243"]
 [tool.hatch.envs.lint.scripts]
 typing = "mypy --install-types --non-interactive {args:src/pymolecule_parser tests}"
-style = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "style",
-]
-all = [
-  "style",
-  "typing",
-]
+style = ["ruff {args:.}", "black --check --diff {args:.}"]
+fmt = ["black {args:.}", "ruff --fix {args:.}", "style"]
+all = ["style", "typing"]
 
 [tool.black]
 target-version = ["py37"]
@@ -126,9 +98,15 @@ ignore = [
   # Allow boolean positional values in function calls, like `dict.get(... True)`
   "FBT003",
   # Ignore checks for possible passwords
-  "S105", "S106", "S107",
+  "S105",
+  "S106",
+  "S107",
   # Ignore complexity
-  "C901", "PLR0911", "PLR0912", "PLR0913", "PLR0915",
+  "C901",
+  "PLR0911",
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
 ]
 unfixable = [
   # Don't touch unused imports
@@ -136,7 +114,7 @@ unfixable = [
 ]
 
 [tool.ruff.isort]
-known-first-party = ["pymolecule_parser"]
+known-first-party = []
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
@@ -146,20 +124,14 @@ ban-relative-imports = "all"
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.coverage.run]
-source_pkgs = ["pymolecule_parser", "tests"]
+source_pkgs = ["tests"]
 branch = true
 parallel = true
-omit = [
-  "src/pymolecule_parser/__about__.py",
-]
+omit = []
 
 [tool.coverage.paths]
-pymolecule_parser = ["src/pymolecule_parser", "*/pymolecule-parser/src/pymolecule_parser"]
-tests = ["tests", "*/pymolecule-parser/tests"]
+pymolecule_parser = ["src/pymolecule_parser"]
+tests = ["tests"]
 
 [tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
