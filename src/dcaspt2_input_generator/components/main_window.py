@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
         output += "end\n"
 
         # open dialog to save the file
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save dirac_caspt2 input File", "", "")
         if file_path:
             with open(file_path, mode="w") as f:
                 f.write(output)
