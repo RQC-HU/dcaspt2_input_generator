@@ -1,3 +1,0 @@
-pyqt5
-qtpy
-sum-dirac-dfcoef

@@ -2,11 +2,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from qtpy.QtCore import QSettings
-from qtpy.QtGui import QDragEnterEvent
-from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
-
-from dcaspt2_input_generator.components.data import colors
+from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
@@ -15,6 +11,9 @@ from dcaspt2_input_generator.controller.save_default_settings_controller import 
 from dcaspt2_input_generator.controller.widget_controller import WidgetController
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
+from qtpy.QtCore import QSettings
+from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window
@@ -23,8 +22,8 @@ from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 # TableWidget (table)
 # InputLayout (layout): core, inactive, active, secondary
 class MainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.init_UI()
         # employ native setting events to save/load form size and position
         self.settings = QSettings("Hiroshima University", "DIRAC-CASPT2 Input Generator")
@@ -81,15 +80,23 @@ class MainWindow(QMainWindow):
         return super().closeEvent(a0)
 
     def save_input(self):
+        def add_nelec(cur_nelec: int, rem_electrons: int) -> int:
+            if rem_electrons >= 0:
+                cur_nelec += 2
+            return cur_nelec
+
         output = ""
         core = 0
         inact = 0
         act = 0
         sec = 0
+        elec = 0
         ras1_list = []
         ras2_list = []
         ras3_list = []
+        rem_electrons = table_data.header_info.electron_number
         for idx in range(self.table_widget.rowCount()):
+            rem_electrons -= 2
             spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
             if color == colors.core.color:
@@ -102,13 +109,16 @@ class MainWindow(QMainWindow):
                 debug_print(f"{idx}, ras1")
                 act += 2
                 ras1_list.extend(spinor_indices)
+                elec = add_nelec(elec, rem_electrons)
             elif color == colors.active.color:
                 debug_print(f"{idx}, active")
                 act += 2
                 ras2_list.extend(spinor_indices)
+                elec = add_nelec(elec, rem_electrons)
             elif color == colors.ras3.color:
                 debug_print(f"{idx}, ras3")
                 act += 2
+                elec = add_nelec(elec, rem_electrons)
                 ras3_list.extend(spinor_indices)
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
@@ -116,6 +126,7 @@ class MainWindow(QMainWindow):
         # output += "ncore\n" + str(core) + "\n"  # ncore is meaningless option (https://github.com/kohei-noda-qcrg/dirac_caspt2/pull/114)
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
+        output += "nelec\n" + str(elec) + "\n"
         output += "nsec\n" + str(sec) + "\n"
         output += "nroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
@@ -140,23 +151,40 @@ class MainWindow(QMainWindow):
         output += "end\n"
 
         # open dialog to save the file
-        file_path, _ = QFileDialog.getSaveFileName(self, "Save File", "", "Input Files (*.inp)")
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save dirac_caspt2 input File", "", "")
         if file_path:
             with open(file_path, mode="w") as f:
                 f.write(output)
 
+    def display_critical_error_message_box(self, message: str):
+        QMessageBox.critical(self, "Error", message)
+
     def select_file_Dirac(self):
         file_path, _ = QFileDialog.getOpenFileName(self, "SELECT A DIRAC OUTPUT FILE", "", "Output file (*.out)")
         if file_path:
-            self.run_sum_Dirac_DFCOEF(file_path)
-            self.reload_table(dir_info.sum_dirac_dfcoef_path)
+            try:
+                self.run_sum_Dirac_DFCOEF(file_path)
+                self.reload_table(dir_info.sum_dirac_dfcoef_path)
+            except subprocess.CalledProcessError as e:
+                err_msg = f"It seems that the sum_dirac_dfcoef program has failed.\n\
+Please check the output file. Is this DIRAC output file?\npath: {file_path}\n\n\ndetails: {e.stderr}"
+                self.display_critical_error_message_box(err_msg)
+            except Exception as e:
+                err_msg = f"An unexpected error has ocurred.\n\
+file_path: {file_path}\n\n\ndetails: {e}"
+                self.display_critical_error_message_box(err_msg)
 
     def select_file_DFCOEF(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self, "SELECT A sum_dirac_dfcoef OUTPUT FILE", "", "Output file (*.out)"
         )
         if file_path:
-            self.reload_table(file_path)
+            try:
+                self.reload_table(file_path)
+            except Exception as e:
+                err_msg = f"An unexpected error has ocurred.\n\
+file_path: {file_path}\n\n\ndetails: {e}"
+                self.display_critical_error_message_box(err_msg)
 
     def save_sum_dirac_dfcoef(self):
         if not dir_info.sum_dirac_dfcoef_path.exists():
@@ -179,23 +207,45 @@ Please run the sum_dirac_dfcoef program first.",
             shutil.copy(dir_info.sum_dirac_dfcoef_path, file_path)
 
     def run_sum_Dirac_DFCOEF(self, file_path):
-        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
-        # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
-        if os.name == "nt":
-            command = f"python -m {command}"
-        # Run the subprocess
-        try:
-            subprocess.run(
+        def create_command(command: str) -> str:
+            if os.name == "nt":
+                return f"python -m {command}"
+            return command
+
+        def check_version():
+            command = create_command("sum_dirac_dfcoef -v")
+            p = subprocess.run(
                 command.split(),
                 check=True,
+                stdout=subprocess.PIPE,
             )
-        except subprocess.CalledProcessError:
-            QMessageBox.critical(
-                self,
-                "Error",
-                f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
-Please check the output file. path: {file_path}\nExecuted command: {command}",
-            )
+            output = p.stdout.decode("utf-8")
+            # v4.0.0 or later is required
+            major_version = int(output.split(".")[0])
+            if major_version < 4:
+                msg = f"The version of sum_dirac_dfcoef is too old.\n\
+sum_dirac_dfcoef version: {output}\n\
+Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac_dfcoef`"
+                raise Exception(msg)
+
+        def run_command():
+            command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
+            # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
+            if os.name == "nt":
+                command = f"python -m {command}"
+            # Run the subprocess
+            try:
+                subprocess.run(
+                    command.split(),
+                    check=True,
+                )
+            except subprocess.CalledProcessError as e:
+                err_msg = f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
+Please check the output file. path: {file_path}\nExecuted command: {command}"
+                raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output, err_msg) from e
+
+        check_version()
+        run_command()
 
     def reload_table(self, filepath: str):
         self.table_widget.reload(filepath)

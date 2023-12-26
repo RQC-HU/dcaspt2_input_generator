@@ -1,9 +1,11 @@
 from typing import Optional
 
 from qtpy.QtGui import QFocusEvent, QIntValidator
-from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
+from qtpy.QtWidgets import (QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit,
+                            QWidget)
 
 from dcaspt2_input_generator.utils.utils import debug_print
+from dcaspt2_input_generator.utils.settings import settings
 
 
 class NaturalNumberInput(QLineEdit):
@@ -76,16 +78,17 @@ class UserInput(QGridLayout):
         super().__init__()
         # 数値を入力するためのラベル
         self.ras1_max_hole_label = QLabel("ras1 max hole")
-        self.ras1_max_hole_number = RASNumberInput()
+        self.ras1_max_hole_number = RASNumberInput(default_num=settings.input.ras1_max_hole)
         self.ras3_max_electron_label = QLabel("ras3 max electron")
-        self.ras3_max_electron_number = RASNumberInput()
+        self.ras3_max_electron_number = RASNumberInput(default_num=settings.input.ras3_max_electron)
         self.totsym_label = QLabel("totsym")
-        self.totsym_number = NaturalNumberInput(bottom_num=1, default_num=1)
+        self.totsym_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.totsym)
         self.selectroot_label = QLabel("selectroot")
-        self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=1)
+        self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.selectroot)
         # Add checkbox
         self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
         self.diracver_checkbox = QCheckBox()
+        self.diracver_checkbox.setChecked(settings.input.dirac_ver_21_or_later)
 
         self.addWidget(self.totsym_label, 0, 0)
         self.addWidget(self.totsym_number, 0, 1)
@@ -135,16 +138,18 @@ class TableSummary(QWidget):
         self.summaryLayout = QGridLayout()
         self.spinor_summary = SpinorSummary()
         self.user_input = UserInput()
+        self.recommended_moltra = QLabel("Recommended MOLTRA setting")
 
         self.summaryLayout.addWidget(QLabel("Summary of the number of spinors"), 0, 0)
         self.summaryLayout.addLayout(self.spinor_summary, 1, 0)
+        self.summaryLayout.addWidget(self.recommended_moltra, 2, 0)
 
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
-        self.summaryLayout.addWidget(line, 2, 0)
+        self.summaryLayout.addWidget(line, 3, 0)
 
-        self.summaryLayout.addWidget(QLabel("User Input"), 3, 0)
-        self.summaryLayout.addLayout(self.user_input, 4, 0)
+        self.summaryLayout.addWidget(QLabel("User Input"), 4, 0)
+        self.summaryLayout.addLayout(self.user_input, 5, 0)
 
         self.setLayout(self.summaryLayout)

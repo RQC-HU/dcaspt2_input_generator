@@ -1,5 +1,3 @@
-import copy
-
 from dcaspt2_input_generator.components.color_settings import ColorSettings
 from dcaspt2_input_generator.components.data import colors
 from dcaspt2_input_generator.components.table_widget import TableWidget
@@ -18,7 +16,7 @@ class ColorSettingsController:
 
     def onColorSettingsChanged(self):
         debug_print("onColorSettingsChanged")
-        prev_color = copy.deepcopy(colors)
+        prev_color = colors.deep_copy()
         selected_button = self.color_settings.buttonGroup.checkedButton()
         color_type = selected_button.text()
         colors.change_color_templates(color_type)

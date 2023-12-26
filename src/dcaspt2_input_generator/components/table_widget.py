@@ -1,11 +1,12 @@
+import copy
 from pathlib import Path
+from typing import List
 
+from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
-
-from dcaspt2_input_generator.components.data import Color, ColorPopupInfo, MOData, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -73,28 +74,60 @@ class TableWidget(QTableWidget):
             else:
                 self.idx_info[color_info.name]["end"] = row
 
+    def validate_table_data(self, rows: List[MOData]) -> None:
+        keys = table_data.header_info.spinor_num_info.keys()
+        cur_idx = {k: 0 for k in keys}
+        min_idx = copy.deepcopy(cur_idx)
+        # Validate the data and set the min_idx to the minimum index of the mo_number per mo_symmetry
+        for row in rows:
+            key = row.mo_symmetry
+            if key not in keys:
+                msg = f"mo_symmetry {key} is not found in the eigenvalues data"
+                raise ValueError(msg)
+            if cur_idx[key] == 0:
+                min_idx[key] = row.mo_number
+            # Find not moltra orbitals
+            elif cur_idx[key] + 1 != row.mo_number:
+                for idx in range(cur_idx[key] + 1, row.mo_number):
+                    table_data.header_info.moltra_info[key][idx] = False
+            cur_idx[row.mo_symmetry] = row.mo_number
+
+        # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
+        # because 4 means the first orbitals mo_number that is included in the output
+        # *2 means that the number of spinors is doubled compared to the number of orbitals
+        # therefore, the number of electrons is decreased by 2*(4-1)=6 because 3 orbitals are not included in the output
+        table_data.header_info.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
+
     def create_table(self):
         debug_print("TableWidget create_table")
-        active_start = 10
-        secondary_start = 20
         self.clear()
         rows = table_data.mo_data
+        rows.sort(key=lambda x: (x.energy))
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
+        self.validate_table_data(rows)
+
+        rem_electrons = table_data.header_info.electron_number
+        active_cnt = 0
+
         for row_idx, row in enumerate(rows):
-            color_info: ColorPopupInfo = (
-                colors.inactive
-                if row_idx < active_start
-                else colors.active
-                if row_idx < secondary_start
-                else colors.secondary
-            )
-            color: QColor = color_info.color
-            # mo_symmetry
+            # Default CAS configuration is CAS(4,8) (4electrons, 8spinors)
+            key = row.mo_symmetry
+            moltra_info = table_data.header_info.moltra_info[key]
+            if not moltra_info.get(row.mo_number, False):
+                color_info = colors.not_used  # not in MOLTRA
+            elif rem_electrons > 4:
+                color_info = colors.inactive
+            elif active_cnt < 8:
+                active_cnt += 2
+                color_info = colors.active
+            else:
+                color_info = colors.secondary
+
+            rem_electrons -= 2
+            color = color_info.color
             self.setItem(row_idx, 0, QTableWidgetItem(row.mo_symmetry))
-            # mo_number_dirac
             self.setItem(row_idx, 1, QTableWidgetItem(str(row.mo_number)))
-            # mo_energy
             self.setItem(row_idx, 2, QTableWidgetItem(str(row.energy)))
             # percentage, ao_type
             column_before_ao_percentage = 3
@@ -114,11 +147,10 @@ class TableWidget(QTableWidget):
 
             for idx in range(table_data.column_max_len):
                 self.item(row_idx, idx).setBackground(color)
-
         self.update_index_info()
 
     def load_output(self, file_path: Path):
-        def create_row_dict(row: "list[str]") -> MOData:
+        def create_row_dict(row: List[str]) -> MOData:
             mo_symmetry = row[0]
             mo_number_dirac = int(row[1])
             mo_energy = float(row[2])
@@ -133,6 +165,52 @@ class TableWidget(QTableWidget):
                 ao_len=len(ao_type),
             )
 
+        def read_moltra_info(row: List[str]) -> None:
+            idx = 2
+            while idx + 2 <= len(row):
+                moltra_type = row[idx]
+                moltra_range_str = row[idx + 1]
+                moltra_range = {}
+                for cnt, elem in enumerate(moltra_range_str.split(",")):
+                    moltra_range_elem = elem.strip()
+                    if ".." in moltra_range_elem:
+                        moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
+                        moltra_range_start = int(moltra_range_start)
+                        moltra_range_end = int(moltra_range_end)
+                        if cnt == 0:
+                            for i in range(1, moltra_range_start):
+                                moltra_range[i] = False
+                        for i in range(moltra_range_start, moltra_range_end + 1):
+                            moltra_range[i] = True
+                    else:
+                        key_elem = int(moltra_range_elem)
+                        moltra_range[key_elem] = True
+                        if cnt == 0:
+                            moltra_range[1:key_elem] = False
+                table_data.header_info.moltra_info[moltra_type] = moltra_range
+                idx += 2
+
+        def read_spinor_num_info(row: List[str]):
+            # spinor_num info is following the format:
+            # spinor_num_type1 closed int open int virtual int ...
+            # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+            if len(row) % 7 != 0 or len(row) < 7:
+                msg = f"spinor_num info is not correct: {row},\
+spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ...\n\
+is the correct format"
+                raise ValueError(msg)
+            idx = 0
+            while idx + 7 <= len(row):
+                spinor_num_type = row[idx]
+                closed_shell = int(row[idx + 2])
+                open_shell = int(row[idx + 4])
+                virtual_orbitals = int(row[idx + 6])
+                sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
+                table_data.header_info.spinor_num_info[spinor_num_type] = SpinorNumber(
+                    closed_shell, open_shell, virtual_orbitals, sum_of_orbitals
+                )
+                idx += 7
+
         def set_table_data():
             table_data.reset()
             rows = [line.split() for line in out]
@@ -140,10 +218,16 @@ class TableWidget(QTableWidget):
             try:
                 for idx, row in enumerate(rows):
                     if idx == 0:
-                        continue
-                    row_dict = create_row_dict(row)
-                    table_data.mo_data.append(row_dict)
-                    table_data.column_max_len = max(table_data.column_max_len, len(row))
+                        # (e.g.) electron_num 106 E1g 16..85 E1u 11..91
+                        table_data.header_info.electron_number = int(row[1])
+                        read_moltra_info(row)
+                    elif idx == 1:
+                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+                        read_spinor_num_info(row)
+                    else:
+                        row_dict = create_row_dict(row)
+                        table_data.mo_data.append(row_dict)
+                        table_data.column_max_len = max(table_data.column_max_len, len(row))
             except ValueError as e:
                 msg = "The output file is not correct, ValueError"
                 raise ValueError(msg) from e
@@ -176,7 +260,7 @@ class TableWidget(QTableWidget):
     def show_context_menu(self, position):
         menu = QMenu()
         ranges = self.selectedRanges()
-        selected_rows: "list[int]" = []
+        selected_rows: List[int] = []
         for r in ranges:
             selected_rows.extend(range(r.topRow(), r.bottomRow() + 1))
 
@@ -203,33 +287,38 @@ class TableWidget(QTableWidget):
 
         # Show the core action
         if is_action_shown["core"]:
-            core_action = QAction(colors.core.message)
+            core_action = QAction(colors.core.icon, colors.core.message)
             core_action.triggered.connect(lambda: self.change_background_color(colors.core.color))
             menu.addAction(core_action)
         # Show the inactive action
         if is_action_shown["inactive"]:
-            inactive_action = QAction(colors.inactive.message)
+            inactive_action = QAction(colors.inactive.icon, colors.inactive.message)
             inactive_action.triggered.connect(lambda: self.change_background_color(colors.inactive.color))
             menu.addAction(inactive_action)
 
         # Show the secondary action
         if is_action_shown["secondary"]:
-            secondary_action = QAction(colors.secondary.message)
+            secondary_action = QAction(colors.secondary.icon, colors.secondary.message)
             secondary_action.triggered.connect(lambda: self.change_background_color(colors.secondary.color))
             menu.addAction(secondary_action)
 
         # Show the active action
-        ras1_action = QAction(colors.ras1.message)
+        ras1_action = QAction(colors.ras1.icon, colors.ras1.message)
         ras1_action.triggered.connect(lambda: self.change_background_color(colors.ras1.color))
         menu.addAction(ras1_action)
 
-        active_action = QAction(colors.active.message)
+        active_action = QAction(colors.active.icon, colors.active.message)
         active_action.triggered.connect(lambda: self.change_background_color(colors.active.color))
         menu.addAction(active_action)
 
-        ras3_action = QAction(colors.ras3.message)
+        ras3_action = QAction(colors.ras3.icon, colors.ras3.message)
         ras3_action.triggered.connect(lambda: self.change_background_color(colors.ras3.color))
         menu.addAction(ras3_action)
+
+        not_used_action = QAction(colors.not_used.icon, colors.not_used.message)
+        not_used_action.triggered.connect(lambda: self.change_background_color(colors.not_used.color))
+        menu.addAction(not_used_action)
+
         menu.exec(self.viewport().mapToGlobal(position))
 
     def change_selected_rows_background_color(self, row, color: QColor):

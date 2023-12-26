@@ -1,6 +1,7 @@
 from dataclasses import dataclass
+from typing import Dict
 
-from qtpy.QtGui import QColor
+from qtpy.QtGui import QColor, QIcon, QPixmap
 
 
 @dataclass
@@ -13,14 +14,56 @@ class MOData:
     ao_len: int
 
 
+@dataclass
+class SpinorNumber:
+    closed_shell: int = 0
+    open_shell: int = 0
+    virtual_orbitals: int = 0
+    sum_of_orbitals: int = 0
+
+    def __add__(self, other: "SpinorNumber") -> "SpinorNumber":
+        if not isinstance(other, SpinorNumber):
+            msg = f"unsupported operand type(s) for +: {type(self)} and {type(other)}"
+            raise TypeError(msg)
+        return SpinorNumber(
+            self.closed_shell + other.closed_shell,
+            self.open_shell + other.open_shell,
+            self.virtual_orbitals + other.virtual_orbitals,
+            self.sum_of_orbitals + other.sum_of_orbitals,
+        )
+
+
+class MoltraInfo(Dict[str, Dict[int, bool]]):
+    pass
+
+
+class SpinorNumInfo(Dict[str, SpinorNumber]):
+    pass
+
+
+@dataclass
+class HeaderInfo:
+    spinor_num_info: SpinorNumInfo = None
+    moltra_info: MoltraInfo = None
+    electron_number: int = 0
+
+    def __post_init__(self):
+        if self.spinor_num_info is None:
+            self.spinor_num_info = SpinorNumInfo({})
+        if self.moltra_info is None:
+            self.moltra_info = MoltraInfo({})
+
+
 class TableData:
     def __init__(self):
         self.mo_data: "list[MOData]" = []
         self.column_max_len: int = 0
+        self.header_info: HeaderInfo = HeaderInfo({})
 
     def reset(self):
         self.mo_data = []
         self.column_max_len = 0
+        self.header_info = HeaderInfo({})
 
 
 table_data = TableData()
@@ -31,6 +74,7 @@ class ColorPopupInfo:
     color: QColor
     name: str
     message: str
+    icon: QIcon
 
 
 class Color:
@@ -61,6 +105,25 @@ class Color:
     def __ne__(self, __value: object) -> bool:
         return not self.__eq__(__value)
 
+    def deep_copy(self):
+        new_color = Color()
+        new_color.color_type = self.color_type
+        new_color.colormap = self.colormap.copy()
+
+        for key, value in self.__dict__.items():
+            if isinstance(value, ColorPopupInfo):
+                setattr(new_color, key, value)
+
+        new_color.not_used.icon = self.create_icon(new_color.not_used.color)
+        new_color.core.icon = self.create_icon(new_color.core.color)
+        new_color.inactive.icon = self.create_icon(new_color.inactive.color)
+        new_color.ras1.icon = self.create_icon(new_color.ras1.color)
+        new_color.active.icon = self.create_icon(new_color.active.color)
+        new_color.ras3.icon = self.create_icon(new_color.ras3.color)
+        new_color.secondary.icon = self.create_icon(new_color.secondary.color)
+
+        return new_color
+
     def get_color_info(self, q_color: QColor):
         if q_color.name() in self.colormap:
             return self.colormap[q_color.name()]
@@ -68,31 +131,99 @@ class Color:
             msg = f"Cannot find the corresponding color. q_color: {q_color.name()}, {q_color.getRgb()}"
             raise ValueError(msg)
 
+    def create_icon(self, color: QColor, size=64):
+        pixmap = QPixmap(size, size)
+        pixmap.fill(color)
+        icon = QIcon(pixmap)
+        return icon
+
     def change_color_templates(self, color_type: str):
         if color_type == "default":
             # Default color
-            self.core = ColorPopupInfo(QColor("#D3E8EB"), "core", "core(Pale Blue)")
-            self.inactive = ColorPopupInfo(QColor("#D5ECD4"), "inactive", "inactive(Pale Green)")
-            self.ras1 = ColorPopupInfo(QColor("#BBA0CB"), "ras1", "ras1(Pale Purple)")
-            self.active = ColorPopupInfo(QColor("#F4D9D9"), "active", "active, ras2(Pale Pink)")
-            self.ras3 = ColorPopupInfo(QColor("#FFB7C5"), "ras3", "ras3(Pastel Pink)")
-            self.secondary = ColorPopupInfo(QColor("#FDF4CD"), "secondary", "secondary(Pale Yellow)")
+            color_not_used, msg_not_used, msg_color_not_used = (
+                QColor("#FFFFFF"),
+                "not used in CASPT2",
+                "not used in CASPT2(White)",
+            )
+            color_core, msg_core, msg_color_core = QColor("#D3E8EB"), "core", "core(Pale Blue)"
+            color_inactive, msg_inactive, msg_color_inactive = QColor("#D5ECD4"), "inactive", "inactive(Pale Green)"
+            color_ras1, msg_ras1, msg_color_ras1 = QColor("#BBA0CB"), "ras1", "ras1(Pale Purple)"
+            color_active, msg_active, msg_color_active = QColor("#F4D9D9"), "active", "active, ras2(Pale Pink)"
+            color_ras3, msg_ras3, msg_color_ras3 = QColor("#FFB7C5"), "ras3", "ras3(Pastel Pink)"
+            color_secondary, msg_secondary, msg_color_secondary = (
+                QColor("#FDF4CD"),
+                "secondary",
+                "secondary(Pale Yellow)",
+            )
+            self.not_used = ColorPopupInfo(
+                color_not_used, msg_not_used, msg_color_not_used, self.create_icon(color_not_used)
+            )
+            self.core = ColorPopupInfo(color_core, msg_core, msg_color_core, self.create_icon(color_core))
+            self.inactive = ColorPopupInfo(
+                color_inactive, msg_inactive, msg_color_inactive, self.create_icon(color_inactive)
+            )
+            self.ras1 = ColorPopupInfo(color_ras1, msg_ras1, msg_color_ras1, self.create_icon(color_ras1))
+            self.active = ColorPopupInfo(color_active, msg_active, msg_color_active, self.create_icon(color_active))
+            self.ras3 = ColorPopupInfo(color_ras3, msg_ras3, msg_color_ras3, self.create_icon(color_ras3))
+            self.secondary = ColorPopupInfo(
+                color_secondary, msg_secondary, msg_color_secondary, self.create_icon(color_secondary)
+            )
         elif color_type == "For red-green color blindness":
             # For red-green color blindness
-            self.core = ColorPopupInfo(QColor("#6495ED"), "core", "core(Cornflower blue)")
-            self.inactive = ColorPopupInfo(QColor("#FFA07A"), "inactive", "inactive(Light salmon)")
-            self.ras1 = ColorPopupInfo(QColor("#32CD32"), "ras1", "ras1(Lime green)")
-            self.active = ColorPopupInfo(QColor("#ADFF2F"), "active", "active, ras2(Green yellow)")
-            self.ras3 = ColorPopupInfo(QColor("#FFFF00"), "ras3", "ras3(Yellow)")
-            self.secondary = ColorPopupInfo(QColor("#DA70D6"), "secondary", "secondary(Orchid)")
+            not_used, msg_not_used, msg_color_not_used = (
+                QColor("#FFFFFF"),
+                "not used in CASPT2",
+                "not used in CASPT2(White)",
+            )
+            color_core, msg_core, msg_color_core = QColor("#6495ED"), "core", "core(Cornflower blue)"
+            color_inactive, msg_inactive, msg_color_inactive = QColor("#FFA07A"), "inactive", "inactive(Light salmon)"
+            color_ras1, msg_ras1, msg_color_ras1 = QColor("#32CD32"), "ras1", "ras1(Lime green)"
+            color_active, msg_active, msg_color_active = QColor("#ADFF2F"), "active", "active, ras2(Green yellow)"
+            color_ras3, msg_ras3, msg_color_ras3 = QColor("#FFFF00"), "ras3", "ras3(Yellow)"
+            color_secondary, msg_secondary, msg_color_secondary = (
+                QColor("#DA70D6"),
+                "secondary",
+                "secondary(Orchid)",
+            )
+            self.not_used = ColorPopupInfo(not_used, msg_not_used, msg_color_not_used, self.create_icon(not_used))
+            self.core = ColorPopupInfo(color_core, msg_core, msg_color_core, self.create_icon(color_core))
+            self.inactive = ColorPopupInfo(
+                color_inactive, msg_inactive, msg_color_inactive, self.create_icon(color_inactive)
+            )
+            self.ras1 = ColorPopupInfo(color_ras1, msg_ras1, msg_color_ras1, self.create_icon(color_ras1))
+            self.active = ColorPopupInfo(color_active, msg_active, msg_color_active, self.create_icon(color_active))
+            self.ras3 = ColorPopupInfo(color_ras3, msg_ras3, msg_color_ras3, self.create_icon(color_ras3))
+            self.secondary = ColorPopupInfo(
+                color_secondary, msg_secondary, msg_color_secondary, self.create_icon(color_secondary)
+            )
         elif color_type == "For green-yellow color blindness":
             # For green-yellow color blindness
-            self.core = ColorPopupInfo(QColor("#F08080"), "core", "core(Light coral)")
-            self.inactive = ColorPopupInfo(QColor("#90EE90"), "inactive", "inactive(Light green)")
-            self.ras1 = ColorPopupInfo(QColor("#4682B4"), "ras1", "ras1(Steel blue)")
-            self.active = ColorPopupInfo(QColor("#FF1493"), "active", "active, ras2(Deep pink)")
-            self.ras3 = ColorPopupInfo(QColor("#FFD700"), "ras3", "ras3(Gold)")
-            self.secondary = ColorPopupInfo(QColor("#6A5ACD"), "secondary", "secondary(Slate blue)")
+            not_used, msg_not_used, msg_color_not_used = (
+                QColor("#FFFFFF"),
+                "not used in CASPT2",
+                "not used in CASPT2(White)",
+            )
+            color_core, msg_core, msg_color_core = QColor("#6495ED"), "core", "core(Cornflower blue)"
+            color_inactive, msg_inactive, msg_color_inactive = QColor("#FFA07A"), "inactive", "inactive(Light salmon)"
+            color_ras1, msg_ras1, msg_color_ras1 = QColor("#FFD700"), "ras1", "ras1(Gold)"
+            color_active, msg_active, msg_color_active = QColor("#FF1493"), "active", "active, ras2(Deep pink)"
+            color_ras3, msg_ras3, msg_color_ras3 = QColor("#4682B4"), "ras3", "ras3(Steel blue)"
+            color_secondary, msg_secondary, msg_color_secondary = (
+                QColor("#6A5ACD"),
+                "secondary",
+                "secondary(Slate blue)",
+            )
+            self.not_used = ColorPopupInfo(not_used, msg_not_used, msg_color_not_used, self.create_icon(not_used))
+            self.core = ColorPopupInfo(color_core, msg_core, msg_color_core, self.create_icon(color_core))
+            self.inactive = ColorPopupInfo(
+                color_inactive, msg_inactive, msg_color_inactive, self.create_icon(color_inactive)
+            )
+            self.ras1 = ColorPopupInfo(color_ras1, msg_ras1, msg_color_ras1, self.create_icon(color_ras1))
+            self.active = ColorPopupInfo(color_active, msg_active, msg_color_active, self.create_icon(color_active))
+            self.ras3 = ColorPopupInfo(color_ras3, msg_ras3, msg_color_ras3, self.create_icon(color_ras3))
+            self.secondary = ColorPopupInfo(
+                color_secondary, msg_secondary, msg_color_secondary, self.create_icon(color_secondary)
+            )
         else:
             msg = f"Invalid color type: {color_type}"
             raise ValueError(msg)
@@ -101,6 +232,7 @@ class Color:
         # colormap is a dictionary that maps QColor.name() to ColorPopupInfo
         # QColor is not hashable, so I use QColor.name() instead of QColor for dictionary keys.
         self.colormap = {
+            self.not_used.color.name(): self.not_used,
             self.core.color.name(): self.core,
             self.inactive.color.name(): self.inactive,
             self.ras1.color.name(): self.ras1,
