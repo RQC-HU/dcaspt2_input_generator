@@ -2,23 +2,18 @@ import os
 import subprocess
 from pathlib import Path
 
-from qtpy.QtCore import QSettings
-from qtpy.QtGui import QDragEnterEvent
-from qtpy.QtWidgets import (QFileDialog, QMainWindow, QMessageBox, QPushButton,
-                            QVBoxLayout, QWidget)
-
 from dcaspt2_input_generator.components.data import colors
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
-from dcaspt2_input_generator.controller.color_settings_controller import \
-    ColorSettingsController
-from dcaspt2_input_generator.controller.save_default_settings_controller import \
-    SaveDefaultSettingsController
-from dcaspt2_input_generator.controller.widget_controller import \
-    WidgetController
+from dcaspt2_input_generator.controller.color_settings_controller import ColorSettingsController
+from dcaspt2_input_generator.controller.save_default_settings_controller import SaveDefaultSettingsController
+from dcaspt2_input_generator.controller.widget_controller import WidgetController
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
+from qtpy.QtCore import QSettings
+from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window
@@ -200,20 +195,45 @@ Please run the sum_dirac_dfcoef program first.",
             shutil.copy(dir_info.sum_dirac_dfcoef_path, file_path)
 
     def run_sum_Dirac_DFCOEF(self, file_path):
-        command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
-        # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
-        if os.name == "nt":
-            command = f"python -m {command}"
-        # Run the subprocess
-        try:
-            subprocess.run(
+        def create_command(command: str) -> str:
+            if os.name == "nt":
+                return f"python -m {command}"
+            return command
+
+        def check_version():
+            command = create_command("sum_dirac_dfcoef -v")
+            p = subprocess.run(
                 command.split(),
                 check=True,
+                stdout=subprocess.PIPE,
             )
-        except subprocess.CalledProcessError as e:
-            err_msg = f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
+            output = p.stdout.decode("utf-8")
+            # v4.0.0 or later is required
+            major_version = int(output.split(".")[0])
+            if major_version < 4:
+                msg = f"The version of sum_dirac_dfcoef is too old.\n\
+sum_dirac_dfcoef version: {output}\n\
+Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac_dfcoef`"
+                raise Exception(msg)
+
+        def run_command(command: str):
+            command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
+            # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
+            if os.name == "nt":
+                command = f"python -m {command}"
+            # Run the subprocess
+            try:
+                subprocess.run(
+                    command.split(),
+                    check=True,
+                )
+            except subprocess.CalledProcessError as e:
+                err_msg = f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
 Please check the output file. path: {file_path}\nExecuted command: {command}"
-            raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output, err_msg) from e
+                raise subprocess.CalledProcessError(e.returncode, e.cmd, e.output, err_msg) from e
+
+        check_version()
+        run_command()
 
     def reload_table(self, filepath: str):
         self.table_widget.reload(filepath)
