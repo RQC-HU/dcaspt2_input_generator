@@ -216,7 +216,7 @@ sum_dirac_dfcoef version: {output}\n\
 Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac_dfcoef`"
                 raise Exception(msg)
 
-        def run_command(command: str):
+        def run_command():
             command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
             # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
             if os.name == "nt":
