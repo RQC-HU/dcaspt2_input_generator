@@ -12,9 +12,7 @@
 ## Install
 
 ```bash
-git clone https://github.com/kohei-noda-qcrg/dirac_caspt2_input_generator
-cd dirac_caspt2_input_generator
-pip install .
+pip install dcaspt2_input_generator
 ```
 
 ## Usage

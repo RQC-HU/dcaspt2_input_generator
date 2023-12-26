@@ -28,7 +28,7 @@ env:
   BRANCH_NAME: ""
   TAG_NAME: ""
   VERSION_UP_TYPE: ""
-  PACKAGE_NAME: sum_dirac_dfcoef
+  PACKAGE_NAME: dcaspt2_input_generator
 jobs:
   release-pr:
     runs-on: ubuntu-22.04
