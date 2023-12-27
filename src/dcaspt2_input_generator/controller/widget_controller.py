@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
@@ -49,31 +51,33 @@ class WidgetController:
         for k, d in table_data.header_info.moltra_info.items():
             res += f"\n {k}"
             range_str = ""
-            left = True
-            ser_end = False
-            cur_mo_num = 0
-            start_mo_num = cur_mo_num
-            for mo_num, is_used in d.items():
-                cur_mo_num = mo_num
-                if is_used:
-                    if left:
-                        if range_str == "":
-                            range_str += f" {mo_num}"
-                        else:
-                            range_str += f",{mo_num}"
-                        start_mo_num = mo_num
-                        left = False
-                        ser_end = True
-                elif ser_end:
-                    if mo_num > start_mo_num + 1:
-                        range_str += f"..{mo_num-1}"
-                    left = True
-                    ser_end = False
-            if ser_end:
-                range_str += f"..{cur_mo_num}"
+            start = True
+            prev_mo_num = 0
+            range_start_num = 0
+            search_end = False
+            sorted_d = OrderedDict(sorted(d.items()))
+            for mo_num, is_used in sorted_d.items():
+                search_end = True
+                if not is_used:
+                    continue
+                if start:
+                    range_str += f" {mo_num}"
+                    range_start_num = mo_num
+                    start = False
+                elif mo_num != prev_mo_num + 1:
+                    if range_start_num == prev_mo_num:
+                        range_str += f" {mo_num}"
+                        range_start_num = mo_num
+                    else:
+                        range_str += f"..{prev_mo_num} {mo_num}"
+                        range_start_num = mo_num
+                prev_mo_num = mo_num
+            if search_end:
+                range_str += f"..{prev_mo_num}"
             res += range_str
 
         self.table_summary.recommended_moltra.setText(f"Recommended MOLTRA setting: {res}")
 
         # Reload the input
+        self.table_summary.update()
         self.table_summary.update()

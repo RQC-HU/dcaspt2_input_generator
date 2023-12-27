@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, OrderedDict as ODict
 
 from qtpy.QtGui import QColor, QIcon, QPixmap
 
@@ -33,7 +33,7 @@ class SpinorNumber:
         )
 
 
-class MoltraInfo(Dict[str, Dict[int, bool]]):
+class MoltraInfo(Dict[str, ODict[int, bool]]):
     pass
 
 

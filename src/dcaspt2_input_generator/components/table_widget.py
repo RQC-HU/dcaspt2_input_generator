@@ -2,11 +2,12 @@ import copy
 from pathlib import Path
 from typing import List
 
-from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
+
+from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -180,7 +181,8 @@ class TableWidget(QTableWidget):
                         moltra_range[key_elem] = True
                 table_data.header_info.moltra_info[moltra_type] = moltra_range
                 idx += 2
-
+            for key in table_data.header_info.moltra_info.keys():
+                table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
         def read_spinor_num_info(row: List[str]):
             # spinor_num info is following the format:
             # spinor_num_type1 closed int open int virtual int ...
