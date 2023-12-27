@@ -20,6 +20,10 @@ pip install dcaspt2_input_generator
 ```bash
 dcaspt2_input_generator
 ```
+ or
+```bash
+python -m dcaspt2_input_generator
+```
 
 ## LICENSE
 
