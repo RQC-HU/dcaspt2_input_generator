@@ -61,18 +61,22 @@ class WidgetController:
                 if not is_used:
                     continue
                 if start:
+                    # First used MO
                     range_str += f" {mo_num}"
                     range_start_num = mo_num
                     start = False
                 elif mo_num != prev_mo_num + 1:
                     if range_start_num == prev_mo_num:
+                        # Prev MO is alone, already added to range_str
                         range_str += f" {mo_num}"
                         range_start_num = mo_num
                     else:
+                        # Prev MO is not alone, not added to range_str yet
                         range_str += f"..{prev_mo_num} {mo_num}"
                         range_start_num = mo_num
                 prev_mo_num = mo_num
-            if search_end:
+            if search_end and range_start_num != prev_mo_num:
+                # prev_mo_num is not added to range_str
                 range_str += f"..{prev_mo_num}"
             res += range_str
 
