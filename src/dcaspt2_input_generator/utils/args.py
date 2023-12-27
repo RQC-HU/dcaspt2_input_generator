@@ -12,7 +12,7 @@ class PrintVersionExitAction(argparse.Action):
             help=help,
         )
 
-    def __call__(self):
+    def __call__(self, parser, namespace, values, option_string=None):  # noqa: ARG002
         from dcaspt2_input_generator.__about__ import __version__
 
         print(f"{__version__}")
