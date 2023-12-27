@@ -2,11 +2,12 @@ import copy
 from pathlib import Path
 from typing import List
 
-from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
+
+from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -86,10 +87,6 @@ class TableWidget(QTableWidget):
                 raise ValueError(msg)
             if cur_idx[key] == 0:
                 min_idx[key] = row.mo_number
-            # Find not moltra orbitals
-            elif cur_idx[key] + 1 != row.mo_number:
-                for idx in range(cur_idx[key] + 1, row.mo_number):
-                    table_data.header_info.moltra_info[key][idx] = False
             cur_idx[row.mo_symmetry] = row.mo_number
 
         # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
@@ -171,25 +168,21 @@ class TableWidget(QTableWidget):
                 moltra_type = row[idx]
                 moltra_range_str = row[idx + 1]
                 moltra_range = {}
-                for cnt, elem in enumerate(moltra_range_str.split(",")):
+                for elem in moltra_range_str.split(","):
                     moltra_range_elem = elem.strip()
                     if ".." in moltra_range_elem:
                         moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
                         moltra_range_start = int(moltra_range_start)
                         moltra_range_end = int(moltra_range_end)
-                        if cnt == 0:
-                            for i in range(1, moltra_range_start):
-                                moltra_range[i] = False
                         for i in range(moltra_range_start, moltra_range_end + 1):
                             moltra_range[i] = True
                     else:
                         key_elem = int(moltra_range_elem)
                         moltra_range[key_elem] = True
-                        if cnt == 0:
-                            moltra_range[1:key_elem] = False
                 table_data.header_info.moltra_info[moltra_type] = moltra_range
                 idx += 2
-
+            for key in table_data.header_info.moltra_info.keys():
+                table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
         def read_spinor_num_info(row: List[str]):
             # spinor_num info is following the format:
             # spinor_num_type1 closed int open int virtual int ...
