@@ -162,61 +162,13 @@ class TableWidget(QTableWidget):
                 ao_len=len(ao_type),
             )
 
-        def read_moltra_info(row: List[str]) -> None:
-            idx = 2
-            while idx + 2 <= len(row):
-                moltra_type = row[idx]
-                moltra_range_str = row[idx + 1]
-                moltra_range = {}
-                for elem in moltra_range_str.split(","):
-                    moltra_range_elem = elem.strip()
-                    if ".." in moltra_range_elem:
-                        moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
-                        moltra_range_start = int(moltra_range_start)
-                        moltra_range_end = int(moltra_range_end)
-                        for i in range(moltra_range_start, moltra_range_end + 1):
-                            moltra_range[i] = True
-                    else:
-                        key_elem = int(moltra_range_elem)
-                        moltra_range[key_elem] = True
-                table_data.header_info.moltra_info[moltra_type] = moltra_range
-                idx += 2
-            for key in table_data.header_info.moltra_info.keys():
-                table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
-        def read_spinor_num_info(row: List[str]):
-            # spinor_num info is following the format:
-            # spinor_num_type1 closed int open int virtual int ...
-            # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
-            if len(row) % 7 != 0 or len(row) < 7:
-                msg = f"spinor_num info is not correct: {row},\
-spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ...\n\
-is the correct format"
-                raise ValueError(msg)
-            idx = 0
-            while idx + 7 <= len(row):
-                spinor_num_type = row[idx]
-                closed_shell = int(row[idx + 2])
-                open_shell = int(row[idx + 4])
-                virtual_orbitals = int(row[idx + 6])
-                sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
-                table_data.header_info.spinor_num_info[spinor_num_type] = SpinorNumber(
-                    closed_shell, open_shell, virtual_orbitals, sum_of_orbitals
-                )
-                idx += 7
-
         def set_table_data():
-            table_data.reset()
             rows = [line.split() for line in out]
             table_data.mo_data = []
             try:
                 for idx, row in enumerate(rows):
-                    if idx == 0:
-                        # (e.g.) electron_num 106 E1g 16..85 E1u 11..91
-                        table_data.header_info.electron_number = int(row[1])
-                        read_moltra_info(row)
-                    elif idx == 1:
-                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
-                        read_spinor_num_info(row)
+                    if idx <= 1:
+                        continue
                     else:
                         row_dict = create_row_dict(row)
                         table_data.mo_data.append(row_dict)
@@ -242,6 +194,27 @@ is the correct format"
             header_data.extend(additional_header)
             self.setHorizontalHeaderLabels(header_data)
 
+        table_data.reset()
+        with open(file_path) as output:
+            # Read the first 2 lines to validate the data
+            out = [output.readline() for _ in range(2)]
+            rows = [line.split() for line in out]
+            try:
+                for idx, row in enumerate(rows):
+                    if idx == 0:
+                        # (e.g.) electron_num 106 E1g 16..85 E1u 11..91
+                        table_data.header_info.electron_number = int(row[1])
+                        self.read_moltra_info(row)
+                    else:
+                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+                        self.read_spinor_num_info(row)
+            except ValueError as e:
+                msg = "The output file is not correct, ValueError"
+                raise ValueError(msg) from e
+            except IndexError as e:
+                msg = "The output file is not correct, IndexError"
+                raise IndexError(msg) from e
+
         with open(file_path, newline="") as output:
             out = output.readlines()
             # output is space separated file
@@ -249,6 +222,49 @@ is the correct format"
             self.create_table()
 
         self.color_changed.emit()
+
+    def read_moltra_info(self, row: List[str]) -> None:
+        idx = 2
+        while idx + 2 <= len(row):
+            moltra_type = row[idx]
+            moltra_range_str = row[idx + 1]
+            moltra_range = {}
+            for elem in moltra_range_str.split(","):
+                moltra_range_elem = elem.strip()
+                if ".." in moltra_range_elem:
+                    moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
+                    moltra_range_start = int(moltra_range_start)
+                    moltra_range_end = int(moltra_range_end)
+                    for i in range(moltra_range_start, moltra_range_end + 1):
+                        moltra_range[i] = True
+                else:
+                    key_elem = int(moltra_range_elem)
+                    moltra_range[key_elem] = True
+            table_data.header_info.moltra_info[moltra_type] = moltra_range
+            idx += 2
+        for key in table_data.header_info.moltra_info.keys():
+            table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
+
+    def read_spinor_num_info(self, row: List[str]):
+        # spinor_num info is following the format:
+        # spinor_num_type1 closed int open int virtual int ...
+        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+        if len(row) % 7 != 0 or len(row) < 7:
+            msg = f"spinor_num info is not correct: {row},\
+spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ...\n\
+is the correct format"
+            raise ValueError(msg)
+        idx = 0
+        while idx + 7 <= len(row):
+            spinor_num_type = row[idx]
+            closed_shell = int(row[idx + 2])
+            open_shell = int(row[idx + 4])
+            virtual_orbitals = int(row[idx + 6])
+            sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
+            table_data.header_info.spinor_num_info[spinor_num_type] = SpinorNumber(
+                closed_shell, open_shell, virtual_orbitals, sum_of_orbitals
+            )
+            idx += 7
 
     def show_context_menu(self, position):
         menu = QMenu()
