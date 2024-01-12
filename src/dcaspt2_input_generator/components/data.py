@@ -87,9 +87,7 @@ class Color:
         if not isinstance(__value, Color):
             return NotImplemented
         # Compare all colors
-        if self.core != __value.core:
-            return False
-        elif self.inactive != __value.inactive:
+        if self.inactive != __value.inactive:
             return False
         elif self.ras1 != __value.ras1:
             return False
@@ -115,7 +113,6 @@ class Color:
                 setattr(new_color, key, value)
 
         new_color.not_used.icon = self.create_icon(new_color.not_used.color)
-        new_color.core.icon = self.create_icon(new_color.core.color)
         new_color.inactive.icon = self.create_icon(new_color.inactive.color)
         new_color.ras1.icon = self.create_icon(new_color.ras1.color)
         new_color.active.icon = self.create_icon(new_color.active.color)
@@ -145,7 +142,6 @@ class Color:
                 "not used in CASPT2",
                 "not used in CASPT2(White)",
             )
-            color_core, msg_core, msg_color_core = QColor("#D3E8EB"), "core", "core(Pale Blue)"
             color_inactive, msg_inactive, msg_color_inactive = QColor("#D5ECD4"), "inactive", "inactive(Pale Green)"
             color_ras1, msg_ras1, msg_color_ras1 = QColor("#BBA0CB"), "ras1", "ras1(Pale Purple)"
             color_active, msg_active, msg_color_active = QColor("#F4D9D9"), "active", "active, ras2(Pale Pink)"
@@ -158,7 +154,6 @@ class Color:
             self.not_used = ColorPopupInfo(
                 color_not_used, msg_not_used, msg_color_not_used, self.create_icon(color_not_used)
             )
-            self.core = ColorPopupInfo(color_core, msg_core, msg_color_core, self.create_icon(color_core))
             self.inactive = ColorPopupInfo(
                 color_inactive, msg_inactive, msg_color_inactive, self.create_icon(color_inactive)
             )
@@ -175,7 +170,6 @@ class Color:
                 "not used in CASPT2",
                 "not used in CASPT2(White)",
             )
-            color_core, msg_core, msg_color_core = QColor("#6495ED"), "core", "core(Cornflower blue)"
             color_inactive, msg_inactive, msg_color_inactive = QColor("#FFA07A"), "inactive", "inactive(Light salmon)"
             color_ras1, msg_ras1, msg_color_ras1 = QColor("#32CD32"), "ras1", "ras1(Lime green)"
             color_active, msg_active, msg_color_active = QColor("#ADFF2F"), "active", "active, ras2(Green yellow)"
@@ -186,7 +180,6 @@ class Color:
                 "secondary(Orchid)",
             )
             self.not_used = ColorPopupInfo(not_used, msg_not_used, msg_color_not_used, self.create_icon(not_used))
-            self.core = ColorPopupInfo(color_core, msg_core, msg_color_core, self.create_icon(color_core))
             self.inactive = ColorPopupInfo(
                 color_inactive, msg_inactive, msg_color_inactive, self.create_icon(color_inactive)
             )
@@ -203,7 +196,6 @@ class Color:
                 "not used in CASPT2",
                 "not used in CASPT2(White)",
             )
-            color_core, msg_core, msg_color_core = QColor("#6495ED"), "core", "core(Cornflower blue)"
             color_inactive, msg_inactive, msg_color_inactive = QColor("#FFA07A"), "inactive", "inactive(Light salmon)"
             color_ras1, msg_ras1, msg_color_ras1 = QColor("#FFD700"), "ras1", "ras1(Gold)"
             color_active, msg_active, msg_color_active = QColor("#FF1493"), "active", "active, ras2(Deep pink)"
@@ -214,7 +206,6 @@ class Color:
                 "secondary(Slate blue)",
             )
             self.not_used = ColorPopupInfo(not_used, msg_not_used, msg_color_not_used, self.create_icon(not_used))
-            self.core = ColorPopupInfo(color_core, msg_core, msg_color_core, self.create_icon(color_core))
             self.inactive = ColorPopupInfo(
                 color_inactive, msg_inactive, msg_color_inactive, self.create_icon(color_inactive)
             )
@@ -233,7 +224,6 @@ class Color:
         # QColor is not hashable, so I use QColor.name() instead of QColor for dictionary keys.
         self.colormap = {
             self.not_used.color.name(): self.not_used,
-            self.core.color.name(): self.core,
             self.inactive.color.name(): self.inactive,
             self.ras1.color.name(): self.ras1,
             self.active.color.name(): self.active,

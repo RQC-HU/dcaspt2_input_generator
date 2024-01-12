@@ -21,7 +21,7 @@ from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 # File, Settings, About (menu bar)
 # message, AnimatedToggle (button)
 # TableWidget (table)
-# InputLayout (layout): core, inactive, active, secondary
+# InputLayout (layout): inactive, active, secondary
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -90,7 +90,6 @@ class MainWindow(QMainWindow):
             return cur_nelec
 
         output = ""
-        core = 0
         inact = 0
         act = 0
         sec = 0
@@ -103,10 +102,7 @@ class MainWindow(QMainWindow):
             rem_electrons -= 2
             spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
-            if color == colors.core.color:
-                debug_print(f"{idx}, core")
-                core += 2
-            elif color == colors.inactive.color:
+            if color == colors.inactive.color:
                 debug_print(f"{idx}, inactive")
                 inact += 2
             elif color == colors.ras1.color:
@@ -127,7 +123,7 @@ class MainWindow(QMainWindow):
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
-        # output += "ncore\n" + str(core) + "\n"  # ncore is meaningless option (https://github.com/kohei-noda-qcrg/dirac_caspt2/pull/114)
+
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
         output += "nelec\n" + str(elec) + "\n"

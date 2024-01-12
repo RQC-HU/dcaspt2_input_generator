@@ -40,11 +40,10 @@ class TableWidget(QTableWidget):
 
         # Initialize the index information and the color found information
         self.idx_info = {
-            "core": {"start": -1, "end": -1},
             "inactive": {"start": -1, "end": -1},
             "secondary": {"start": -1, "end": -1},
         }
-        self.color_found: dict[str, bool] = {"core": False, "inactive": False, "secondary": False}
+        self.color_found: dict[str, bool] = {"inactive": False, "secondary": False}
 
     def reload(self, output_file_path: Path):
         debug_print("TableWidget reload")
@@ -52,9 +51,8 @@ class TableWidget(QTableWidget):
 
     def update_index_info(self):
         # Reset information
-        self.color_found = {"core": False, "inactive": False, "secondary": False}
+        self.color_found = {"inactive": False, "secondary": False}
         self.idx_info = {
-            "core": {"start": -1, "end": -1},
             "inactive": {"start": -1, "end": -1},
             "secondary": {"start": -1, "end": -1},
         }
@@ -275,30 +273,15 @@ is the correct format"
 
         top_row = selected_rows[0]
         bottom_row = selected_rows[-1]
-        is_action_shown: dict[str, bool] = {"core": True, "inactive": True, "secondary": True}
-        # core action
-        if (self.color_found["inactive"] and top_row > self.idx_info["inactive"]["start"]) or (
-            self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]
-        ):
-            is_action_shown["core"] = False
-
+        is_action_shown: dict[str, bool] = {"inactive": True, "secondary": True}
         # inactive action
-        if (self.color_found["core"] and bottom_row < self.idx_info["core"]["end"]) or (
-            self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]
-        ):
+        if (self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]):
             is_action_shown["inactive"] = False
 
         # secondary action
-        if (self.color_found["core"] and bottom_row < self.idx_info["core"]["end"]) or (
-            self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]
-        ):
+        if (self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]):
             is_action_shown["secondary"] = False
 
-        # Show the core action
-        if is_action_shown["core"]:
-            core_action = QAction(colors.core.icon, colors.core.message)
-            core_action.triggered.connect(lambda: self.change_background_color(colors.core.color))
-            menu.addAction(core_action)
         # Show the inactive action
         if is_action_shown["inactive"]:
             inactive_action = QAction(colors.inactive.icon, colors.inactive.message)
@@ -345,7 +328,6 @@ is the correct format"
     def update_color(self, prev_color: Color):
         debug_print("update_color")
         color_mappping = {
-            prev_color.core.color.name(): colors.core.color,
             prev_color.inactive.color.name(): colors.inactive.color,
             prev_color.ras1.color.name(): colors.ras1.color,
             prev_color.active.color.name(): colors.active.color,
