@@ -81,4 +81,3 @@ class WidgetController:
 
         # Reload the input
         self.table_summary.update()
-        self.table_summary.update()
