@@ -98,6 +98,8 @@ class MainWindow(QMainWindow):
         ras2_list = []
         ras3_list = []
         rem_electrons = table_data.header_info.electron_number
+        is_cas = True
+        cas_idx = -1
         for idx in range(self.table_widget.rowCount()):
             rem_electrons -= 2
             spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
@@ -115,6 +117,9 @@ class MainWindow(QMainWindow):
                 act += 2
                 ras2_list.extend(spinor_indices)
                 elec = add_nelec(elec, rem_electrons)
+                if cas_idx not in (-1, idx - 1):
+                    is_cas = False
+                cas_idx = idx
             elif color == colors.ras3.color:
                 debug_print(f"{idx}, ras3")
                 act += 2
@@ -132,8 +137,8 @@ class MainWindow(QMainWindow):
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
-        # If only ras2_list is not empty, it means that is a CASPT2 calculation (not a RASPPT2 calculation)
-        if len(ras1_list) + len(ras3_list) > 0:
+
+        if not is_cas:
             ras1_str = create_ras_str(sorted(ras1_list))
             ras2_str = create_ras_str(sorted(ras2_list))
             ras3_str = create_ras_str(sorted(ras3_list))
