@@ -2,10 +2,6 @@ import os
 import subprocess
 from pathlib import Path
 
-from qtpy.QtCore import QProcess, QSettings
-from qtpy.QtGui import QDragEnterEvent
-from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
-
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
@@ -15,6 +11,9 @@ from dcaspt2_input_generator.controller.save_default_settings_controller import 
 from dcaspt2_input_generator.controller.widget_controller import WidgetController
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
+from qtpy.QtCore import QProcess, QSettings
+from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window
@@ -94,6 +93,7 @@ class MainWindow(QMainWindow):
         act = 0
         sec = 0
         elec = 0
+        idx_caspt2 = 0
         ras1_list = []
         ras2_list = []
         ras3_list = []
@@ -102,8 +102,10 @@ class MainWindow(QMainWindow):
         last_ras2_idx = -1
         for idx in range(self.table_widget.rowCount()):
             rem_electrons -= 2
-            spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
+            spinor_indices = [2 * idx_caspt2 + 1, 2 * idx_caspt2 + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
+            if color != colors.not_used.color:
+                idx_caspt2 += 1
             if color == colors.inactive.color:
                 debug_print(f"{idx}, inactive")
                 inact += 2
