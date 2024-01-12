@@ -99,7 +99,7 @@ class MainWindow(QMainWindow):
         ras3_list = []
         rem_electrons = table_data.header_info.electron_number
         is_cas = True
-        cas_idx = -1
+        last_ras2_idx = -1
         for idx in range(self.table_widget.rowCount()):
             rem_electrons -= 2
             spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
@@ -117,9 +117,9 @@ class MainWindow(QMainWindow):
                 act += 2
                 ras2_list.extend(spinor_indices)
                 elec = add_nelec(elec, rem_electrons)
-                if cas_idx not in (-1, idx - 1):
+                if last_ras2_idx not in (-1, idx - 1):
                     is_cas = False
-                cas_idx = idx
+                last_ras2_idx = idx
             elif color == colors.ras3.color:
                 debug_print(f"{idx}, ras3")
                 act += 2
