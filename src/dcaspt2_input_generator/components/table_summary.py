@@ -1,11 +1,10 @@
 from typing import Optional
 
-from qtpy.QtGui import QFocusEvent, QIntValidator
-from qtpy.QtWidgets import (QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit,
-                            QWidget)
-
-from dcaspt2_input_generator.utils.utils import debug_print
 from dcaspt2_input_generator.utils.settings import settings
+from dcaspt2_input_generator.utils.utils import debug_print
+from qtpy.QtCore import Signal  # type: ignore
+from qtpy.QtGui import QFocusEvent, QIntValidator
+from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
 
 class NaturalNumberInput(QLineEdit):
@@ -73,7 +72,37 @@ class RASNumberInput(NaturalNumberInput):
             self.update_text()
 
 
+class TotsymNumberInput(NaturalNumberInput):
+    def __init__(self, changed: Signal, default_num: int, bottom_num: int = 1):
+        super().__init__(bottom_num, default_num)
+        self.changed = changed
+
+    def update_text(self):
+        super().update_text()
+
+    def focusOutEvent(self, arg__1: QFocusEvent) -> None:
+        super().focusOutEvent(arg__1)
+        self.changed.emit()
+
+
+class DIRACCheckbox(QCheckBox):
+    def __init__(self, changed: Signal):
+        super().__init__()
+        self.setChecked(settings.input.dirac_ver_21_or_later)
+        self.stateChanged.connect(self.change_state)
+        self.changed = changed
+
+    def change_state(self, state):
+        if state == 2:
+            settings.input.dirac_ver_21_or_later = True
+        else:
+            settings.input.dirac_ver_21_or_later = False
+        self.changed.emit()
+
+
 class UserInput(QGridLayout):
+    changed = Signal()
+
     def __init__(self):
         super().__init__()
         # 数値を入力するためのラベル
@@ -82,13 +111,12 @@ class UserInput(QGridLayout):
         self.ras3_max_electron_label = QLabel("ras3 max electron")
         self.ras3_max_electron_number = RASNumberInput(default_num=settings.input.ras3_max_electron)
         self.totsym_label = QLabel("totsym")
-        self.totsym_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.totsym)
+        self.totsym_number = TotsymNumberInput(self.changed, default_num=settings.input.totsym)
         self.selectroot_label = QLabel("selectroot")
         self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.selectroot)
         # Add checkbox
         self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
-        self.diracver_checkbox = QCheckBox()
-        self.diracver_checkbox.setChecked(settings.input.dirac_ver_21_or_later)
+        self.diracver_checkbox = DIRACCheckbox(self.changed)
 
         self.addWidget(self.totsym_label, 0, 0)
         self.addWidget(self.totsym_number, 0, 1)
@@ -115,14 +143,12 @@ class SpinorSummary(QGridLayout):
     def __init__(self):
         super().__init__()
         # Create the labels
-        self.core_label = QLabel("core")
         self.inactive_label = QLabel("inactive")
         self.ras1_label = QLabel("ras1")
         self.active_label = QLabel("active, ras2")
         self.ras3_label = QLabel("ras3")
         self.secondary_label = QLabel("secondary")
 
-        self.addWidget(self.core_label, 0, 0)
         self.addWidget(self.inactive_label, 0, 1)
         self.addWidget(self.ras1_label, 0, 2)
         self.addWidget(self.active_label, 0, 3)

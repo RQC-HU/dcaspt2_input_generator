@@ -2,10 +2,6 @@ import os
 import subprocess
 from pathlib import Path
 
-from qtpy.QtCore import QProcess, QSettings
-from qtpy.QtGui import QDragEnterEvent
-from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
-
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
@@ -15,13 +11,16 @@ from dcaspt2_input_generator.controller.save_default_settings_controller import 
 from dcaspt2_input_generator.controller.widget_controller import WidgetController
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
+from qtpy.QtCore import QProcess, QSettings
+from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window
 # File, Settings, About (menu bar)
 # message, AnimatedToggle (button)
 # TableWidget (table)
-# InputLayout (layout): core, inactive, active, secondary
+# InputLayout (layout): inactive, active, secondary
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -85,28 +84,28 @@ class MainWindow(QMainWindow):
 
     def save_input(self):
         def add_nelec(cur_nelec: int, rem_electrons: int) -> int:
-            if rem_electrons >= 0:
-                cur_nelec += 2
+            if rem_electrons > 0:
+                cur_nelec += min(rem_electrons, 2)
             return cur_nelec
 
         output = ""
-        core = 0
         inact = 0
         act = 0
         sec = 0
         elec = 0
+        idx_caspt2 = 0
         ras1_list = []
         ras2_list = []
         ras3_list = []
         rem_electrons = table_data.header_info.electron_number
+        is_cas = True
+        last_ras2_idx = -1
         for idx in range(self.table_widget.rowCount()):
-            rem_electrons -= 2
-            spinor_indices = [2 * idx + 1, 2 * idx + 2]  # 1 row = 2 spinors
+            spinor_indices = [2 * idx_caspt2 + 1, 2 * idx_caspt2 + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
-            if color == colors.core.color:
-                debug_print(f"{idx}, core")
-                core += 2
-            elif color == colors.inactive.color:
+            if color != colors.not_used.color:
+                idx_caspt2 += 1
+            if color == colors.inactive.color:
                 debug_print(f"{idx}, inactive")
                 inact += 2
             elif color == colors.ras1.color:
@@ -119,6 +118,9 @@ class MainWindow(QMainWindow):
                 act += 2
                 ras2_list.extend(spinor_indices)
                 elec = add_nelec(elec, rem_electrons)
+                if last_ras2_idx not in (-1, idx - 1):
+                    is_cas = False
+                last_ras2_idx = idx
             elif color == colors.ras3.color:
                 debug_print(f"{idx}, ras3")
                 act += 2
@@ -127,7 +129,8 @@ class MainWindow(QMainWindow):
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
-        # output += "ncore\n" + str(core) + "\n"  # ncore is meaningless option (https://github.com/kohei-noda-qcrg/dirac_caspt2/pull/114)
+            rem_electrons -= 2
+
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
         output += "nelec\n" + str(elec) + "\n"
@@ -136,8 +139,8 @@ class MainWindow(QMainWindow):
         output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
         output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
         output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
-        # If only ras2_list is not empty, it means that is a CASPT2 calculation (not a RASPPT2 calculation)
-        if len(ras1_list) + len(ras3_list) > 0:
+
+        if not is_cas:
             ras1_str = create_ras_str(sorted(ras1_list))
             ras2_str = create_ras_str(sorted(ras2_list))
             ras3_str = create_ras_str(sorted(ras3_list))
