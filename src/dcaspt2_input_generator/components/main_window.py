@@ -113,6 +113,7 @@ class MainWindow(QMainWindow):
                 act += 2
                 ras1_list.extend(spinor_indices)
                 elec = add_nelec(elec, rem_electrons)
+                is_cas = False
             elif color == colors.active.color:
                 debug_print(f"{idx}, active")
                 act += 2
@@ -126,6 +127,7 @@ class MainWindow(QMainWindow):
                 act += 2
                 elec = add_nelec(elec, rem_electrons)
                 ras3_list.extend(spinor_indices)
+                is_cas = False
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
@@ -204,11 +206,7 @@ Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac
                 raise Exception(msg)
 
         def run_command():
-            command = f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}"
-            # If the OS is Windows, add "python -m" to the command to run the subprocess correctly
-            if os.name == "nt":
-                command = f"python -m {command}"
-
+            command = create_command(f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}")
             cmd = command.split()
             self.process.start(cmd[0], cmd[1:])
             if self.process.exitCode() != 0:

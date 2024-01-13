@@ -14,19 +14,19 @@ class ColorSettings(QDialog):
         self.buttonGroup = QButtonGroup(self)
         self.default_button = QRadioButton("default", self)
         self.default_button.setChecked(True)
-        self.red_green_button = QRadioButton("For red-green color blindness", self)
-        self.green_yellow_button = QRadioButton("For green-yellow color blindness", self)
+        self.color_type_1 = QRadioButton("Color type 1", self)
+        self.color_type_2 = QRadioButton("Color type 2", self)
         self.buttonGroup.addButton(self.default_button)
-        self.buttonGroup.addButton(self.red_green_button)
-        self.buttonGroup.addButton(self.green_yellow_button)
+        self.buttonGroup.addButton(self.color_type_1)
+        self.buttonGroup.addButton(self.color_type_2)
         self.buttonGroup.setExclusive(True)
         self.buttonGroup.buttonClicked.connect(self.button_clicked)
 
         # Add the radio buttons to the layout
         layout = QVBoxLayout()
         layout.addWidget(self.default_button)
-        layout.addWidget(self.red_green_button)
-        layout.addWidget(self.green_yellow_button)
+        layout.addWidget(self.color_type_1)
+        layout.addWidget(self.color_type_2)
 
         # Create a widget to hold the layout
         widget = QWidget()
