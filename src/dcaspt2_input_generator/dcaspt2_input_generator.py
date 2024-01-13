@@ -24,8 +24,6 @@ class MainApp:
     def delete_unneeded_files(self):
         if dir_info.sum_dirac_dfcoef_path.exists():
             os.remove(dir_info.sum_dirac_dfcoef_path)
-        if dir_info.ivo_input_path.exists():
-            os.remove(dir_info.ivo_input_path)
 
     def run(self):
         try:
