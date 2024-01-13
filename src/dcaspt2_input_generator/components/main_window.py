@@ -84,8 +84,8 @@ class MainWindow(QMainWindow):
 
     def save_input(self):
         def add_nelec(cur_nelec: int, rem_electrons: int) -> int:
-            if rem_electrons >= 0:
-                cur_nelec += 2
+            if rem_electrons > 0:
+                cur_nelec += min(rem_electrons, 2)
             return cur_nelec
 
         output = ""
@@ -101,7 +101,6 @@ class MainWindow(QMainWindow):
         is_cas = True
         last_ras2_idx = -1
         for idx in range(self.table_widget.rowCount()):
-            rem_electrons -= 2
             spinor_indices = [2 * idx_caspt2 + 1, 2 * idx_caspt2 + 2]  # 1 row = 2 spinors
             color = self.table_widget.item(idx, 0).background().color()
             if color != colors.not_used.color:
@@ -130,6 +129,7 @@ class MainWindow(QMainWindow):
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
+            rem_electrons -= 2
 
         output += "ninact\n" + str(inact) + "\n"
         output += "nact\n" + str(act) + "\n"
