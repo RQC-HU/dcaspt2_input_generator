@@ -25,6 +25,8 @@ dcaspt2_input_generator
 python -m dcaspt2_input_generator
 ```
 
+For more information, please see the [wiki](https://github.com/RQC-HU/dcaspt2_input_generator/wiki).
+
 ## LICENSE
 
 - Apache LICENSE 2.0
