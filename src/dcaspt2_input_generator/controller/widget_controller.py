@@ -3,6 +3,7 @@ from collections import OrderedDict
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
+from dcaspt2_input_generator.utils.dir_info import dir_info
 
 
 class WidgetController:
@@ -81,3 +82,59 @@ class WidgetController:
 
         # Reload the input
         self.table_summary.update()
+
+        # Create info for standard IVO input
+        # E1g,u or E1?
+        is_gerade_ungerade = True if table_data.header_info.spinor_num_info.keys() == {"E1g", "E1u"} else False
+        if is_gerade_ungerade:
+            nocc = {"E1g": 0, "E1u": 0}
+            nvcut = {"E1g": 0, "E1u": 0}
+        else:
+            nocc = {"E1": 0}
+            nvcut = {"E1": 0}
+        act = 0
+        sec = 0
+        rem_electrons = table_data.header_info.electron_number
+        for row in range(row_count):
+            item = self.table_widget.item(row, 0)
+            color = item.background()
+            sym_str = item.text()
+
+            # nocc, nvcut
+            if rem_electrons >= 0:
+                nocc[sym_str] += 1
+            elif color != colors.not_used.color:
+                # Reset nvcut
+                for k in nvcut.keys():
+                    nvcut[k] = 0
+            else:
+                nvcut[sym_str] += 1
+
+            # act, sec
+            if color == colors.not_used.color:
+                pass
+            elif rem_electrons >= 0:
+                act += 2
+            else:
+                sec += 2
+            rem_electrons -= 2
+
+        # Create standard IVO input
+        output = ""
+        output += "ninact\n0\n"
+        output += f"nact\n{act}\n"
+        output += f"nsec\n{sec}\n"
+        output += f"nelec\n{act}\n"
+        if is_gerade_ungerade:
+            output += f"noccg\n{nocc['E1g']}\nnoccu\n{nocc['E1u']}\n"
+            output += "" if sum(nvcut.values()) == 0 else f"nvcutg\n{nvcut['E1g']}\nnvcutu\n{nvcut['E1u']}\n"
+        else:
+            output += f"nocc\n{nocc['E1']}\n"
+            output += "" if sum(nvcut.values()) == 0 else f"nvcut\n{nvcut['E1']}\n"
+        output += f"totsym\n{self.table_summary.user_input.totsym_number.text()}\n"
+        output += f"diracver\n{21 if self.table_summary.user_input.diracver_checkbox.isChecked() else 19}\n"
+        output += "end\n"
+
+        # Save standard IVO input (replace active.ivo.inp)
+        with open(dir_info.app_default_save_dir / "active.ivo.inp", "w") as f:
+            f.write(output)
