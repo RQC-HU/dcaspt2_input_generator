@@ -21,13 +21,17 @@ class MainApp:
         self.window.setWindowTitle("DIRAC-CASPT2 Input Generator")
         self.window.show()
 
+    def delete_unneeded_files(self):
+        if dir_info.sum_dirac_dfcoef_path.exists():
+            os.remove(dir_info.sum_dirac_dfcoef_path)
+        if dir_info.ivo_input_path.exists():
+            os.remove(dir_info.ivo_input_path)
+
     def run(self):
         try:
             sys.exit(self.app.exec())
         except SystemExit:
-            # Remove the sum_dirac_dfcoef.out file
-            if dir_info.sum_dirac_dfcoef_path.exists():
-                os.remove(dir_info.sum_dirac_dfcoef_path)
+            self.delete_unneeded_files()
 
 
 def main():

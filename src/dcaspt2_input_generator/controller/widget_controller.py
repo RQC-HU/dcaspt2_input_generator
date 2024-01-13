@@ -73,7 +73,7 @@ class WidgetController:
         output += "end\n"
 
         # Save standard IVO input (replace active.ivo.inp)
-        with open(dir_info.app_default_save_dir / "active.ivo.inp", "w") as f:
+        with open(dir_info.ivo_input_path, "w") as f:
             f.write(output)
 
     def onUserInputChanged(self):
