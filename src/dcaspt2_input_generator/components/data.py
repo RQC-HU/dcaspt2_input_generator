@@ -163,8 +163,8 @@ class Color:
             self.secondary = ColorPopupInfo(
                 color_secondary, msg_secondary, msg_color_secondary, self.create_icon(color_secondary)
             )
-        elif color_type == "For red-green color blindness":
-            # For red-green color blindness
+        elif color_type == "Color type 1":
+            # Color type 1
             not_used, msg_not_used, msg_color_not_used = (
                 QColor("#FFFFFF"),
                 "not used in CASPT2",
@@ -189,8 +189,8 @@ class Color:
             self.secondary = ColorPopupInfo(
                 color_secondary, msg_secondary, msg_color_secondary, self.create_icon(color_secondary)
             )
-        elif color_type == "For green-yellow color blindness":
-            # For green-yellow color blindness
+        elif color_type == "Color type 2":
+            # Color type 2
             not_used, msg_not_used, msg_color_not_used = (
                 QColor("#FFFFFF"),
                 "not used in CASPT2",
