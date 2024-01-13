@@ -113,6 +113,7 @@ class MainWindow(QMainWindow):
                 act += 2
                 ras1_list.extend(spinor_indices)
                 elec = add_nelec(elec, rem_electrons)
+                is_cas = False
             elif color == colors.active.color:
                 debug_print(f"{idx}, active")
                 act += 2
@@ -126,6 +127,7 @@ class MainWindow(QMainWindow):
                 act += 2
                 elec = add_nelec(elec, rem_electrons)
                 ras3_list.extend(spinor_indices)
+                is_cas = False
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
