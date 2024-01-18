@@ -30,9 +30,9 @@ dev = ["coverage[toml]>=6.5", "pytest", "black>=23.1.0", "mypy>=1.0.0", "ruff>=0
 test = ["coverage[toml]>=6.5", "pytest"]
 
 [project.urls]
-Documentation = "https://github.com/QRC-HU/dcaspt2_input_generator#readme"
-Issues = "https://github.com/QRC-HU/dcaspt2_input_generator/issues"
-Source = "https://github.com/QRC-HU/dcaspt2_input_generator"
+Documentation = "https://github.com/RQC-HU/dcaspt2_input_generator#readme"
+Issues = "https://github.com/RQC-HU/dcaspt2_input_generator/issues"
+Source = "https://github.com/RQC-HU/dcaspt2_input_generator"
 
 
 [project.scripts]
