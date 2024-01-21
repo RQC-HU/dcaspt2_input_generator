@@ -50,12 +50,29 @@ class DefaultColorTheme:
         return "default"
 
 
+class DefaultMultiProcessInput:
+    def __init__(self):
+        self.multi_process_num = self.get_multi_process_num()
+
+    def get_multi_process_num(self) -> int:
+        if dir_info.setting_file_path.exists():
+            with open(dir_info.setting_file_path) as f:
+                try:
+                    settings = json.load(f)
+                    if "multi_process_num" in settings:
+                        return int(settings["multi_process_num"])
+                except CustomJsonDecodeError as e:
+                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
+        return 4
+
+
 class Settings:
     def __init__(self):
         if not dir_info.setting_file_path.exists():
             self.create_default_settings_file()
         self.input = DefaultUserInput()
         self.color_theme = DefaultColorTheme()
+        self.multi_process_input = DefaultMultiProcessInput()
 
     def create_default_settings_file(self):
         # Application Default Settings
@@ -66,6 +83,7 @@ class Settings:
             "ras3_max_electron": 0,
             "dirac_ver_21_or_later": False,
             "color_theme": "default",
+            "multi_process_num": 4,
         }
         with open(dir_info.setting_file_path, mode="w") as f:
             json.dump(settings, f, indent=4)

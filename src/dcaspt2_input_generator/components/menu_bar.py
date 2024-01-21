@@ -2,6 +2,7 @@ from qtpy.QtCore import Signal  # type: ignore
 from qtpy.QtWidgets import QAction, QMenuBar  # type: ignore
 
 from dcaspt2_input_generator.components.color_settings import ColorSettingsAction
+from dcaspt2_input_generator.components.multi_process_settings import MultiProcessAction
 
 
 class SaveDefaultSettingsAction(QAction):
@@ -52,8 +53,10 @@ class MenuBar(QMenuBar):
 
         self.file_menu = self.addMenu("Settings")
         self.color_settings_action = ColorSettingsAction()
+        self.multi_process_action = MultiProcessAction()
         self.save_default_settings_action = SaveDefaultSettingsAction()
         self.file_menu.addAction(self.color_settings_action)
+        self.file_menu.addAction(self.multi_process_action)
         self.file_menu.addAction(self.save_default_settings_action)
 
         # クリックしたらバージョン情報などを表示する

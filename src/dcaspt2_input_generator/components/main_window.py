@@ -7,9 +7,11 @@ from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
 from dcaspt2_input_generator.components.table_widget import TableWidget
 from dcaspt2_input_generator.controller.color_settings_controller import ColorSettingsController
+from dcaspt2_input_generator.controller.multi_process_controller import MultiProcessController
 from dcaspt2_input_generator.controller.save_default_settings_controller import SaveDefaultSettingsController
 from dcaspt2_input_generator.controller.widget_controller import WidgetController
 from dcaspt2_input_generator.utils.dir_info import dir_info
+from dcaspt2_input_generator.utils.settings import settings
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
 from qtpy.QtCore import QProcess, QSettings
 from qtpy.QtGui import QDragEnterEvent
@@ -59,9 +61,12 @@ class MainWindow(QMainWindow):
             self.table_widget, self.menu_bar.color_settings_action.color_settings
         )
 
+        self.multi_process_controller = MultiProcessController(self.menu_bar.multi_process_action, settings)
+
         self.save_default_settings_controller = SaveDefaultSettingsController(
             color=colors,
             user_input=self.table_summary.user_input,
+            multi_process_input=settings.multi_process_input,
             save_default_settings_action=self.menu_bar.save_default_settings_action,
         )
         # layout
@@ -206,7 +211,11 @@ Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac
                 raise Exception(msg)
 
         def run_command():
-            command = create_command(f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path}")
+            num_process = settings.multi_process_input.multi_process_num
+            command = create_command(
+                f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path} -j {num_process}"
+            )
+            print(command)
             cmd = command.split()
             self.process.start(cmd[0], cmd[1:])
             if self.process.exitCode() != 0:
