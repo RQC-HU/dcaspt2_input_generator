@@ -2,12 +2,11 @@ import copy
 from pathlib import Path
 from typing import List
 
+from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal  # type: ignore
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
-
-from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -275,11 +274,11 @@ is the correct format"
         bottom_row = selected_rows[-1]
         is_action_shown: dict[str, bool] = {"inactive": True, "secondary": True}
         # inactive action
-        if (self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]):
+        if self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]:
             is_action_shown["inactive"] = False
 
         # secondary action
-        if (self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]):
+        if self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]:
             is_action_shown["secondary"] = False
 
         # Show the inactive action
