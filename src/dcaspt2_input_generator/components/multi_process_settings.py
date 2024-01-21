@@ -14,8 +14,8 @@ class MultiProcessSettings(QDialog):
         self.init_UI()
 
     def init_UI(self):
-        self.setWindowTitle("Multi Process Settings")
-        self.resize(300, 50)
+        self.setWindowTitle("Set Process Number for sum_dirac_dfcoef calculation")
+        self.resize(400, 50)
         self.multi_process_spin_box = QSpinBox()
         self.multi_process_spin_box.setRange(1, 100)
         self.multi_process_spin_box.setValue(settings.multi_process_input.multi_process_num)
