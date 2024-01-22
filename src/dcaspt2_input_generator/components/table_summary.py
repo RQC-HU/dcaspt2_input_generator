@@ -1,10 +1,11 @@
 from typing import Optional
 
-from dcaspt2_input_generator.utils.settings import settings
-from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Signal  # type: ignore
 from qtpy.QtGui import QFocusEvent, QIntValidator
-from qtpy.QtWidgets import QCheckBox, QFrame, QGridLayout, QLabel, QLineEdit, QWidget
+from qtpy.QtWidgets import QFrame, QGridLayout, QLabel, QLineEdit, QWidget
+
+from dcaspt2_input_generator.utils.settings import settings
+from dcaspt2_input_generator.utils.utils import debug_print
 
 
 class NaturalNumberInput(QLineEdit):
@@ -49,8 +50,8 @@ class NaturalNumberInput(QLineEdit):
         elif int(current_text) < self.bottom_num:
             self.setText(str(self.bottom_num))
 
-    def get_value(self):
-        return self.text()
+    def get_value(self) -> int:
+        return int(self.text())
 
     # At the end of the input, the number is validated
     def focusOutEvent(self, arg__1: QFocusEvent) -> None:
@@ -85,21 +86,6 @@ class TotsymNumberInput(NaturalNumberInput):
         self.changed.emit()
 
 
-class DIRACCheckbox(QCheckBox):
-    def __init__(self, changed: Signal):
-        super().__init__()
-        self.setChecked(settings.input.dirac_ver_21_or_later)
-        self.stateChanged.connect(self.change_state)
-        self.changed = changed
-
-    def change_state(self, state):
-        if state == 2:
-            settings.input.dirac_ver_21_or_later = True
-        else:
-            settings.input.dirac_ver_21_or_later = False
-        self.changed.emit()
-
-
 class UserInput(QGridLayout):
     changed = Signal()
 
@@ -115,15 +101,15 @@ class UserInput(QGridLayout):
         self.selectroot_label = QLabel("selectroot")
         self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.selectroot)
         # Add checkbox
-        self.diracver_label = QLabel("Is the version of DIRAC larger than 21?")
-        self.diracver_checkbox = DIRACCheckbox(self.changed)
+        self.diracver_label = QLabel("DIRAC major version (if 21.1, type 21)")
+        self.dirac_ver_number = NaturalNumberInput(bottom_num=12, default_num=settings.input.dirac_ver)
 
         self.addWidget(self.totsym_label, 0, 0)
         self.addWidget(self.totsym_number, 0, 1)
         self.addWidget(self.selectroot_label, 0, 2)
         self.addWidget(self.selectroot_number, 0, 3)
         self.addWidget(self.diracver_label, 0, 4)
-        self.addWidget(self.diracver_checkbox, 0, 5)
+        self.addWidget(self.dirac_ver_number, 0, 5)
         self.addWidget(self.ras1_max_hole_label, 1, 0)
         self.addWidget(self.ras1_max_hole_number, 1, 1)
         self.addWidget(self.ras3_max_electron_label, 1, 2)
@@ -135,7 +121,7 @@ class UserInput(QGridLayout):
             "selectroot": self.selectroot_number.get_value(),
             "ras1_max_hole": self.ras1_max_hole_number.get_value(),
             "ras3_max_electron": self.ras3_max_electron_number.get_value(),
-            "dirac_ver_21_or_later": self.diracver_checkbox.isChecked(),
+            "dirac_ver": self.dirac_ver_number.get_value(),
         }
 
 

@@ -68,8 +68,8 @@ class WidgetController:
         else:
             output += f"nocc\n{nocc['E1']}\n"
             output += "" if sum(nvcut.values()) == 0 else f"nvcut\n{nvcut['E1']}\n"
-        output += f"totsym\n{self.table_summary.user_input.totsym_number.text()}\n"
-        output += f"diracver\n{21 if self.table_summary.user_input.diracver_checkbox.isChecked() else 19}\n"
+        output += f"totsym\n{self.table_summary.user_input.totsym_number.get_value()}\n"
+        output += f"diracver\n{self.table_summary.user_input.dirac_ver_number.get_value()}\n"
         output += "end\n"
 
         # Save standard IVO input (replace active.ivo.inp)

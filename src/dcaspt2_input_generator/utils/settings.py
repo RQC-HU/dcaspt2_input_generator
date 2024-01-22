@@ -2,6 +2,7 @@
 
 import json
 import os
+from typing import Dict, Union
 
 from dcaspt2_input_generator.utils.dir_info import dir_info
 
@@ -18,7 +19,7 @@ class DefaultUserInput:
     selectroot: int
     ras1_max_hole: int
     ras3_max_hole: int
-    dirac_ver_21_or_later: bool
+    dirac_ver: int
 
     def __init__(self):
         # If the settings.json file exists, read the settings from the file
@@ -30,7 +31,10 @@ class DefaultUserInput:
                     self.selectroot = int(settings["selectroot"])
                     self.ras1_max_hole = int(settings["ras1_max_hole"])
                     self.ras3_max_electron = int(settings["ras3_max_electron"])
-                    self.dirac_ver_21_or_later = settings["dirac_ver_21_or_later"]
+                    self.dirac_ver = int(settings["dirac_ver"])
+                except KeyError as e:
+                    msg = f"settings.json is broken. missing key: {e}, please delete {dir_info.setting_file_path} and restart this application."
+                    raise KeyError(msg) from e
                 except CustomJsonDecodeError as e:
                     raise CustomJsonDecodeError(dir_info.setting_file_path) from e
 
@@ -71,6 +75,16 @@ class DefaultMultiProcessInput:
 
 class Settings:
     def __init__(self):
+        # Application Default Settings
+        self.default_settings: Dict[str, Union[int, str]] = {
+            "totsym": 1,
+            "selectroot": 1,
+            "ras1_max_hole": 0,
+            "ras3_max_electron": 0,
+            "dirac_ver": 23,
+            "color_theme": "default",
+            "multi_process_num": 4,
+        }
         if not dir_info.setting_file_path.exists():
             self.create_default_settings_file()
         self.input = DefaultUserInput()
@@ -78,18 +92,8 @@ class Settings:
         self.multi_process_input = DefaultMultiProcessInput()
 
     def create_default_settings_file(self):
-        # Application Default Settings
-        settings = {
-            "totsym": 1,
-            "selectroot": 1,
-            "ras1_max_hole": 0,
-            "ras3_max_electron": 0,
-            "dirac_ver_21_or_later": False,
-            "color_theme": "default",
-            "multi_process_num": 4,
-        }
         with open(dir_info.setting_file_path, mode="w") as f:
-            json.dump(settings, f, indent=4)
+            json.dump(self.default_settings, f, indent=4)
 
 
 settings = Settings()
