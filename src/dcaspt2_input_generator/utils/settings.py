@@ -1,6 +1,7 @@
 # This script contains all functions to handle settings of this application.
 
 import json
+import os
 
 from dcaspt2_input_generator.utils.dir_info import dir_info
 
@@ -55,15 +56,17 @@ class DefaultMultiProcessInput:
         self.multi_process_num = self.get_multi_process_num()
 
     def get_multi_process_num(self) -> int:
+        num_process = 4  # default
         if dir_info.setting_file_path.exists():
             with open(dir_info.setting_file_path) as f:
                 try:
                     settings = json.load(f)
                     if "multi_process_num" in settings:
-                        return int(settings["multi_process_num"])
+                        num_process = int(settings["multi_process_num"])
                 except CustomJsonDecodeError as e:
                     raise CustomJsonDecodeError(dir_info.setting_file_path) from e
-        return 4
+        # If the number of CPU cores is less than the number of processes, use the number of CPU cores.
+        return min(os.cpu_count(), num_process)
 
 
 class Settings:
