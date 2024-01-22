@@ -48,7 +48,10 @@ class NaturalNumberInput(QLineEdit):
             self.setText(str(self.default_num))
 
     def get_value(self) -> int:
-        return int(self.text())
+        try:
+            return int(self.text())
+        except ValueError:
+            return self.bottom_num
 
     # At the end of the input, the number is validated
     def focusOutEvent(self, arg__1: QFocusEvent) -> None:
