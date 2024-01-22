@@ -2,6 +2,10 @@ import os
 import subprocess
 from pathlib import Path
 
+from qtpy.QtCore import QProcess, QSettings
+from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
+
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
@@ -13,9 +17,6 @@ from dcaspt2_input_generator.controller.widget_controller import WidgetControlle
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.settings import settings
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
-from qtpy.QtCore import QProcess, QSettings
-from qtpy.QtGui import QDragEnterEvent
-from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window
@@ -58,7 +59,7 @@ class MainWindow(QMainWindow):
         # Create an instance of WidgetController
         self.widget_controller = WidgetController(self.table_summary, self.table_widget)
         self.color_settings_controller = ColorSettingsController(
-            self.table_widget, self.menu_bar.color_settings_action.color_settings
+            self.table_widget, self.menu_bar.color_settings_action.color_settings_dialog
         )
 
         self.multi_process_controller = MultiProcessController(self.menu_bar.multi_process_action, settings)
@@ -137,15 +138,16 @@ class MainWindow(QMainWindow):
                 debug_print(f"{idx}, secondary")
                 sec += 2
             rem_electrons -= 2
+        nroot = max(10, self.table_summary.user_input.selectroot_number.get_value())
 
-        output += "ninact\n" + str(inact) + "\n"
-        output += "nact\n" + str(act) + "\n"
-        output += "nelec\n" + str(elec) + "\n"
-        output += "nsec\n" + str(sec) + "\n"
-        output += "nroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
-        output += "selectroot\n" + self.table_summary.user_input.selectroot_number.text() + "\n"
-        output += "totsym\n" + self.table_summary.user_input.totsym_number.text() + "\n"
-        output += "diracver\n" + ("21" if self.table_summary.user_input.diracver_checkbox.isChecked() else "19") + "\n"
+        output += f"ninact\n{inact}\n"
+        output += f"nact\n{act}\n"
+        output += f"nelec\n{elec}\n"
+        output += f"nsec\n{sec}\n"
+        output += f"nroot\n{nroot}\n"
+        output += f"selectroot\n{self.table_summary.user_input.selectroot_number.get_value()}\n"
+        output += f"totsym\n{self.table_summary.user_input.totsym_number.get_value()}\n"
+        output += f"diracver\n{self.table_summary.user_input.dirac_ver_number.get_value()}\n"
 
         if not is_cas:
             ras1_str = create_ras_str(sorted(ras1_list))
