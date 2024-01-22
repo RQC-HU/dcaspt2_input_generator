@@ -107,8 +107,8 @@ class WidgetController:
         self.table_summary.spinor_summary.secondary_label.setText(f"secondary: {color_count['secondary']}")
 
         # Update the maximum number of holes and electrons
-        self.table_summary.user_input.ras1_max_hole_number.validator.setTop(color_count["ras1"])
-        self.table_summary.user_input.ras3_max_electron_number.validator.setTop(color_count["ras3"])
+        self.table_summary.user_input.ras1_max_hole_number.set_top(color_count["ras1"])
+        self.table_summary.user_input.ras3_max_electron_number.set_top(color_count["ras3"])
         res = ""
         for k, d in table_data.header_info.moltra_info.items():
             res += f"\n {k}"
