@@ -18,7 +18,7 @@ class UserInput:
     totsym: int
     selectroot: int
     ras1_max_hole: int
-    ras3_max_hole: int
+    ras3_max_electron: int
     dirac_ver: int
 
     def __init__(self):
