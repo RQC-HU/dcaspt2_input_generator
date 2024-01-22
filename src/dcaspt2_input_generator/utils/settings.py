@@ -14,61 +14,52 @@ File path: {settings_file_path}"
         super().__init__(self.message, self.doc, self.pos)
 
 
-class DefaultUserInput:
+class SettingsDict(Dict[str, Union[str, int]]):
+    pass
+
+
+class UserInput:
     totsym: int
     selectroot: int
     ras1_max_hole: int
-    ras3_max_hole: int
+    ras3_max_electron: int
     dirac_ver: int
+    json_dict: SettingsDict
 
-    def __init__(self):
+    def __init__(self, json_dict: SettingsDict, default_settings: SettingsDict) -> None:
         # If the settings.json file exists, read the settings from the file
-        if dir_info.setting_file_path.exists():
-            with open(dir_info.setting_file_path) as f:
-                try:
-                    settings = json.load(f)
-                    self.totsym = int(settings["totsym"])
-                    self.selectroot = int(settings["selectroot"])
-                    self.ras1_max_hole = int(settings["ras1_max_hole"])
-                    self.ras3_max_electron = int(settings["ras3_max_electron"])
-                    self.dirac_ver = int(settings["dirac_ver"])
-                except KeyError as e:
-                    msg = f"settings.json is broken. missing key: {e}, please delete {dir_info.setting_file_path} and restart this application."
-                    raise KeyError(msg) from e
-                except CustomJsonDecodeError as e:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
+        self.json_dict = json_dict
+        keys = ["totsym", "selectroot", "ras1_max_hole", "ras3_max_electron", "dirac_ver"]
+        for key in keys:
+            if key in self.json_dict:
+                setattr(self, key, int(self.json_dict[key]))
+            else:
+                setattr(self, key, int(default_settings[key]))
 
 
-class DefaultColorTheme:
-    def __init__(self):
-        self.color_theme = self.get_color_theme()
+class ColorTheme:
+    def __init__(self, json_dict: SettingsDict) -> None:
+        self.json_dict = json_dict
+        self.theme_list = ["default", "Color type 1", "Color type 2"]
+        self.theme_name = self.get_color_theme_name()
 
-    def get_color_theme(self):
-        if dir_info.setting_file_path.exists():
-            with open(dir_info.setting_file_path) as f:
-                try:
-                    settings = json.load(f)
-                    if "color_theme" in settings:
-                        return settings["color_theme"]
-                except CustomJsonDecodeError as e:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
+    def get_color_theme_name(self) -> str:
+        key = "color_theme"
+        if key in self.json_dict and self.json_dict[key] in self.theme_list:
+            return str(self.json_dict[key])
         return "default"
 
 
-class DefaultMultiProcessInput:
-    def __init__(self):
-        self.multi_process_num = self.get_multi_process_num()
+class MultiProcess:
+    def __init__(self, json_dict: SettingsDict) -> None:
+        self.json_dict = json_dict
+        self.multi_process_num = self.__init_multi_process_num__()
 
-    def get_multi_process_num(self) -> int:
+    def __init_multi_process_num__(self) -> int:
         num_process = 4  # default
-        if dir_info.setting_file_path.exists():
-            with open(dir_info.setting_file_path) as f:
-                try:
-                    settings = json.load(f)
-                    if "multi_process_num" in settings:
-                        num_process = int(settings["multi_process_num"])
-                except CustomJsonDecodeError as e:
-                    raise CustomJsonDecodeError(dir_info.setting_file_path) from e
+        key = "multi_process_num"
+        if key in self.json_dict:
+            num_process = int(self.json_dict[key])
         # If the number of CPU cores is less than the number of processes, use the number of CPU cores.
         return min(os.cpu_count(), num_process)
 
@@ -76,7 +67,7 @@ class DefaultMultiProcessInput:
 class Settings:
     def __init__(self):
         # Application Default Settings
-        self.default_settings: Dict[str, Union[int, str]] = {
+        self.default_settings: SettingsDict = {
             "totsym": 1,
             "selectroot": 1,
             "ras1_max_hole": 0,
@@ -87,9 +78,13 @@ class Settings:
         }
         if not dir_info.setting_file_path.exists():
             self.create_default_settings_file()
-        self.input = DefaultUserInput()
-        self.color_theme = DefaultColorTheme()
-        self.multi_process_input = DefaultMultiProcessInput()
+        try:
+            self.json_dict: SettingsDict = json.load(open(dir_info.setting_file_path))
+        except CustomJsonDecodeError as e:
+            raise CustomJsonDecodeError(dir_info.setting_file_path) from e
+        self.input = UserInput(self.json_dict, self.default_settings)
+        self.color_theme = ColorTheme(self.json_dict)
+        self.multi_process_input = MultiProcess(self.json_dict)
 
     def create_default_settings_file(self):
         with open(dir_info.setting_file_path, mode="w") as f:

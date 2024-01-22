@@ -4,11 +4,8 @@
             "source.organizeImports": "explicit"
         },
         "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
     },
-    "black-formatter.args": [
-        "--line-length=120"
-    ],
     "ruff.lint.args": [
         "--line-length=120",
         // FBT001: boolean-type-hint-positional-argument https://docs.astral.sh/ruff/rules/boolean-type-hint-positional-argument/

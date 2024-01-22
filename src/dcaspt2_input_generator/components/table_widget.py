@@ -2,11 +2,13 @@ import copy
 from pathlib import Path
 from typing import List
 
+from qtpy.QtCore import Qt, Signal
+from qtpy.QtGui import QColor
+from qtpy.QtWidgets import QAction  # type: ignore
+from qtpy.QtWidgets import QMenu, QTableWidget, QTableWidgetItem
+
 from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
 from dcaspt2_input_generator.utils.utils import debug_print
-from qtpy.QtCore import Qt, Signal  # type: ignore
-from qtpy.QtGui import QColor
-from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem  # type: ignore
 
 
 # TableWidget is the widget that displays the output data

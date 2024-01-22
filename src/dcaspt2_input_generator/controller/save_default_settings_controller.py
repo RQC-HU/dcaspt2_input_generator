@@ -4,18 +4,18 @@ from dcaspt2_input_generator.components.data import Color
 from dcaspt2_input_generator.components.menu_bar import SaveDefaultSettingsAction
 from dcaspt2_input_generator.components.table_summary import UserInput
 from dcaspt2_input_generator.utils.dir_info import dir_info
-from dcaspt2_input_generator.utils.settings import DefaultMultiProcessInput
+from dcaspt2_input_generator.utils.settings import MultiProcess
 from dcaspt2_input_generator.utils.utils import debug_print
 
 
 class SaveDefaultSettingsController:
     # app: MainApp
-    # color_settings: ColorSettings
+    # color_settings: ColorSettingsDialog
     def __init__(
         self,
         color: Color,
         user_input: UserInput,
-        multi_process_input: DefaultMultiProcessInput,
+        multi_process_input: MultiProcess,
         save_default_settings_action: SaveDefaultSettingsAction,
     ):
         self.color = color

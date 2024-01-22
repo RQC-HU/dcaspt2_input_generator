@@ -1,4 +1,4 @@
-from dcaspt2_input_generator.components.color_settings import ColorSettings
+from dcaspt2_input_generator.components.color_settings import ColorSettingsDialog
 from dcaspt2_input_generator.components.data import colors
 from dcaspt2_input_generator.components.table_widget import TableWidget
 from dcaspt2_input_generator.utils.utils import debug_print
@@ -6,19 +6,18 @@ from dcaspt2_input_generator.utils.utils import debug_print
 
 class ColorSettingsController:
     # table_widget: TableWidget
-    # color_settings: ColorSettings
-    def __init__(self, table_widget: TableWidget, color_settings: ColorSettings):
+    # dialog: ColorSettingsDialog
+    def __init__(self, table_widget: TableWidget, dialog: ColorSettingsDialog):
         self.table_widget = table_widget
-        self.color_settings = color_settings
+        self.dialog = dialog
 
         # Connect signals and slots
-        self.color_settings.color_settings_changed.connect(self.onColorSettingsChanged)
+        self.dialog.color_settings_changed.connect(self.onColorSettingsDialogChanged)
 
-    def onColorSettingsChanged(self):
-        debug_print("onColorSettingsChanged")
+    def onColorSettingsDialogChanged(self):
+        debug_print("onColorSettingsDialogChanged")
         prev_color = colors.deep_copy()
-        selected_button = self.color_settings.buttonGroup.checkedButton()
-        color_type = selected_button.text()
-        colors.change_color_templates(color_type)
+        color_type_str = self.dialog.buttonGroup.checkedButton().text()
+        colors.change_color_templates(color_type_str)
         if prev_color != colors:
             self.table_widget.update_color(prev_color)
