@@ -1,7 +1,8 @@
-from dcaspt2_input_generator.components.color_settings import ColorSettingsDialogAction
-from dcaspt2_input_generator.components.multi_process_settings import MultiProcessAction
 from qtpy.QtCore import Signal  # type: ignore
 from qtpy.QtWidgets import QAction, QMenuBar  # type: ignore
+
+from dcaspt2_input_generator.components.color_settings import ColorSettingsDialogAction
+from dcaspt2_input_generator.components.multi_process_settings import MultiProcessDialogAction
 
 
 class SaveDefaultSettingsAction(QAction):
@@ -25,8 +26,9 @@ class AboutAction(QAction):
         self.triggered.connect(self.about)
 
     def about(self):
-        from dcaspt2_input_generator.__about__ import __version__
         from qtpy.QtWidgets import QMessageBox, QWidget
+
+        from dcaspt2_input_generator.__about__ import __version__
 
         msg = f"Version: {__version__}"
         QMessageBox.about(QWidget(), "Version info", msg)
@@ -51,7 +53,7 @@ class MenuBar(QMenuBar):
 
         self.file_menu = self.addMenu("Settings")
         self.color_settings_action = ColorSettingsDialogAction()
-        self.multi_process_action = MultiProcessAction()
+        self.multi_process_action = MultiProcessDialogAction()
         self.save_default_settings_action = SaveDefaultSettingsAction()
         self.file_menu.addAction(self.color_settings_action)
         self.file_menu.addAction(self.multi_process_action)

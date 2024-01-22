@@ -58,7 +58,7 @@ class ColorTheme:
         return "default"
 
 
-class MultiProcessInput:
+class MultiProcess:
     def __init__(self):
         self.multi_process_num = self.__init_multi_process_num__()
 
@@ -92,7 +92,7 @@ class Settings:
             self.create_default_settings_file()
         self.input = UserInput()
         self.color_theme = ColorTheme()
-        self.multi_process_input = MultiProcessInput()
+        self.multi_process_input = MultiProcess()
 
     def create_default_settings_file(self):
         with open(dir_info.setting_file_path, mode="w") as f:
