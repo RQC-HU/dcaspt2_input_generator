@@ -14,7 +14,7 @@ File path: {settings_file_path}"
         super().__init__(self.message, self.doc, self.pos)
 
 
-class DefaultUserInput:
+class UserInput:
     totsym: int
     selectroot: int
     ras1_max_hole: int
@@ -33,33 +33,36 @@ class DefaultUserInput:
                     self.ras3_max_electron = int(settings["ras3_max_electron"])
                     self.dirac_ver = int(settings["dirac_ver"])
                 except KeyError as e:
-                    msg = f"settings.json is broken. missing key: {e}, please delete {dir_info.setting_file_path} and restart this application."
+                    msg = f"settings.json is broken. missing key: {e},\
+please delete {dir_info.setting_file_path}and restart this application."
                     raise KeyError(msg) from e
                 except CustomJsonDecodeError as e:
                     raise CustomJsonDecodeError(dir_info.setting_file_path) from e
 
 
-class DefaultColorTheme:
+class ColorTheme:
     def __init__(self):
-        self.color_theme = self.get_color_theme()
+        self.theme_list = ["default", "Color type 1", "Color type 2"]
+        self.theme_name = self.get_color_theme_name()
 
-    def get_color_theme(self):
+    def get_color_theme_name(self):
+        key = "color_theme"
         if dir_info.setting_file_path.exists():
             with open(dir_info.setting_file_path) as f:
                 try:
                     settings = json.load(f)
-                    if "color_theme" in settings:
-                        return settings["color_theme"]
+                    if key in settings and settings[key] in self.theme_list:
+                        return settings[key]
                 except CustomJsonDecodeError as e:
                     raise CustomJsonDecodeError(dir_info.setting_file_path) from e
         return "default"
 
 
-class DefaultMultiProcessInput:
+class MultiProcessInput:
     def __init__(self):
-        self.multi_process_num = self.get_multi_process_num()
+        self.multi_process_num = self.__init_multi_process_num__()
 
-    def get_multi_process_num(self) -> int:
+    def __init_multi_process_num__(self) -> int:
         num_process = 4  # default
         if dir_info.setting_file_path.exists():
             with open(dir_info.setting_file_path) as f:
@@ -87,9 +90,9 @@ class Settings:
         }
         if not dir_info.setting_file_path.exists():
             self.create_default_settings_file()
-        self.input = DefaultUserInput()
-        self.color_theme = DefaultColorTheme()
-        self.multi_process_input = DefaultMultiProcessInput()
+        self.input = UserInput()
+        self.color_theme = ColorTheme()
+        self.multi_process_input = MultiProcessInput()
 
     def create_default_settings_file(self):
         with open(dir_info.setting_file_path, mode="w") as f:
