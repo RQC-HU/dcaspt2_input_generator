@@ -12,6 +12,7 @@ class NaturalNumberInput(QLineEdit):
     bottom_num: int
     default_num: int
     top_num: Optional[int]
+    validator: QIntValidator
 
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
@@ -26,13 +27,13 @@ class NaturalNumberInput(QLineEdit):
         self.setMaximumWidth(200)
 
     def set_validator(self):
-        validator = QIntValidator()
+        self.validator = QIntValidator()
         if self.top_num is not None:
-            validator.setBottom(self.bottom_num)
-            validator.setTop(self.top_num)
+            self.validator.setBottom(self.bottom_num)
+            self.validator.setTop(self.top_num)
         else:
-            validator.setBottom(self.bottom_num)
-        self.setValidator(validator)
+            self.validator.setBottom(self.bottom_num)
+        self.setValidator(self.validator)
 
     def is_input_valid(self):
         if self.hasAcceptableInput():
@@ -92,17 +93,16 @@ class UserInput(QGridLayout):
     def __init__(self):
         super().__init__()
         # 数値を入力するためのラベル
-        self.ras1_max_hole_label = QLabel("ras1 max hole")
-        self.ras1_max_hole_number = RASNumberInput(default_num=settings.input.ras1_max_hole)
-        self.ras3_max_electron_label = QLabel("ras3 max electron")
-        self.ras3_max_electron_number = RASNumberInput(default_num=settings.input.ras3_max_electron)
         self.totsym_label = QLabel("totsym")
         self.totsym_number = TotsymNumberInput(self.changed, default_num=settings.input.totsym)
         self.selectroot_label = QLabel("selectroot")
         self.selectroot_number = NaturalNumberInput(bottom_num=1, default_num=settings.input.selectroot)
-        # Add checkbox
         self.diracver_label = QLabel("DIRAC major version (if 21.1, type 21)")
         self.dirac_ver_number = NaturalNumberInput(bottom_num=12, default_num=settings.input.dirac_ver)
+        self.ras1_max_hole_label = QLabel("ras1 max hole")
+        self.ras1_max_hole_number = NaturalNumberInput(default_num=settings.input.ras1_max_hole)
+        self.ras3_max_electron_label = QLabel("ras3 max electron")
+        self.ras3_max_electron_number = NaturalNumberInput(default_num=settings.input.ras3_max_electron)
 
         self.addWidget(self.totsym_label, 0, 0)
         self.addWidget(self.totsym_number, 0, 1)
