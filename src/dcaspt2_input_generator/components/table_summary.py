@@ -1,4 +1,4 @@
-from qtpy.QtCore import Signal  # type: ignore
+from qtpy.QtCore import Signal
 from qtpy.QtGui import QFocusEvent, QIntValidator
 from qtpy.QtWidgets import QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 

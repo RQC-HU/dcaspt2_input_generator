@@ -1,5 +1,6 @@
-from qtpy.QtCore import Signal  # type: ignore
-from qtpy.QtWidgets import QAction, QMenuBar  # type: ignore
+from qtpy.QtCore import Signal
+from qtpy.QtWidgets import QAction  # type: ignore
+from qtpy.QtWidgets import QMenuBar
 
 from dcaspt2_input_generator.components.color_settings import ColorSettingsDialogAction
 from dcaspt2_input_generator.components.multi_process_settings import MultiProcessDialogAction

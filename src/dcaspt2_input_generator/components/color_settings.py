@@ -1,5 +1,6 @@
-from qtpy.QtCore import Signal  # type: ignore
-from qtpy.QtWidgets import QAction, QButtonGroup, QDialog, QRadioButton, QVBoxLayout, QWidget  # type: ignore
+from qtpy.QtCore import Signal
+from qtpy.QtWidgets import QAction  # type: ignore
+from qtpy.QtWidgets import QButtonGroup, QDialog, QRadioButton, QVBoxLayout, QWidget
 
 from dcaspt2_input_generator.utils.settings import settings
 

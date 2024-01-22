@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Dict, OrderedDict as ODict
+from typing import Dict
+from typing import OrderedDict as ODict
 
 from qtpy.QtGui import QColor, QIcon, QPixmap
 

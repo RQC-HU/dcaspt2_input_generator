@@ -1,8 +1,10 @@
 import os
 
-from dcaspt2_input_generator.utils.settings import settings
 from qtpy.QtCore import Signal
-from qtpy.QtWidgets import QAction, QDialog, QSpinBox, QVBoxLayout
+from qtpy.QtWidgets import QAction  # type: ignore
+from qtpy.QtWidgets import QDialog, QSpinBox, QVBoxLayout
+
+from dcaspt2_input_generator.utils.settings import settings
 
 
 class MultiProcessSettingDialog(QDialog):
