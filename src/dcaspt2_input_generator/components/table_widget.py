@@ -169,6 +169,8 @@ class TableWidget(QTableWidget):
                     if idx <= 1:
                         continue
                     else:
+                        if len(row) == 0:
+                            continue
                         row_dict = create_row_dict(row)
                         table_data.mo_data.append(row_dict)
                         table_data.column_max_len = max(table_data.column_max_len, len(row))
