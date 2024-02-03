@@ -2,12 +2,11 @@ import copy
 from pathlib import Path
 from typing import List
 
+from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem
-
-from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
-from dcaspt2_input_generator.utils.utils import debug_print
 
 
 # TableWidget is the widget that displays the output data
@@ -144,6 +143,29 @@ class TableWidget(QTableWidget):
                 self.item(row_idx, idx).setBackground(color)
         self.update_index_info()
 
+    def set_column_header_items(self):
+        header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
+        init_header_len = len(header_data)
+        additional_header = []
+        for idx in range(init_header_len, table_data.column_max_len):
+            if idx % 2 == 0:
+                additional_header.append(f"percentage {(idx-init_header_len)//2 + 1}")
+            else:
+                additional_header.append(f"AO type {(idx-init_header_len)//2 + 1}")
+
+        header_data.extend(additional_header)
+        self.setHorizontalHeaderLabels(header_data)
+
+    def resize_columns(self):
+        self.resizeColumnsToContents()
+        for idx in range(table_data.column_max_len):
+            if idx == 0:  # gerade/ungerade
+                self.setColumnWidth(idx, self.columnWidth(idx) + 20)
+            elif idx == 1 or idx % 2 == 0:  # no. of spinor, percentage
+                self.setColumnWidth(idx, self.columnWidth(idx) + 10)
+            else:  # energy, AO type
+                self.setColumnWidth(idx, self.columnWidth(idx) + 5)
+
     def load_output(self, file_path: Path):
         def create_row_dict(row: List[str]) -> MOData:
             mo_symmetry = row[0]
@@ -179,20 +201,6 @@ class TableWidget(QTableWidget):
             except IndexError as e:
                 msg = "The output file is not correct, IndexError"
                 raise IndexError(msg) from e
-            len_row = len(rows)
-            len_column = max(len(row) for row in rows) if len_row > 0 else 0
-
-            # Header data
-            header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
-            init_header_len = len(header_data)
-            additional_header = []
-            for idx in range(init_header_len, len_column):
-                if idx % 2 == 0:
-                    additional_header.append(f"percentage {(idx-init_header_len)//2 + 1}")
-                else:
-                    additional_header.append(f"AO type {(idx-init_header_len)//2 + 1}")
-            header_data.extend(additional_header)
-            self.setHorizontalHeaderLabels(header_data)
 
         table_data.reset()
         with open(file_path) as output:
@@ -219,8 +227,9 @@ class TableWidget(QTableWidget):
             out = output.readlines()
             # output is space separated file
             set_table_data()
-            self.create_table()
-
+        self.create_table()
+        self.set_column_header_items()
+        self.resize_columns()
         self.color_changed.emit()
 
     def read_moltra_info(self, row: List[str]) -> None:
