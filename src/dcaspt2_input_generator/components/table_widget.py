@@ -141,6 +141,7 @@ class TableWidget(QTableWidget):
 
             for idx in range(table_data.column_max_len):
                 self.item(row_idx, idx).setBackground(color)
+                self.item(row_idx, idx).setData(Qt.ItemDataRole.UserRole, f"{colors.color_type}_{color_info.name}")
         self.update_index_info()
 
     def set_column_header_items(self):

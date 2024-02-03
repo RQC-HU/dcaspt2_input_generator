@@ -6,7 +6,7 @@ from qtpy.QtWidgets import QApplication
 from dcaspt2_input_generator.utils.args import args  # noqa: F401, only import args to parse the command line arguments
 from dcaspt2_input_generator.utils.dir_info import dir_info
 
-# import qt_material
+import qt_material
 
 
 class MainApp:
@@ -17,6 +17,7 @@ class MainApp:
     def init_gui(self):
         from dcaspt2_input_generator.components.main_window import MainWindow
 
+        qt_material.apply_stylesheet(app=self.app, theme="light_blue.xml")
         self.window = MainWindow(parent=None)
         self.window.setWindowTitle("DIRAC-CASPT2 Input Generator")
         self.window.show()

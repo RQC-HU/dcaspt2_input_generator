@@ -140,7 +140,7 @@ class Color:
             # Default color
             color_not_used, msg_not_used, msg_color_not_used = (
                 QColor("#FFFFFF"),
-                "not used in CASPT2",
+                "not_used_in_CASPT2",
                 "not used in CASPT2(White)",
             )
             color_inactive, msg_inactive, msg_color_inactive = QColor("#D5ECD4"), "inactive", "inactive(Pale Green)"
@@ -168,7 +168,7 @@ class Color:
             # Color type 1
             not_used, msg_not_used, msg_color_not_used = (
                 QColor("#FFFFFF"),
-                "not used in CASPT2",
+                "not_used_in_CASPT2",
                 "not used in CASPT2(White)",
             )
             color_inactive, msg_inactive, msg_color_inactive = QColor("#FFA07A"), "inactive", "inactive(Light salmon)"
@@ -194,7 +194,7 @@ class Color:
             # Color type 2
             not_used, msg_not_used, msg_color_not_used = (
                 QColor("#FFFFFF"),
-                "not used in CASPT2",
+                "not_used_in_CASPT2",
                 "not used in CASPT2(White)",
             )
             color_inactive, msg_inactive, msg_color_inactive = QColor("#FFA07A"), "inactive", "inactive(Light salmon)"

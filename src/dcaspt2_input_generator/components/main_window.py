@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
         # Add drag and drop functionality
         self.setAcceptDrops(True)
 
+        # self.setFont(QFont(self.fontInfo().family(), 12))
         # Set task runner
         self.process: QProcess = None
         self.callback = None
@@ -284,7 +285,7 @@ Please run the sum_dirac_dfcoef program first.",
         if event.mimeData().hasText():
             event.accept()
 
-    def dropEvent(self, event="") -> None:
+    def dropEvent(self, event: QDropEvent) -> None:
         # Get the file path
         filename = event.mimeData().text()[8:]
         filepath = Path(filename).expanduser().resolve()
