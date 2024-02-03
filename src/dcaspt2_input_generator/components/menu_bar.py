@@ -42,13 +42,13 @@ class MenuBar(QMenuBar):
     def init_UI(self):
         # Create the menu bar
         self.file_menu = self.addMenu("File")
-        self.open_action_dirac = QAction("Open with DIRAC output", self)
+        self.open_action_dirac = QAction("Open with DIRAC output (Ctrl+O)", self)
         self.file_menu.addAction(self.open_action_dirac)
-        self.open_action_dfcoef = QAction("Open with sum_dirac_dfcoef output", self)
+        self.open_action_dfcoef = QAction("Open with sum_dirac_dfcoef output (Ctrl+Shift+O)", self)
         self.file_menu.addAction(self.open_action_dfcoef)
-        self.save_action_input = QAction("Save input file", self)
+        self.save_action_input = QAction("Save input file (Ctrl+S)", self)
         self.file_menu.addAction(self.save_action_input)
-        self.save_action_dfcoef = QAction("Save sum_dirac_dfcoef file", self)
+        self.save_action_dfcoef = QAction("Save sum_dirac_dfcoef file (Ctrl+Shift+S)", self)
         self.file_menu.addAction(self.save_action_dfcoef)
 
         self.file_menu = self.addMenu("Settings")

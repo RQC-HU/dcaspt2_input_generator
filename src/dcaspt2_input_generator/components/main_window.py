@@ -308,3 +308,27 @@ Please check your dropped file.",
                     "We cannot load the file properly.\n\
 Please check your dropped file.",
                 )
+
+    def keyPressEvent(self, event: QKeyEvent):
+        super().keyPressEvent(event)
+        # Ctrl + S
+        if event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_S:
+            self.save_input()
+        # Ctrl + Shift + S
+        elif (
+            event.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+            and event.key() == Qt.Key.Key_S
+        ):
+            self.save_sum_dirac_dfcoef()
+        # Ctrl + O
+        elif event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_O:
+            self.select_file_Dirac()
+        # Ctrl + Shift + O
+        elif (
+            event.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+            and event.key() == Qt.Key.Key_O
+        ):
+            self.select_file_DFCOEF()
+        # Ctrl + ,
+        elif event.modifiers() == Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_Comma:
+            self.menu_bar.color_settings_action.openColorSettingsDialog()
