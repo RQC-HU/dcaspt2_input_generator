@@ -2,8 +2,8 @@ import os
 import subprocess
 from pathlib import Path
 
-from qtpy.QtCore import QProcess, QSettings
-from qtpy.QtGui import QDragEnterEvent
+from qtpy.QtCore import QProcess, QSettings, Qt
+from qtpy.QtGui import QDragEnterEvent, QDropEvent, QFont, QKeyEvent
 from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from dcaspt2_input_generator.components.data import colors, table_data
