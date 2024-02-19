@@ -12,7 +12,7 @@
 ## Install
 
 ```bash
-pip install dcaspt2_input_generator
+pip install -U dcaspt2_input_generator
 ```
 
 ## Usage
