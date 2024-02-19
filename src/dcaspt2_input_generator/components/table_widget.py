@@ -18,7 +18,7 @@ from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem
 # 4. Change the background color of the selected cells
 # 5. Emit the color_changed signal when the background color is changed
 # Display the output data like the following:
-# gerade/ungerade    no. of spinor    energy (a.u.)    percentage 1    AO type 1    percentage 2    AO type 2    ...
+# irrep              no. of spinor    energy (a.u.)    percentage 1    AO type 1    percentage 2    AO type 2    ...
 # E1u                1                -9.631           33.333          B3uArpx      33.333          B2uArpy      ...
 # E1u                2                -9.546           50.000          B3uArpx      50.000          B2uArpy      ...
 # ...
@@ -144,7 +144,7 @@ class TableWidget(QTableWidget):
         self.update_index_info()
 
     def set_column_header_items(self):
-        header_data = ["gerade/ungerade", "no. of spinor", "energy (a.u.)"]
+        header_data = ["irrep", "no. of spinor", "energy (a.u.)"]
         init_header_len = len(header_data)
         additional_header = []
         for idx in range(init_header_len, table_data.column_max_len):
@@ -159,7 +159,7 @@ class TableWidget(QTableWidget):
     def resize_columns(self):
         self.resizeColumnsToContents()
         for idx in range(table_data.column_max_len):
-            if idx == 0:  # gerade/ungerade
+            if idx == 0:  # irrep
                 self.setColumnWidth(idx, self.columnWidth(idx) + 20)
             elif idx == 1 or idx % 2 == 0:  # no. of spinor, percentage
                 self.setColumnWidth(idx, self.columnWidth(idx) + 10)
