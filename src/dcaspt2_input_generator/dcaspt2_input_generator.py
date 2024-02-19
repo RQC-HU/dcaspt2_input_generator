@@ -3,7 +3,6 @@ import sys
 
 from qtpy.QtWidgets import QApplication
 
-from dcaspt2_input_generator.utils.args import args  # noqa: F401, only import args to parse the command line arguments
 from dcaspt2_input_generator.utils.dir_info import dir_info
 
 # import qt_material
