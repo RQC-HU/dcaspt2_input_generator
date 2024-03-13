@@ -214,8 +214,13 @@ class TableWidget(QTableWidget):
                         table_data.header_info.electron_number = int(row[1])
                         self.read_moltra_info(row)
                     else:
-                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
+                        # => table_data.header_info.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
+                        #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
+                        #    table_data.header_info.point_group = "C2v"
                         self.read_spinor_num_info(row)
+                        table_data.header_info.point_group = None  # reset the point group string
+                        self.read_point_group(row)
             except ValueError as e:
                 msg = "The output file is not correct, ValueError"
                 raise ValueError(msg) from e
@@ -254,13 +259,24 @@ class TableWidget(QTableWidget):
         for key in table_data.header_info.moltra_info.keys():
             table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
 
+    def read_point_group(self, row: List[str]) -> None:
+        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
+        # => table_data.header_info.point_group = "C2v"
+        # if the number of columns is 2, the point group is included
+        if len(row) % 7 == 2:
+            table_data.header_info.point_group = row[-1]
+        else:
+            table_data.header_info.point_group = None
+
     def read_spinor_num_info(self, row: List[str]):
         # spinor_num info is following the format:
         # spinor_num_type1 closed int open int virtual int ...
-        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
-        if len(row) % 7 != 0 or len(row) < 7:
+        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
+        # => table_data.header_info.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
+        #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
+        if len(row) < 7:
             msg = f"spinor_num info is not correct: {row},\
-spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ...\n\
+spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ... point_group str\n\
 is the correct format"
             raise ValueError(msg)
         idx = 0
