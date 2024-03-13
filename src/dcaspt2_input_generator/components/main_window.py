@@ -3,7 +3,7 @@ import subprocess
 from pathlib import Path
 
 from qtpy.QtCore import QProcess, QSettings, Qt
-from qtpy.QtGui import QDragEnterEvent, QDropEvent, QFont, QKeyEvent
+from qtpy.QtGui import QDragEnterEvent, QDropEvent, QKeyEvent
 from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from dcaspt2_input_generator.components.data import colors, table_data
@@ -50,8 +50,8 @@ class MainWindow(QMainWindow):
         self.menu_bar.save_action_dfcoef.triggered.connect(self.save_sum_dirac_dfcoef)
 
         # Body
-        self.table_summary = TableSummary()
         self.table_widget = TableWidget()
+        self.table_summary = TableSummary()
         # Add Save button
         self.save_button = QPushButton("Save")
         self.save_button.clicked.connect(self.save_input)
@@ -284,7 +284,7 @@ Please run the sum_dirac_dfcoef program first.",
         if event.mimeData().hasText():
             event.accept()
 
-    def dropEvent(self, event="") -> None:
+    def dropEvent(self, event: QDropEvent) -> None:
         # Get the file path
         filename = event.mimeData().text()[8:]
         filepath = Path(filename).expanduser().resolve()
