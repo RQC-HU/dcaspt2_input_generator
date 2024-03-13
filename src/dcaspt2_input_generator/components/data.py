@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Union
 from typing import OrderedDict as ODict
 
 from qtpy.QtGui import QColor, QIcon, QPixmap
@@ -46,6 +46,7 @@ class SpinorNumInfo(Dict[str, SpinorNumber]):
 class HeaderInfo:
     spinor_num_info: SpinorNumInfo = None
     moltra_info: MoltraInfo = None
+    point_group: Union[str, None] = None
     electron_number: int = 0
 
     def __post_init__(self):

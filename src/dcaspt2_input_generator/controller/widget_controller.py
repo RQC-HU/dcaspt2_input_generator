@@ -80,6 +80,22 @@ class WidgetController:
         self.handleIVOInput()
 
     def onTableWidgetColorChanged(self):
+        def get_max_mem_str(estimated_max_mem: int) -> str:
+            kb = 1024
+            mb = kb ** 2
+            gb = kb ** 3
+            if estimated_max_mem < kb:  # byte
+                return f"{estimated_max_mem} byte"
+            elif estimated_max_mem < mb:  # KB
+                mem = float(estimated_max_mem) / kb
+                return f"{mem:.3f} KB"
+            elif estimated_max_mem < gb:  # MB
+                mem = float(estimated_max_mem) / mb
+                return f"{mem:.3f} MB"
+            else:
+                mem = float(estimated_max_mem) / gb
+                return f"{mem:.3f} GB"
+
         color_count = {"inactive": 0, "ras1": 0, "active, ras2": 0, "ras3": 0, "secondary": 0}
         row_count = self.table_widget.rowCount()
         for row in range(row_count):
@@ -143,6 +159,24 @@ class WidgetController:
             res += range_str
 
         self.table_summary.recommended_moltra.setText(f"Recommended MOLTRA setting: {res}")
+        if table_data.header_info.point_group is not None:
+            inact = color_count["inactive"]
+            act = color_count["ras1"] + color_count["active, ras2"] + color_count["ras3"]
+            sec = color_count["secondary"]
+            inttwo = 8 * ((inact + act) ** 4) * (2 if table_data.header_info.point_group == "C1" else 1)  # inttwr, inttwi # noqa E501
+            inttwo_f1_f2 = 8 * (sec**2 * (inact + act) ** 2) * (4 if table_data.header_info.point_group == "C1" else 2)  # inttwr_f1, inttwi_f1, inttwr_f2, inttwi_f2 # noqa E501
+            indkl = (8 * (inact + act + sec) ** 2) * 2  # indk, indl
+            rkl = (8 * (inact + act + sec) ** 2) * (2 if table_data.header_info.point_group == "C1" else 1)  # rklr, rkli # noqa E501
+            estimated_max_mem = inttwo + inttwo_f1_f2 + indkl + rkl
+            if estimated_max_mem < 0:
+                estimated_max_mem = 0
+            mem_str = get_max_mem_str(estimated_max_mem)
+
+            txt = f"Point Group: {table_data.header_info.point_group}, estimated max memory size: {mem_str}"
+            self.table_summary.point_group.setText(txt)
+        else:
+            txt = "Point Group: could not be obtained, cannot detect the maximum memory size of the dirac_caspt2 calcluation."  # noqa E501
+            self.table_summary.point_group.setText(txt)
 
         # Reload the input
         self.table_summary.update()

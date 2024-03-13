@@ -135,17 +135,19 @@ class TableSummary(QWidget):
         self.spinor_summary = SpinorSummary()
         self.user_input = UserInput()
         self.recommended_moltra = QLabel("Recommended MOLTRA setting")
+        self.point_group = QLabel("Point Group")
 
         self.summaryLayout.addWidget(QLabel("Summary of the number of spinors"), 0, 0)
         self.summaryLayout.addLayout(self.spinor_summary, 1, 0)
         self.summaryLayout.addWidget(self.recommended_moltra, 2, 0)
+        self.summaryLayout.addWidget(self.point_group, 3, 0)
 
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
         line.setFrameShadow(QFrame.Shadow.Sunken)
-        self.summaryLayout.addWidget(line, 3, 0)
+        self.summaryLayout.addWidget(line, 4, 0)
 
-        self.summaryLayout.addWidget(QLabel("User Input"), 4, 0)
-        self.summaryLayout.addLayout(self.user_input, 5, 0)
+        self.summaryLayout.addWidget(QLabel("User Input"), 5, 0)
+        self.summaryLayout.addLayout(self.user_input, 6, 0)
 
         self.setLayout(self.summaryLayout)
