@@ -46,7 +46,8 @@ class SpinorNumInfo(Dict[str, SpinorNumber]):
 class HeaderInfo:
     spinor_num_info: SpinorNumInfo = None
     moltra_info: MoltraInfo = None
-    point_group: Union[str, None] = None
+    point_group: str = ""
+    moltra_scheme: Union[int, None] = None
     electron_number: int = 0
 
     def __post_init__(self):

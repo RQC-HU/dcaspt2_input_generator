@@ -182,13 +182,14 @@ class TableWidget(QTableWidget):
                 ao_len=len(ao_type),
             )
 
-        def set_table_data():
-            rows = [line.split() for line in out]
+        def set_table_data(rows: List[List[str]]):
             table_data.mo_data = []
             try:
-                for idx, row in enumerate(rows):
-                    if idx <= 1:
-                        continue
+                header = True
+                for row in rows:
+                    if header:
+                        if len(row) <= 1:  # Empty line, end of header
+                            header = False
                     else:
                         if len(row) == 0:
                             continue
@@ -203,42 +204,61 @@ class TableWidget(QTableWidget):
                 raise IndexError(msg) from e
 
         table_data.reset()
-        with open(file_path) as output:
-            # Read the first 2 lines to validate the data
-            out = [output.readline() for _ in range(2)]
-            rows = [line.split() for line in out]
-            try:
-                for idx, row in enumerate(rows):
-                    if idx == 0:
-                        # (e.g.) electron_num 106 E1g 16..85 E1u 11..91
-                        table_data.header_info.electron_number = int(row[1])
-                        self.read_moltra_info(row)
-                    else:
-                        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
-                        # => table_data.header_info.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
-                        #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
-                        #    table_data.header_info.point_group = "C2v"
-                        self.read_spinor_num_info(row)
-                        table_data.header_info.point_group = None  # reset the point group string
-                        self.read_point_group(row)
-            except ValueError as e:
-                msg = "The output file is not correct, ValueError"
-                raise ValueError(msg) from e
-            except IndexError as e:
-                msg = "The output file is not correct, IndexError"
-                raise IndexError(msg) from e
+        rows = [line.split() for line in open(file_path).readlines()]
+        try:
+            for idx, row in enumerate(rows):
+                if len(row) <= 1:  # Empty line, end of header
+                    break
+                elif idx == 0:
+                    # 1st line: Read key-value info
+                    # (e.g.) electron_num 18 point_group D2h moltra_scheme default
+                    if len(row) % 2 != 0:
+                        msg = f"1st header line must be even elements because this line is for key-value info.\
+len(1st header)={len(row)}"
+                        raise IndexError(msg)
 
-        with open(file_path, newline="") as output:
-            out = output.readlines()
-            # output is space separated file
-            set_table_data()
+                    for key_idx in range(0, len(row), 2):  # loop only key
+                        value_idx = key_idx + 1
+                        key = row[key_idx]
+                        if key == "electron_num":
+                            table_data.header_info.electron_number = int(row[value_idx])
+                        elif key == "point_group":
+                            table_data.header_info.point_group = row[value_idx]
+                        elif key == "moltra_scheme":
+                            value = row[value_idx]
+                            if value == "default":
+                                table_data.header_info.moltra_scheme = None
+                            else:
+                                table_data.header_info.moltra_scheme = int(value)
+                elif idx == 1:
+                    # 2nd line: MOLTRA range
+                    # (e.g.) E1g 16..85 E1u 11..91
+                    self.read_moltra_info(row)
+                elif idx == 2:
+                    # 3rd line: Eigenvalue info
+                    # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
+                    # => table_data.header_info.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
+                    #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
+                    self.read_spinor_num_info(row)
+                else:
+                    # Skip unknown header info line
+                    continue
+        except ValueError as e:
+            msg = "The output file is not correct, ValueError"
+            raise ValueError(msg) from e
+        except IndexError as e:
+            msg = "The output file is not correct, IndexError"
+            raise IndexError(msg) from e
+
+        # output is space separated file
+        set_table_data(rows)
         self.create_table()
         self.set_column_header_items()
         self.resize_columns()
         self.color_changed.emit()
 
     def read_moltra_info(self, row: List[str]) -> None:
-        idx = 2
+        idx = 0
         while idx + 2 <= len(row):
             moltra_type = row[idx]
             moltra_range_str = row[idx + 1]
@@ -258,15 +278,6 @@ class TableWidget(QTableWidget):
             idx += 2
         for key in table_data.header_info.moltra_info.keys():
             table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
-
-    def read_point_group(self, row: List[str]) -> None:
-        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
-        # => table_data.header_info.point_group = "C2v"
-        # if the number of columns is 2, the point group is included
-        if len(row) % 7 == 2:
-            table_data.header_info.point_group = row[-1]
-        else:
-            table_data.header_info.point_group = None
 
     def read_spinor_num_info(self, row: List[str]):
         # spinor_num info is following the format:
