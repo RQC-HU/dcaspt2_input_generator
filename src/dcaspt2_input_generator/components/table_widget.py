@@ -27,7 +27,6 @@ class TableWidget(QTableWidget):
     def __init__(self):
         debug_print("TableWidget init")
         super().__init__()
-
         # Set the context menu policy to custom context menu
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
@@ -36,39 +35,20 @@ class TableWidget(QTableWidget):
         # https://doc.qt.io/qt-6/qabstractitemview.html#SelectionMode-enum
         self.setSelectionMode(QTableWidget.SelectionMode.ContiguousSelection)
 
-        # Initialize the index information and the color found information
-        self.idx_info = {
-            "inactive": {"start": -1, "end": -1},
-            "secondary": {"start": -1, "end": -1},
-        }
-        self.color_found: dict[str, bool] = {"inactive": False, "secondary": False}
-
     def reload(self, output_file_path: Path):
         debug_print("TableWidget reload")
         self.load_output(output_file_path)
+
     def update_index_info(self):
         # Reset information
-        self.color_found = {"inactive": False, "secondary": False}
-        self.idx_info = {
-            "inactive": {"start": -1, "end": -1},
-            "secondary": {"start": -1, "end": -1},
-        }
+        table_data.idx_info.reset()
 
         # Update information
         for row in range(self.rowCount()):
             row_color = self.item(row, 0).background().color()
             color_info = colors.get_color_info(row_color)
-            if color_info.name not in self.color_found.keys():
-                # active, ras1, ras3 are not included because their context menu (right click menu) is always shown
-                # and they are not needed to store the index information
-                # therefore, skip them
-                continue
-            elif not self.color_found[color_info.name]:
-                self.color_found[color_info.name] = True
-                self.idx_info[color_info.name]["start"] = row
-                self.idx_info[color_info.name]["end"] = row
-            else:
-                self.idx_info[color_info.name]["end"] = row
+            table_data.idx_info.update_idx_info(row, color_info.name)
+
     def create_table(self):
         debug_print("TableWidget create_table")
         self.clear()
@@ -224,23 +204,15 @@ len(1st header)={len(row)}"
 
         top_row = selected_rows[0]
         bottom_row = selected_rows[-1]
-        is_action_shown: dict[str, bool] = {"inactive": True, "secondary": True}
-        # inactive action
-        if self.color_found["secondary"] and top_row > self.idx_info["secondary"]["start"]:
-            is_action_shown["inactive"] = False
-
-        # secondary action
-        if self.color_found["inactive"] and bottom_row < self.idx_info["inactive"]["end"]:
-            is_action_shown["secondary"] = False
 
         # Show the inactive action
-        if is_action_shown["inactive"]:
+        if table_data.idx_info.should_show_inactive_action_menu(top_row):
             inactive_action = QAction(colors.inactive.icon, colors.inactive.message)
             inactive_action.triggered.connect(lambda: self.change_background_color(colors.inactive.color))
             menu.addAction(inactive_action)
 
         # Show the secondary action
-        if is_action_shown["secondary"]:
+        if table_data.idx_info.should_show_secondary_action_menu(bottom_row):
             secondary_action = QAction(colors.secondary.icon, colors.secondary.message)
             secondary_action.triggered.connect(lambda: self.change_background_color(colors.secondary.color))
             menu.addAction(secondary_action)

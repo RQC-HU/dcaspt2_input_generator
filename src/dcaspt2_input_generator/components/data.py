@@ -132,16 +132,85 @@ is the correct format"
             self.moltra_scheme = int(value)
 
 
-class TableData:
+class OrbitalSpaceData:
+    found: bool
+    first: int
+    last: int
+
     def __init__(self):
-        self.mo_data: List[MOData] = []
-        self.column_max_len: int = 0
-        self.header_info: HeaderInfo = HeaderInfo({})
+        self.reset()
+
+    def reset(self) -> None:
+        self.found = False
+        self.first = -1
+        self.last = -1
+
+
+class TableIdxInfo:
+    """This class stores the first and last indexes for inactive and secondary
+    to determine if the context menu (right-click menu) should be displayed.
+    """
+    inactive: OrbitalSpaceData
+    secondary: OrbitalSpaceData
+
+    def __init__(self):
+        self.inactive = OrbitalSpaceData()
+        self.secondary = OrbitalSpaceData()
+
+    def reset(self) -> None:
+        self.inactive.reset()
+        self.secondary.reset()
+
+    def update_idx_info(self, row_idx: int, color_name: str) -> None:
+        if color_name not in ("inactive", "secondary"):
+            # active, ras1, ras3 are not included because their context menu (right click menu) is always shown
+            # and they are not needed to store the index information
+            # therefore, skip them
+            return
+        elif color_name == "inactive":
+            if not self.inactive.found:
+                # First time to find inactive
+                self.inactive.found = True
+                self.inactive.first = row_idx
+            # Always update the last idx
+            self.inactive.last = row_idx
+        else: # secondary
+            if not self.secondary.found:
+                # First time to find secondary
+                self.secondary.found = True
+                self.secondary.first = row_idx
+            # Always update the last idx
+            self.secondary.last = row_idx
+
+    def should_show_inactive_action_menu(self, top_row: int) -> bool:
+        if self.secondary.found and top_row > self.secondary.first:
+            # secondary starts from the row before top_row.
+            # All inactive are before secondary, so it is guaranteed that there are no inactive in the selection range.
+            return False
+        return True
+
+    def should_show_secondary_action_menu(self, bottom_row: int) -> bool:
+        if self.inactive.found and bottom_row < self.inactive.last:
+            # inactive ends on the row after bottom_row.
+            # All inactive are before secondary, so it is guaranteed that there are no secondary in the selection range.
+            return False
+        return True
+
+
+class TableData:
+    mo_data: List[MOData]
+    column_max_len: int
+    header_info: HeaderInfo
+    idx_info: TableIdxInfo
+
+    def __init__(self):
+        self.reset()
 
     def reset(self):
         self.mo_data = []
         self.column_max_len = 0
         self.header_info = HeaderInfo({})
+        self.idx_info = TableIdxInfo()
 
     def add_mo_data(self, row: List[str]) -> None:
         """Add a MOData to self.mo_data"""
