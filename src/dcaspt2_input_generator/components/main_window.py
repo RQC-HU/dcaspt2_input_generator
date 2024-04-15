@@ -94,7 +94,6 @@ class MainWindow(QMainWindow):
                 cur_nelec += min(rem_electrons, 2)
             return cur_nelec
 
-        output = ""
         inact = 0
         act = 0
         sec = 0
@@ -140,7 +139,7 @@ class MainWindow(QMainWindow):
             rem_electrons -= 2
         nroot = max(10, self.table_summary.user_input.selectroot_number.get_value())
 
-        output += f"ninact\n{inact}\n"
+        output = f"ninact\n{inact}\n"
         output += f"nact\n{act}\n"
         output += f"nelec\n{elec}\n"
         output += f"nsec\n{sec}\n"
@@ -148,6 +147,8 @@ class MainWindow(QMainWindow):
         output += f"selectroot\n{self.table_summary.user_input.selectroot_number.get_value()}\n"
         output += f"totsym\n{self.table_summary.user_input.totsym_number.get_value()}\n"
         output += f"diracver\n{self.table_summary.user_input.dirac_ver_number.get_value()}\n"
+        if table_data.header_info.moltra_scheme is not None:
+            output += f"scheme\n{table_data.header_info.moltra_scheme}\n"  # Explicitly set MOLTRA scheme.
 
         if not is_cas:
             ras1_str = create_ras_str(sorted(ras1_list))

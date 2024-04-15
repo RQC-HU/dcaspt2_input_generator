@@ -23,7 +23,7 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["sum_dirac_dfcoef>=4.4.0", "PySide6", "qtpy"]
+dependencies = ["sum_dirac_dfcoef>=5.0.0", "PySide6", "qtpy"]
 
 [project.optional-dependencies]
 dev = ["coverage[toml]>=6.5", "pytest", "black>=23.1.0", "mypy>=1.0.0", "ruff>=0.0.243"]
