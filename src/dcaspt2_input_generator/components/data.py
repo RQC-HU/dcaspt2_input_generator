@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import Dict, Union
+from dataclasses import dataclass, field
+from typing import Dict, List, Union
 from typing import OrderedDict as ODict
 
 from qtpy.QtGui import QColor, QIcon, QPixmap
@@ -7,12 +7,30 @@ from qtpy.QtGui import QColor, QIcon, QPixmap
 
 @dataclass
 class MOData:
-    mo_number: int
-    mo_symmetry: str
-    energy: float
-    ao_type: "list[str]"
-    percentage: "list[float]"
-    ao_len: int
+    mo_number: int = 0
+    mo_symmetry: str = ""
+    energy: float = 0.0
+    ao_type: List[str] = field(default_factory=list)
+    percentage: List[float] = field(default_factory=list)
+    ao_len: int = 0
+
+    def update_mo_data(
+        self, mo_number: int, mo_symmetry: str, energy: float, ao_type: List[str], percentage: List[float], ao_len: int
+    ) -> None:
+        self.mo_number = mo_number
+        self.mo_symmetry = mo_symmetry
+        self.energy = energy
+        self.ao_type = ao_type
+        self.percentage = percentage
+        self.ao_len = ao_len
+
+    def create_mo_data(self, row: List[str]) -> None:
+        mo_symmetry = row[0]
+        mo_number_dirac = int(row[1])
+        mo_energy = float(row[2])
+        ao_type = [row[i] for i in range(3, len(row), 2)]
+        ao_percentage = [float(row[i]) for i in range(4, len(row), 2)]
+        self.update_mo_data(mo_number_dirac, mo_symmetry, mo_energy, ao_type, ao_percentage, len(ao_type))
 
 
 @dataclass
@@ -56,10 +74,67 @@ class HeaderInfo:
         if self.moltra_info is None:
             self.moltra_info = MoltraInfo({})
 
+    def read_spinor_num_info(self, row: List[str]) -> None:
+        # spinor_num info is following the format:
+        # spinor_num_type1 closed int open int virtual int ...
+        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
+        # => self.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
+        #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
+        if len(row) < 7:
+            msg = f"spinor_num info is not correct: {row},\
+spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ... point_group str\n\
+is the correct format"
+            raise ValueError(msg)
+        idx = 0
+        while idx + 7 <= len(row):
+            spinor_num_type = row[idx]
+            closed_shell = int(row[idx + 2])
+            open_shell = int(row[idx + 4])
+            virtual_orbitals = int(row[idx + 6])
+            sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
+            self.spinor_num_info[spinor_num_type] = SpinorNumber(
+                closed_shell, open_shell, virtual_orbitals, sum_of_orbitals
+            )
+            idx += 7
+
+    def read_moltra_info(self, row: List[str]) -> None:
+        idx = 0
+        while idx + 2 <= len(row):
+            moltra_type = row[idx]
+            moltra_range_str = row[idx + 1]
+            moltra_range = {}
+            for elem in moltra_range_str.split(","):
+                moltra_range_elem = elem.strip()
+                if ".." in moltra_range_elem:
+                    moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
+                    moltra_range_start = int(moltra_range_start)
+                    moltra_range_end = int(moltra_range_end)
+                    for i in range(moltra_range_start, moltra_range_end + 1):
+                        moltra_range[i] = True
+                else:
+                    key_elem = int(moltra_range_elem)
+                    moltra_range[key_elem] = True
+            self.moltra_info[moltra_type] = moltra_range
+            idx += 2
+        for key in self.moltra_info.keys():
+            self.moltra_info[key] = dict(sorted(self.moltra_info[key].items()))
+
+    def update_electron_number(self, number: int) -> None:
+        self.electron_number = number
+
+    def update_point_group(self, value: str) -> None:
+        self.point_group = value
+
+    def update_moltra_scheme(self, value: str) -> None:
+        if value == "default":
+            self.moltra_scheme = None
+        else:
+            self.moltra_scheme = int(value)
+
 
 class TableData:
     def __init__(self):
-        self.mo_data: "list[MOData]" = []
+        self.mo_data: List[MOData] = []
         self.column_max_len: int = 0
         self.header_info: HeaderInfo = HeaderInfo({})
 
@@ -67,6 +142,43 @@ class TableData:
         self.mo_data = []
         self.column_max_len = 0
         self.header_info = HeaderInfo({})
+
+    def add_mo_data(self, row: List[str]) -> None:
+        """Add a MOData to self.mo_data"""
+        new_mo = MOData()
+        new_mo.create_mo_data(row)
+        self.mo_data.append(new_mo)
+
+    def validate(self) -> None:
+        """Check TableData values consistency.
+        In addition, decrease header_info.electron_number
+        by the number of electrons that are not included in the sum_dirac_dfcoef output.
+
+        Raises:
+            KeyError: _description_
+            KeyError: _description_
+        """
+
+        # Check whether header_info.moltra_info and header_info.spinor_num_info have same keys or not.
+        if self.header_info.spinor_num_info.keys() != self.header_info.moltra_info.keys():
+            msg = "Keys of spinor_num_info.keys() and moltra_info.keys() are not same."
+            raise KeyError(msg)
+
+        # Get the minimum mo_number index per mo_symmetry
+        keys = self.header_info.spinor_num_info.keys()
+        max_int = 10**10
+        min_idx = {key: max_int for key in keys}
+        for mo in self.mo_data:
+            key = mo.mo_symmetry
+            if key not in keys:
+                msg = f"mo_symmetry {key} is not found in the eigenvalues data"
+                raise KeyError(msg)
+            min_idx[key] = min(min_idx[key], mo.mo_number)
+
+        # Decrease the 2*(min_idx[key]-1) from header_info.electron_number
+        # Because min_idx[key] stores the first orbitals mo_number included in the output,
+        # we need to decrease the electron number that is not included in the output.
+        table_data.header_info.electron_number -= sum(first_mo_idx - 1 for first_mo_idx in min_idx.values()) * 2
 
 
 table_data = TableData()

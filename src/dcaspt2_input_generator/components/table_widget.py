@@ -1,8 +1,7 @@
-import copy
 from pathlib import Path
 from typing import List
 
-from dcaspt2_input_generator.components.data import Color, MOData, SpinorNumber, colors, table_data
+from dcaspt2_input_generator.components.data import Color, colors, table_data
 from dcaspt2_input_generator.utils.utils import debug_print
 from qtpy.QtCore import Qt, Signal
 from qtpy.QtGui import QColor
@@ -47,7 +46,6 @@ class TableWidget(QTableWidget):
     def reload(self, output_file_path: Path):
         debug_print("TableWidget reload")
         self.load_output(output_file_path)
-
     def update_index_info(self):
         # Reset information
         self.color_found = {"inactive": False, "secondary": False}
@@ -71,27 +69,6 @@ class TableWidget(QTableWidget):
                 self.idx_info[color_info.name]["end"] = row
             else:
                 self.idx_info[color_info.name]["end"] = row
-
-    def validate_table_data(self, rows: List[MOData]) -> None:
-        keys = table_data.header_info.spinor_num_info.keys()
-        cur_idx = {k: 0 for k in keys}
-        min_idx = copy.deepcopy(cur_idx)
-        # Validate the data and set the min_idx to the minimum index of the mo_number per mo_symmetry
-        for row in rows:
-            key = row.mo_symmetry
-            if key not in keys:
-                msg = f"mo_symmetry {key} is not found in the eigenvalues data"
-                raise ValueError(msg)
-            if cur_idx[key] == 0:
-                min_idx[key] = row.mo_number
-            cur_idx[row.mo_symmetry] = row.mo_number
-
-        # if v is 4, it means that the number of orbitals that are not included in the output is 3=4-1
-        # because 4 means the first orbitals mo_number that is included in the output
-        # *2 means that the number of spinors is doubled compared to the number of orbitals
-        # therefore, the number of electrons is decreased by 2*(4-1)=6 because 3 orbitals are not included in the output
-        table_data.header_info.electron_number -= sum(v - 1 for v in min_idx.values()) * 2
-
     def create_table(self):
         debug_print("TableWidget create_table")
         self.clear()
@@ -99,7 +76,6 @@ class TableWidget(QTableWidget):
         rows.sort(key=lambda x: (x.energy))
         self.setRowCount(len(rows))
         self.setColumnCount(table_data.column_max_len)
-        self.validate_table_data(rows)
 
         rem_electrons = table_data.header_info.electron_number
         active_cnt = 0
@@ -167,23 +143,7 @@ class TableWidget(QTableWidget):
                 self.setColumnWidth(idx, self.columnWidth(idx) + 5)
 
     def load_output(self, file_path: Path):
-        def create_row_dict(row: List[str]) -> MOData:
-            mo_symmetry = row[0]
-            mo_number_dirac = int(row[1])
-            mo_energy = float(row[2])
-            ao_type = [row[i] for i in range(3, len(row), 2)]
-            ao_percentage = [float(row[i]) for i in range(4, len(row), 2)]
-            return MOData(
-                mo_number=mo_number_dirac,
-                mo_symmetry=mo_symmetry,
-                energy=mo_energy,
-                ao_type=ao_type,
-                percentage=ao_percentage,
-                ao_len=len(ao_type),
-            )
-
         def set_table_data(rows: List[List[str]]):
-            table_data.mo_data = []
             try:
                 header = True
                 for row in rows:
@@ -193,8 +153,7 @@ class TableWidget(QTableWidget):
                     else:
                         if len(row) == 0:
                             continue
-                        row_dict = create_row_dict(row)
-                        table_data.mo_data.append(row_dict)
+                        table_data.add_mo_data(row)
                         table_data.column_max_len = max(table_data.column_max_len, len(row))
             except ValueError as e:
                 msg = "The output file is not correct, ValueError"
@@ -217,28 +176,24 @@ len(1st header)={len(row)}"
                             raise IndexError(msg)
 
                         for key_idx in range(0, len(row), 2):  # loop only key
-                            value_idx = key_idx + 1
                             key = row[key_idx]
+                            value = row[key_idx + 1]
                             if key == "electron_num":
-                                table_data.header_info.electron_number = int(row[value_idx])
+                                table_data.header_info.update_electron_number(int(value))
                             elif key == "point_group":
-                                table_data.header_info.point_group = row[value_idx]
+                                table_data.header_info.update_point_group(value)
                             elif key == "moltra_scheme":
-                                value = row[value_idx]
-                                if value == "default":
-                                    table_data.header_info.moltra_scheme = None
-                                else:
-                                    table_data.header_info.moltra_scheme = int(value)
+                                table_data.header_info.update_moltra_scheme(value)
                     elif idx == 1:
                         # 2nd line: MOLTRA range
                         # (e.g.) E1g 16..85 E1u 11..91
-                        self.read_moltra_info(row)
+                        table_data.header_info.read_moltra_info(row)
                     elif idx == 2:
                         # 3rd line: Eigenvalue info
                         # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40
                         # => table_data.header_info.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
                         #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
-                        self.read_spinor_num_info(row)
+                        table_data.header_info.read_spinor_num_info(row)
                     else:
                         # Skip unknown header info line
                         continue
@@ -254,55 +209,11 @@ len(1st header)={len(row)}"
         # output is space separated file
         read_header(rows)
         set_table_data(rows)
+        table_data.validate()
         self.create_table()
         self.set_column_header_items()
         self.resize_columns()
         self.color_changed.emit()
-
-    def read_moltra_info(self, row: List[str]) -> None:
-        idx = 0
-        while idx + 2 <= len(row):
-            moltra_type = row[idx]
-            moltra_range_str = row[idx + 1]
-            moltra_range = {}
-            for elem in moltra_range_str.split(","):
-                moltra_range_elem = elem.strip()
-                if ".." in moltra_range_elem:
-                    moltra_range_start, moltra_range_end = moltra_range_elem.split("..")
-                    moltra_range_start = int(moltra_range_start)
-                    moltra_range_end = int(moltra_range_end)
-                    for i in range(moltra_range_start, moltra_range_end + 1):
-                        moltra_range[i] = True
-                else:
-                    key_elem = int(moltra_range_elem)
-                    moltra_range[key_elem] = True
-            table_data.header_info.moltra_info[moltra_type] = moltra_range
-            idx += 2
-        for key in table_data.header_info.moltra_info.keys():
-            table_data.header_info.moltra_info[key] = dict(sorted(table_data.header_info.moltra_info[key].items()))
-
-    def read_spinor_num_info(self, row: List[str]):
-        # spinor_num info is following the format:
-        # spinor_num_type1 closed int open int virtual int ...
-        # (e.g.) E1g closed 6 open 0 virtual 30 E1u closed 10 open 0 virtual 40 point_group C2v
-        # => table_data.header_info.spinor_num_info = {"E1g": SpinorNumber(6, 0, 30, 36),
-        #                                              "E1u": SpinorNumber(10, 0, 40, 50)}
-        if len(row) < 7:
-            msg = f"spinor_num info is not correct: {row},\
-spinor_num_type1 closed int open int virtual int spinor_num_type2 closed int open int virtual int ... point_group str\n\
-is the correct format"
-            raise ValueError(msg)
-        idx = 0
-        while idx + 7 <= len(row):
-            spinor_num_type = row[idx]
-            closed_shell = int(row[idx + 2])
-            open_shell = int(row[idx + 4])
-            virtual_orbitals = int(row[idx + 6])
-            sum_of_orbitals = closed_shell + open_shell + virtual_orbitals
-            table_data.header_info.spinor_num_info[spinor_num_type] = SpinorNumber(
-                closed_shell, open_shell, virtual_orbitals, sum_of_orbitals
-            )
-            idx += 7
 
     def show_context_menu(self, position):
         menu = QMenu()
