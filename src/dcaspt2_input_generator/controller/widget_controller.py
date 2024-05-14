@@ -38,7 +38,7 @@ class WidgetController:
             sym_str = item.text()
 
             # nocc, nvcut
-            if rem_electrons >= 0:
+            if rem_electrons > 0:
                 nocc[sym_str] += 1
             elif color != colors.not_used.color:
                 # Reset nvcut
@@ -50,7 +50,7 @@ class WidgetController:
             # act, sec
             if color == colors.not_used.color:
                 pass
-            elif rem_electrons >= 0:
+            elif rem_electrons > 0:
                 act += 2
             else:
                 sec += 2
