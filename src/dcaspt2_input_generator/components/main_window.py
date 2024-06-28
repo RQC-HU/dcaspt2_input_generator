@@ -216,10 +216,9 @@ Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac
         def run_command():
             num_process = max(1, settings.multi_process_input.multi_process_num)
             command = create_command(
-                f"sum_dirac_dfcoef -i {file_path} -d 3 -c -o {dir_info.sum_dirac_dfcoef_path} -j {num_process}"
+                f'sum_dirac_dfcoef -i "{file_path}" -d 3 -c -o "{dir_info.sum_dirac_dfcoef_path}" -j {num_process}'
             )
-            cmd = command.split()
-            self.process.start(cmd[0], cmd[1:])
+            self.process.startCommand(command)
             if self.process.exitCode() != 0:
                 err_msg = f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
 Please check the output file. path: {file_path}\nExecuted command: {command}"
