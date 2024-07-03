@@ -2,10 +2,6 @@ import os
 import subprocess
 from pathlib import Path
 
-from qtpy.QtCore import QProcess, QSettings, Qt
-from qtpy.QtGui import QDragEnterEvent, QDropEvent, QKeyEvent
-from qtpy.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
-
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
 from dcaspt2_input_generator.components.table_summary import TableSummary
@@ -17,6 +13,9 @@ from dcaspt2_input_generator.controller.widget_controller import WidgetControlle
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.settings import settings
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
+from PySide6.QtCore import QProcess, QSettings, Qt
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QKeyEvent
+from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window

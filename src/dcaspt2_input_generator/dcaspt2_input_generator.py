@@ -1,7 +1,7 @@
 import os
 import sys
 
-from qtpy.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 
 from dcaspt2_input_generator.utils.dir_info import dir_info
 

@@ -3,9 +3,9 @@ from typing import List
 
 from dcaspt2_input_generator.components.data import Color, colors, table_data
 from dcaspt2_input_generator.utils.utils import debug_print
-from qtpy.QtCore import Qt, Signal
-from qtpy.QtGui import QColor
-from qtpy.QtWidgets import QAction, QMenu, QTableWidget, QTableWidgetItem
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtGui import QAction, QColor
+from PySide6.QtWidgets import QMenu, QTableWidget, QTableWidgetItem
 
 
 # TableWidget is the widget that displays the output data

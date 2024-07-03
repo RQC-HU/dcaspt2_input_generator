@@ -1,9 +1,8 @@
-from qtpy.QtCore import Signal
-from qtpy.QtGui import QFocusEvent, QIntValidator
-from qtpy.QtWidgets import QFrame, QGridLayout, QLabel, QLineEdit, QWidget
-
 from dcaspt2_input_generator.utils.settings import settings
 from dcaspt2_input_generator.utils.utils import debug_print
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QFocusEvent, QIntValidator
+from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
 
 class NaturalNumberInput(QLineEdit):
