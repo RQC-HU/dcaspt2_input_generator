@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Union
 from typing import OrderedDict as ODict
 
-from qtpy.QtGui import QColor, QIcon, QPixmap
+from PySide6.QtGui import QColor, QIcon, QPixmap
 
 
 @dataclass
@@ -150,6 +150,7 @@ class TableIdxInfo:
     """This class stores the first and last indexes for inactive and secondary
     to determine if the context menu (right-click menu) should be displayed.
     """
+
     inactive: OrbitalSpaceData
     secondary: OrbitalSpaceData
 
@@ -174,7 +175,7 @@ class TableIdxInfo:
                 self.inactive.first = row_idx
             # Always update the last idx
             self.inactive.last = row_idx
-        else: # secondary
+        else:  # secondary
             if not self.secondary.found:
                 # First time to find secondary
                 self.secondary.found = True

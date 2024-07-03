@@ -1,9 +1,9 @@
 import os
 
-from qtpy.QtCore import Signal
-from qtpy.QtWidgets import QAction, QDialog, QSpinBox, QVBoxLayout
-
 from dcaspt2_input_generator.utils.settings import settings
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QDialog, QSpinBox, QVBoxLayout
 
 
 class MultiProcessSettingDialog(QDialog):

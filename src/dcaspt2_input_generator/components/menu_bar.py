@@ -1,8 +1,8 @@
-from qtpy.QtCore import Signal
-from qtpy.QtWidgets import QAction, QMenuBar
-
 from dcaspt2_input_generator.components.color_settings import ColorSettingsDialogAction
 from dcaspt2_input_generator.components.multi_process_settings import MultiProcessDialogAction
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QMenuBar
 
 
 class SaveDefaultSettingsAction(QAction):
@@ -26,9 +26,8 @@ class AboutAction(QAction):
         self.triggered.connect(self.about)
 
     def about(self):
-        from qtpy.QtWidgets import QMessageBox, QWidget
-
         from dcaspt2_input_generator.__about__ import __version__
+        from PySide6.QtWidgets import QMessageBox, QWidget
 
         msg = f"Version: {__version__}"
         QMessageBox.about(QWidget(), "Version info", msg)
