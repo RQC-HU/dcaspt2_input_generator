@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 from pathlib import Path
 
@@ -192,8 +193,11 @@ class MainWindow(QMainWindow):
 
     def run_sum_dirac_dfcoef(self, file_path):
         def create_command(command: str) -> str:
-            if os.name == "nt":
-                return f"python -m {command}"
+            if sys.executable:
+                if os.name == "nt":
+                    return f"{os.path.dirname(sys.executable)}/python -m {command}"
+                else:
+                    return f"{os.path.dirname(sys.executable)}/python3 -m {command}"
             return command
 
         def check_version():
