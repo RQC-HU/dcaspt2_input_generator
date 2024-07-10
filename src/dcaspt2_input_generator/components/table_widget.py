@@ -5,7 +5,7 @@ from dcaspt2_input_generator.components.data import Color, colors, table_data
 from dcaspt2_input_generator.utils.utils import debug_print
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAction, QColor
-from PySide6.QtWidgets import QMenu, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QMenu, QTableWidget, QTableWidgetItem, QCommonStyle
 
 
 # TableWidget is the widget that displays the output data
@@ -27,6 +27,7 @@ class TableWidget(QTableWidget):
     def __init__(self):
         debug_print("TableWidget init")
         super().__init__()
+        self.setStyle(QCommonStyle())
         # Set the context menu policy to custom context menu
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
