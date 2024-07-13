@@ -28,6 +28,7 @@ class TableWidget(QTableWidget):
         debug_print("TableWidget init")
         super().__init__()
         self.setStyle(QCommonStyle())
+        self.setStyleSheet("QTableWidget{color:black}")
         # Set the context menu policy to custom context menu
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
