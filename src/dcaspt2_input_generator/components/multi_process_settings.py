@@ -40,4 +40,4 @@ class MultiProcessDialogAction(QAction):
         self.triggered.connect(self.openMultiProcessDialogSettings)
 
     def openMultiProcessDialogSettings(self):
-        self.multi_process_settings.exec_()
+        self.multi_process_settings.exec()

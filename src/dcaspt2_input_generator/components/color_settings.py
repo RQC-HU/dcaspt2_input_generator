@@ -51,4 +51,4 @@ class ColorSettingsDialogAction(QAction):
         self.triggered.connect(self.openColorSettingsDialog)
 
     def openColorSettingsDialog(self):
-        self.color_settings_dialog.exec_()
+        self.color_settings_dialog.exec()
