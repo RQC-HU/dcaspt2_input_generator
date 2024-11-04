@@ -1,6 +1,10 @@
-import sys
 import subprocess
+import sys
 from pathlib import Path
+
+from PySide6.QtCore import QProcess, QSettings, Qt
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QKeyEvent
+from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 from dcaspt2_input_generator.components.data import colors, table_data
 from dcaspt2_input_generator.components.menu_bar import MenuBar
@@ -13,9 +17,6 @@ from dcaspt2_input_generator.controller.widget_controller import WidgetControlle
 from dcaspt2_input_generator.utils.dir_info import dir_info
 from dcaspt2_input_generator.utils.settings import settings
 from dcaspt2_input_generator.utils.utils import create_ras_str, debug_print
-from PySide6.QtCore import QProcess, QSettings, Qt
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QKeyEvent
-from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 
 # Layout for the main window
@@ -30,16 +31,16 @@ class MainWindow(QMainWindow):
         # employ native setting events to save/load form size and position
         self.settings = QSettings("Hiroshima University", "DIRAC-CASPT2 Input Generator")
         if self.settings.value("geometry") is not None:
-            self.restoreGeometry(self.settings.value("geometry"))
+            self.restoreGeometry(self.settings.value("geometry"))  # type: ignore
         if self.settings.value("windowState") is not None:
-            self.restoreState(self.settings.value("windowState"))
+            self.restoreState(self.settings.value("windowState"))  # type: ignore
 
     def init_UI(self):
         # Add drag and drop functionality
         self.setAcceptDrops(True)
 
         # Set task runner
-        self.process: QProcess = None
+        self.process = QProcess()
         self.callback = None
         # Show the header bar
         self.menu_bar = MenuBar()
@@ -176,9 +177,7 @@ class MainWindow(QMainWindow):
         QMessageBox.critical(self, "Error", message)
 
     def init_process(self):
-        if self.process is None:
-            self.process = QProcess()
-            self.process.finished.connect(self.command_finished_handler)
+        self.process.finished.connect(self.command_finished_handler)
 
         if self.process.state() == QProcess.ProcessState.Running:
             self.process.kill()
@@ -188,7 +187,6 @@ class MainWindow(QMainWindow):
             self.callback()
             self.callback = None
         self.process.kill()
-        self.process = None
 
     def run_sum_dirac_dfcoef(self, file_path):
         def create_command(command: str) -> str:
@@ -219,11 +217,15 @@ Please update sum_dirac_dfcoef to v4.0.0 or later with `pip install -U sum_dirac
             )
             self.process.startCommand(command)
             if self.process.exitCode() != 0:
+                data_stderr = self.process.readAllStandardError().data()
+                if isinstance(data_stderr, (bytes, bytearray)):
+                    decoded_stderr = data_stderr.decode()
+                else:
+                    decoded_stderr = data_stderr.tobytes().decode()
                 err_msg = f"An error has ocurred while running the sum_dirac_dfcoef program.\n\
-Please check the output file. path: {file_path}\nExecuted command: {command}"
-                raise subprocess.CalledProcessError(
-                    self.process.exitCode(), command, self.process.readAllStandardError(), err_msg
-                )
+Please check the output file. path: {file_path}\nExecuted command: {command}\n\
+all stderr: {decoded_stderr}"
+                raise subprocess.CalledProcessError(self.process.exitCode(), command, "", err_msg)
 
         self.init_process()
         check_version()
@@ -250,7 +252,7 @@ file_path: {file_path}\n\n\ndetails: {e}"
         )
         if file_path:
             try:
-                self.reload_table(file_path)
+                self.reload_table(Path(file_path))
             except Exception as e:
                 err_msg = f"An unexpected error has ocurred.\n\
 file_path: {file_path}\n\n\ndetails: {e}"
@@ -276,7 +278,7 @@ Please run the sum_dirac_dfcoef program first.",
             # Copy the sum_dirac_dfcoef.out file to the file_path
             shutil.copy(dir_info.sum_dirac_dfcoef_path, file_path)
 
-    def reload_table(self, filepath: str):
+    def reload_table(self, filepath: Path):
         self.table_widget.reload(filepath)
 
     def dragEnterEvent(self, event: QDragEnterEvent) -> None:

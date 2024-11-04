@@ -1,13 +1,15 @@
-from dcaspt2_input_generator.utils.settings import settings
-from dcaspt2_input_generator.utils.utils import debug_print
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, SignalInstance
 from PySide6.QtGui import QFocusEvent, QIntValidator
 from PySide6.QtWidgets import QFrame, QGridLayout, QLabel, QLineEdit, QWidget
 
+from dcaspt2_input_generator.utils.settings import settings
+from dcaspt2_input_generator.utils.utils import debug_print
+
 
 class NaturalNumberInput(QLineEdit):
+    bottom_num: int
     default_num: int
-    validator: QIntValidator
+    int_validator: QIntValidator
 
     def __init__(self, bottom_num: int = 0, default_num: int = 0):
         super().__init__()
@@ -20,29 +22,27 @@ class NaturalNumberInput(QLineEdit):
         self.setMaximumWidth(200)
 
     def __setup_validator__(self, bottom_num: int):
-        self.validator = QIntValidator()
-        self.validator.setBottom(bottom_num)
-        self.setValidator(self.validator)
+        self.int_validator = QIntValidator()
+        self.int_validator.setBottom(bottom_num)
+        self.setValidator(self.int_validator)
 
     def set_top(self, top_num: int):
-        self.validator.setTop(top_num)
+        self.int_validator.setTop(top_num)
+        self.setValidator(self.int_validator)
         if not self.is_input_valid():
             self.update_text()
 
     def is_input_valid(self):
-        if self.hasAcceptableInput():
-            return True
-        else:
-            return False
+        return self.hasAcceptableInput()
 
     def update_text(self):
         current_val = self.get_value()
-        if int(current_val) > self.validator.top():
-            self.setText(str(self.validator.top()))
-        elif int(current_val) < self.validator.bottom():
-            self.setText(str(self.validator.bottom()))
-        elif self.default_num > self.validator.top():
-            self.setText(str(self.validator.top()))
+        if int(current_val) > self.int_validator.top():
+            self.setText(str(self.int_validator.top()))
+        elif int(current_val) < self.int_validator.bottom():
+            self.setText(str(self.int_validator.bottom()))
+        elif self.default_num > self.int_validator.top():
+            self.setText(str(self.int_validator.top()))
         else:
             self.setText(str(self.default_num))
 
@@ -61,7 +61,7 @@ class NaturalNumberInput(QLineEdit):
 
 
 class TotsymNumberInput(NaturalNumberInput):
-    def __init__(self, changed: Signal, default_num: int, bottom_num: int = 1):
+    def __init__(self, changed: SignalInstance, default_num: int, bottom_num: int = 1):
         super().__init__(bottom_num, default_num)
         self.changed = changed
 

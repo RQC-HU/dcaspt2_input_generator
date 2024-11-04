@@ -2,13 +2,14 @@
 
 import json
 import os
+from pathlib import Path
 from typing import Dict, Union
 
 from dcaspt2_input_generator.utils.dir_info import dir_info
 
 
 class CustomJsonDecodeError(json.decoder.JSONDecodeError):
-    def __init__(self, settings_file_path: str):
+    def __init__(self, settings_file_path: Path):
         self.message = f"settings.json is broken. Please delete the file and restart this application.\n\
 File path: {settings_file_path}"
         super().__init__(self.message, self.doc, self.pos)
@@ -61,21 +62,25 @@ class MultiProcess:
         if key in self.json_dict:
             num_process = int(self.json_dict[key])
         # If the number of CPU cores is less than the number of processes, use the number of CPU cores.
-        return min(os.cpu_count(), num_process)
+        cpu_count = os.cpu_count()
+        num_process = num_process if cpu_count is None else min(cpu_count, num_process)
+        return num_process
 
 
 class Settings:
     def __init__(self):
         # Application Default Settings
-        self.default_settings: SettingsDict = {
-            "totsym": 1,
-            "selectroot": 1,
-            "ras1_max_hole": 0,
-            "ras3_max_electron": 0,
-            "dirac_ver": 23,
-            "color_theme": "default",
-            "multi_process_num": 4,
-        }
+        self.default_settings = SettingsDict(
+            {
+                "totsym": 1,
+                "selectroot": 1,
+                "ras1_max_hole": 0,
+                "ras3_max_electron": 0,
+                "dirac_ver": 23,
+                "color_theme": "default",
+                "multi_process_num": 4,
+            }
+        )
         if not dir_info.setting_file_path.exists():
             self.create_default_settings_file()
         try:
