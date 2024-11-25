@@ -137,18 +137,17 @@ class MainWindow(QMainWindow):
                 debug_print(f"{idx}, secondary")
                 sec += 2
             rem_electrons -= 2
-        nroot = max(10, self.table_summary.user_input.selectroot_number.get_value())
+        totsym = self.table_summary.user_input.totsym_number.get_value()
 
-        output = f"ninact\n{inact}\n"
-        output += f"nact\n{act}\n"
-        output += f"nelec\n{elec}\n"
-        output += f"nsec\n{sec}\n"
-        output += f"nroot\n{nroot}\n"
-        output += f"selectroot\n{self.table_summary.user_input.selectroot_number.get_value()}\n"
-        output += f"totsym\n{self.table_summary.user_input.totsym_number.get_value()}\n"
-        output += f"diracver\n{self.table_summary.user_input.dirac_ver_number.get_value()}\n"
+        output = f".ninact\n{inact}\n"
+        output += f".nact\n{act}\n"
+        output += f".nelec\n{elec}\n"
+        output += f".nsec\n{sec}\n"
+        output += f".caspt2_ciroots\n{totsym} 1\n" # CASCI/CASPT2 root is fixed to 1
+        output += f".diracver\n{self.table_summary.user_input.dirac_ver_number.get_value()}\n"
+        output += ".subprograms\nCASCI\nCASPT2\n"
         if table_data.header_info.moltra_scheme is not None:
-            output += f"scheme\n{table_data.header_info.moltra_scheme}\n"  # Explicitly set MOLTRA scheme.
+            output += f".scheme\n{table_data.header_info.moltra_scheme}\n"  # Explicitly set MOLTRA scheme.
 
         if not is_cas:
             ras1_str = create_ras_str(sorted(ras1_list))

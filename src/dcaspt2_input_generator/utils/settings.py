@@ -21,7 +21,6 @@ class SettingsDict(Dict[str, Union[str, int]]):
 
 class UserInput:
     totsym: int
-    selectroot: int
     ras1_max_hole: int
     ras3_max_electron: int
     dirac_ver: int
@@ -30,7 +29,7 @@ class UserInput:
     def __init__(self, json_dict: SettingsDict, default_settings: SettingsDict) -> None:
         # If the settings.json file exists, read the settings from the file
         self.json_dict = json_dict
-        keys = ["totsym", "selectroot", "ras1_max_hole", "ras3_max_electron", "dirac_ver"]
+        keys = ["totsym", "ras1_max_hole", "ras3_max_electron", "dirac_ver"]
         for key in keys:
             if key in self.json_dict:
                 setattr(self, key, int(self.json_dict[key]))
@@ -72,8 +71,7 @@ class Settings:
         # Application Default Settings
         self.default_settings = SettingsDict(
             {
-                "totsym": 1,
-                "selectroot": 1,
+                "total symmetry": 1,
                 "ras1_max_hole": 0,
                 "ras3_max_electron": 0,
                 "dirac_ver": 23,
