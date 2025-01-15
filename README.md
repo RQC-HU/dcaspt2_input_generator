@@ -2,7 +2,7 @@
 
 ## Description
 
-- This is a GUI tool for supporting the generation of input files for DIRAC_CASPT2 calculation.
+- This is a GUI tool for supporting the generation of input files for [dirac_caspt2](https://github.com/RQC-HU/dirac_caspt2) calculation.
 
 ## Prerequisites
 
