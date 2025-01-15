@@ -240,7 +240,9 @@ len(1st header)={len(row)}"
 
     def change_selected_rows_background_color(self, row, color: QColor):
         for column in range(self.columnCount()):
-            self.item(row, column).setBackground(color)
+            item = self.item(row, column)
+            if item is not None:
+                item.setBackground(color)
 
     def change_background_color(self, color):
         indexes = self.selectedIndexes()
@@ -261,7 +263,10 @@ len(1st header)={len(row)}"
         }
 
         for row in range(self.rowCount()):
-            color = self.item(row, 0).background().color()
+            item = self.item(row, 0)
+            if item is None:
+                continue
+            color = item.background().color()
             new_color = color_mappping.get(color.name())
             if new_color:
                 self.change_selected_rows_background_color(row, new_color)
