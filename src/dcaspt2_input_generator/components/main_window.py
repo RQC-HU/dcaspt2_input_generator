@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
                 f.write(output)
 
     def display_critical_error_message_box(self, message: str):
-        QMessageBox.critical(self, "Error", message)
+        QMessageBox.critical(self, "Error", message, QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Cancel)
 
     def init_process(self):
         self.process.finished.connect(self.command_finished_handler)
@@ -294,6 +294,8 @@ Please run the sum_dirac_dfcoef program first.",
                 "Error",
                 "The file cannot be found.\n\
 Please check your dropped file.",
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Cancel,
             )
         try:
             self.table_widget.reload(filepath)
@@ -307,6 +309,8 @@ Please check your dropped file.",
                     "Error",
                     "We cannot load the file properly.\n\
 Please check your dropped file.",
+                    QMessageBox.StandardButton.Ok,
+                    QMessageBox.StandardButton.Cancel,
                 )
 
     def keyPressEvent(self, event: QKeyEvent):
