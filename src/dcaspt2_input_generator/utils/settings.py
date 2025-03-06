@@ -33,8 +33,10 @@ class UserInput:
         for key in keys:
             if key in self.json_dict:
                 setattr(self, key, int(self.json_dict[key]))
-            else:
+            elif key in default_settings:
                 setattr(self, key, int(default_settings[key]))
+            else:
+                pass # key is not in settings file nor default settings, skip it
 
 
 class ColorTheme:
