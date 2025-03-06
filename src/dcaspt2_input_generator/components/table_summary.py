@@ -96,7 +96,7 @@ class UserInput(QGridLayout):
 
     def get_input_values(self):
         return {
-            "totsym": self.totsym_number.get_value(),
+            "total_symmetry": self.totsym_number.get_value(),
             "ras1_max_hole": self.ras1_max_hole_number.get_value(),
             "ras3_max_electron": self.ras3_max_electron_number.get_value(),
             "dirac_ver": self.dirac_ver_number.get_value(),
