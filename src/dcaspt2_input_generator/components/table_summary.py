@@ -77,7 +77,7 @@ class UserInput(QGridLayout):
         super().__init__()
         # 数値を入力するためのラベル
         self.totsym_label = QLabel("total symmetry number")
-        self.totsym_number = TotsymNumberInput(self.changed, default_num=settings.input.totsym)
+        self.totsym_number = TotsymNumberInput(self.changed, default_num=settings.input.total_symmetry)
         self.diracver_label = QLabel("DIRAC major version (if 21.1, type 21)")
         self.dirac_ver_number = NaturalNumberInput(bottom_num=12, default_num=settings.input.dirac_ver)
         self.ras1_max_hole_label = QLabel("ras1 max hole")

@@ -20,7 +20,7 @@ class SettingsDict(Dict[str, Union[str, int]]):
 
 
 class UserInput:
-    totsym: int
+    total_symmetry: int
     ras1_max_hole: int
     ras3_max_electron: int
     dirac_ver: int
@@ -29,12 +29,15 @@ class UserInput:
     def __init__(self, json_dict: SettingsDict, default_settings: SettingsDict) -> None:
         # If the settings.json file exists, read the settings from the file
         self.json_dict = json_dict
-        keys = ["totsym", "ras1_max_hole", "ras3_max_electron", "dirac_ver"]
+        keys = ["total_symmetry", "ras1_max_hole", "ras3_max_electron", "dirac_ver"]
         for key in keys:
             if key in self.json_dict:
                 setattr(self, key, int(self.json_dict[key]))
-            else:
+            elif key in default_settings:
                 setattr(self, key, int(default_settings[key]))
+            else:
+                print(f"skip key {key}")
+                pass # key is not in settings file nor default settings, skip it
 
 
 class ColorTheme:
@@ -71,7 +74,7 @@ class Settings:
         # Application Default Settings
         self.default_settings = SettingsDict(
             {
-                "total symmetry": 1,
+                "total_symmetry": 1,
                 "ras1_max_hole": 0,
                 "ras3_max_electron": 0,
                 "dirac_ver": 23,
