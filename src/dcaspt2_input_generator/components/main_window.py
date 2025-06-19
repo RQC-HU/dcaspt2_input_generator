@@ -156,15 +156,15 @@ class MainWindow(QMainWindow):
             output += (
                 ""
                 if len(ras1_list) == 0
-                else "ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
+                else ".ras1\n" + ras1_str + "\n" + self.table_summary.user_input.ras1_max_hole_number.text() + "\n"
             )
-            output += "" if len(ras2_list) == 0 else "ras2\n" + ras2_str + "\n"
+            output += "" if len(ras2_list) == 0 else ".ras2\n" + ras2_str + "\n"
             output += (
                 ""
                 if len(ras3_list) == 0
-                else "ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
+                else ".ras3\n" + ras3_str + "\n" + self.table_summary.user_input.ras3_max_electron_number.text() + "\n"
             )
-        output += "end\n"
+        output += ".end\n"
 
         # open dialog to save the file
         file_path, _ = QFileDialog.getSaveFileName(self, "Save dirac_caspt2 input File", "", "")
