@@ -94,6 +94,15 @@ class MainWindow(QMainWindow):
                 cur_nelec += min(rem_electrons, 2)
             return cur_nelec
 
+        # Create info for standard IVO input
+        # E1g,u or E1?
+        is_gerade_ungerade = True if table_data.header_info.spinor_num_info.keys() == {"E1g", "E1u"} else False
+        if is_gerade_ungerade:
+            nocc = {"E1g": 0, "E1u": 0}
+            nvcut = {"E1g": 0, "E1u": 0}
+        else:
+            nocc = {"E1": 0}
+            nvcut = {"E1": 0}
         inact = 0
         act = 0
         sec = 0
@@ -107,7 +116,10 @@ class MainWindow(QMainWindow):
         last_ras2_idx = -1
         for idx in range(self.table_widget.rowCount()):
             spinor_indices = [2 * idx_caspt2 + 1, 2 * idx_caspt2 + 2]  # 1 row = 2 spinors
-            color = self.table_widget.item(idx, 0).background().color()
+            item = self.table_widget.item(idx, 0)
+            color = item.background()
+            sym_str = item.text()
+
             if color != colors.not_used.color:
                 idx_caspt2 += 1
             if color == colors.inactive.color:
@@ -136,6 +148,15 @@ class MainWindow(QMainWindow):
             elif color == colors.secondary.color:
                 debug_print(f"{idx}, secondary")
                 sec += 2
+            # nocc, nvcut
+            if rem_electrons > 0:
+                nocc[sym_str] += 1
+            elif color != colors.not_used.color:
+                # Reset nvcut
+                for k in nvcut.keys():
+                    nvcut[k] = 0
+            else:
+                nvcut[sym_str] += 1
             rem_electrons -= 2
         totsym = self.table_summary.user_input.totsym_number.get_value()
 
@@ -143,9 +164,18 @@ class MainWindow(QMainWindow):
         output += f".nact\n{act}\n"
         output += f".nelec\n{elec}\n"
         output += f".nsec\n{sec}\n"
-        output += f".caspt2_ciroots\n{totsym} 1\n" # CASCI/CASPT2 root is fixed to 1
+        output += f".caspt2_ciroots\n{totsym} 1\n"  # CASCI/CASPT2 root is fixed to 1
+        if is_gerade_ungerade:
+            output += f".noccg\n{nocc['E1g']}\n.noccu\n{nocc['E1u']}\n"
+            output += "" if sum(nvcut.values()) == 0 else f".nvcutg\n{nvcut['E1g']}\n.nvcutu\n{nvcut['E1u']}\n"
+        else:
+            output += f".nocc\n{nocc['E1']}\n"
+            output += "" if sum(nvcut.values()) == 0 else f".nvcut\n{nvcut['E1']}\n"
         output += f".diracver\n{self.table_summary.user_input.dirac_ver_number.get_value()}\n"
-        output += ".subprograms\nCASCI\nCASPT2\n"
+        output += "# NOTE: If you want to use this input to stand-alone version of DIRAC_CASPT2,\n"
+        output += "# you cannot specify IVO and CASCI or CASPT2 simultaneously.\n"
+        output += "# Please comment out subprograms depend on the calculation you want to run.\n"
+        output += ".subprograms\nIVO\nCASCI\nCASPT2\n"
         if table_data.header_info.moltra_scheme is not None:
             output += f".scheme\n{table_data.header_info.moltra_scheme}\n"  # Explicitly set MOLTRA scheme.
 
